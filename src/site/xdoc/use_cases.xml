@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Use Case Scenarios">
+			<subsection name="Overview">
+				<p>
+				The following pages provide howto's for some typical use cases. Starting with a simple Magento module on to topics
+				like integration tests or continous integration. 
+				<br/>
+				
+				You do not need any Maven knowledge to complete these short howtos, though it might be a good idea to skim over the Maven 
+				<a target="_blank" href="http://maven.apache.org/guides/getting-started/index.html">documentation</a> 
+				if you are not familiar with it.
+				
+				</p>
+			</subsection>
+			<subsection name="Maven 101">
+				<p>
+				A Maven command is usually run from the project root directory. There are however exceptions to this rule.<br/>
+				The commands typically have the form:
+				
+				<source>
+mvn phase</source>
+				
+				or
+												
+				<source>
+mvn someplugin:somegoal</source>
+				
+				So to display the help section of the magento plugin you would invoke:
+				
+				<source>
+mvn magento:help</source>  
+				
+				It is possible to chain commands:
+				
+				<source>
+mvn phase someplugin:somegoal someplugin:someothergoal</source>
+				
+				Maven defines a <a href="http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html" target="_blank">build life cycle</a> 
+				consisting of different phases like process-sources,compile or package. The order of those phases can not be changed. 
+				Invoking a phase will always invoke all previous phases first, but not the following ones.
+				<br/><br/>
+				
+				So invoking..
+				
+				<source>
+mvn package</source>
+
+				.. will amongst other things run process-sources and compile first before packing the source files, but not install the resulting
+				artifact in your local Maven repository, as the install phase comes after the package phase.
+				
+				<br/>
+				What makes Maven so flexible is the fact that the default life cycle is pretty much empty and that you
+				can plug functionality into phases with some simple xml declarations in your pom.xml.
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Maven" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+ <skin>
+	<groupId>de.bbe-consulting.maven.skin</groupId>
+	<artifactId>maven-mavento-skin</artifactId>
+	<version>0.9.0</version>
+ </skin>
+  <bannerLeft>
+    <name>mavento</name>
+    <src>/images/logos/mavento.jpg</src>
+    <alt>bg</alt>
+  </bannerLeft>
+
+  <body>
+    <links>
+      <item name="Magento" href="http://www.magentocommerce.com/"/>
+      <item name="PHP Maven" href="http://www.php-maven.org/"/>
+      <item name="Maven 2" href="http://maven.apache.org/maven2/"/>
+    </links>
+
+    <menu name="Magento Maven Plugin">
+      <item name="Overview" href="index.html"/>
+      <item name="Installation" href="install.html"/>
+	  <item name="Usecases" href="use_cases.html">
+      	<item name="Magento Module" href="howto/single_module.html" />
+      	<item name="Bigger Projects" href="howto/bigger_projects.html" />
+      	<item name="Integration Tests" href="howto/it.html" />
+      	<item name="Continious Integration" href="howto/ci.html" />
+      	<item name="Artifact Management" href="howto/am.html" />
+      	<item name="Documentation" href="howto/site.html" />
+      </item>
+      <item name="FAQ" href="faq.html"/>
+    </menu>
+    
+    <menu name="Magento Archetypes">
+      <item name="Overview" href="archetype/index.html"/>
+      <item name="Create Archetypes" href="archetype/create.html"/>
+    </menu>
+    
+    <menu name="Magento Snippets">
+      <item name="Overview" href="snippet/index.html"/>
+      <item name="Create Snippets" href="snippet/create.html"/>
+    </menu>
+
+    <menu name="Plugin Documentation">
+			<item name="Project" href="project-summary.html" />
+			<item name="Plugin Goals" href="plugin-info.html" />
+			<item name="Changlog" href="changes-report.html" />
+			<item name="Issue Tracking" href="issue-tracking.html" />
+			<item name="Team" href="team-list.html" />
+			<item name="Plugin Dependencies" href="dependencies.html" />
+			<item name="Source code" href="source-repository.html" />
+	</menu>
+    
+  </body>
+</project>

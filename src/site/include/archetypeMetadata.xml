@@ -1,0 +1,25 @@
+<!-- START SNIPPET: archetypeMetadata-->
+  <requiredProperties>
+    <requiredProperty key="magentoModuleName"/>
+    <requiredProperty key="magentoModuleNameLowerCase"/>
+    <requiredProperty key="magentoNameSpace"/>
+    <requiredProperty key="magentoModuleType"/>
+    <requiredProperty key="modelName"/>
+    <requiredProperty key="modelNameLowerCase"/>
+    <requiredProperty key="modelNameLowerCamel"/>
+  </requiredProperties>
+  <fileSets>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/main/php</directory>
+      <includes>
+        <include>**/*.*</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory></directory>
+      <includes>
+        <include>_post_install_msg.txt</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+<!-- END SNIPPET: archetypeMetadata -->

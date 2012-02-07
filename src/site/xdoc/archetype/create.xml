@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Create a Magento archetype">
+			<subsection name="Setup">
+				<p>
+				Clone/Fork the <a href="https://github.com/edannenberg/maven-magento-archetypes" target="_blank">maven-magento-archetypes</a>
+				repository on github.
+				</p>
+			</subsection>
+			<subsection name="Project Structure">
+				<p>
+				Import the project into your IDE and have a look at the /modules folder.
+				<br/><br/>
+				<source>
+[~/workspace/maven-magento-archetypes/modules]$ tree
+.
+|-- magento-archetype-base
+|-- magento-archetype-sample-base
+|-- magento-empty-module-archetype
+|-- magento-empty-submodule-archetype
+|-- magento-multi-parent-archetype
+|-- magento-sample-module-archetype
+|-- magento-sample-submodule-archetype
+|-- pom.xml
+</source>
+				<b>magento-archetype-base</b> holds the common Maven project base files used by most archetype projects. 
+				<b>magento-archetype-sample-base</b> holds all the magento sample code and can be included by your archetypes.
+				The archetype projects itself only hold differences to the base projects, to <b>override</b> a file from a base project
+				you need to <b>exclude</b> the base file in the archetype's pom.xml. 
+				Have a look at the submodule archetypes on how to do that.
+				</p>
+			</subsection>
+			<subsection name="Create a new Archetype">
+				<p>
+				The easiest way is to copy a archetype project folder, which you want to base your new archetype on.
+				If you want to create an archetype that does not include from the base projects have a look at 
+				the <b>magento-multi-parent-archetype</b>.
+				<br/><br/>
+				
+				<b>NOTE</b>: The new archetype name has to include the 2 words <b>magento</b> and <b>archetype</b> or it 
+				will not be recognized by the magento:archetype goal.
+				<br/><br/>
+				Once copied open the <b>pom.xml</b> in the new archetype folder and update the artifactId, finally open
+				the <b>pom.xml</b> in the <b>/modules</b> folder and add the new project to the <b>modules</b> block.
+				</p>
+			</subsection>	
+			<subsection name="Install">
+				<p>				
+				Once you are done modifying either the new archetype or the existing ones to your needs, you just need to invoke:
+				
+				<source>
+mvn install</source>
+
+				..to install the archetype(s) into your local Maven repository.
+				<br/><br/>
+
+				If you think others could benefit from your changes/new archetypes do not hesitate to make a pull request on github.
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>

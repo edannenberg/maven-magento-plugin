@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Mavento - Magento development with Maven.">
+			<subsection name="Overview">
+				<p>
+				Mavento was started to achieve continous integration for Magento projects, but has since matured into a solid
+				dev-toolkit for Magento developers of all kind. The maven-magento-plugin provides Magento specific goals which 
+				you can plug into the Maven build life cycle or run from any shell.	
+				The magento-archetypes provide ready to run Maven projects configured for Magento development.
+				<br/><br/>
+				
+				 Maven is a software project management and comprehension tool that 
+				 aims at providing a uniform and easy build process. 
+				 It is very popular in the Java world, but can handle any type of project.
+				<br/>
+				
+				 A list of things why people like Maven can be found on the Maven <a href="http://maven.apache.org/benefits-of-using-maven.html" target="_blank">site</a>.
+				</p>
+			</subsection>
+			
+			<subsection name="Features">
+				<ul>
+					<li>Keep your source files separated from the Magento runtime at all time.</li>
+					<li>Consistent development environment between all involved devs.</li>
+					<li>PHP code validation/unit tests via maven-php-plugin.</li>
+					<li>Flexible automated Magento setup for unit/integration tests.</li>
+					<li>Create snapshots of running Magento instances to be used as base for testing/development.</li>
+					<li>Less boilerplate Magento code to write with ready to run module templates and code snippets.</li>
+					<li>Multi module support for bigger projects. Reactorbuilds. &lt;3</li>
+					<li>Dead easy project integration into CI servers like Jenkins.</li>
+					<li>Automated project documentation/code quality reports.</li>
+				</ul> 				
+			</subsection>
+		</section>
+	</body>
+</document>

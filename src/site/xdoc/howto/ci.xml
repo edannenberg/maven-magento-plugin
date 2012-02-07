@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Continious Integration">
+			<subsection name="Compatibilty Testing">
+				<p>
+				One of the major reasons Maven was the weapon of choice is that it works quite nice
+				with great CI servers like <a href="http://jenkins-ci.org/" target="_blank">Jenkins</a>.<br/><br/>
+				
+				The process boils down to 
+				
+				<ul>
+					<li>creating different <b>profiles</b> in your <b>pom.xml</b>, configured for different Magento versions</li>
+					<li>adding a new job in the CI server for each profile you created</li>
+					<li>uploading the pom.xml to the CI server</li>
+				</ul>
+				
+				And thats pretty much it, whenever you commit code now the CI server will checkout, validate and test the code against different 
+				Magento versions and alarm you in whatever way you configured Jenkins to do so. 
+				(Some fun ways to monitor your builds: <a href="https://wiki.jenkins-ci.org/display/JENKINS/Traffic+Light+Plugin" target="_blank">TrafficLight plugin</a>
+				,<a href="https://wiki.jenkins-ci.org/display/JENKINS/Lava+Lamp+Notifier" target="_blank">LavaLamp notifier</a>  )
+				<br/>
+				Needless to say there is also a webinterface with all kinds	of goodies like checking test reports online. 
+				<br/><br/>
+				
+				For more details refer to the Jenkins manual for creating a job based on a Maven project. 
+				</p>
+			</subsection>
+			
+			<subsection name="Centralized Source Quality Reports">
+				<p>
+				Yet again Maven makes things a breeze. Setup a <a href="http://www.sonarsource.org/" target="_blank">Sonar</a> 
+				server and install the <a href="http://docs.codehaus.org/display/SONAR/PHP+Plugin" target="_blank">sonar php plugin</a>.
+				Now to generate the reports all you have to invoke is
+				<source>
+mvn sonar:sonar</source>
+				
+				in a project of your choice, which will submit the reports to the sonar server. 
+				You can configure the reports via your pom.xml.
+				<br/>
+				
+				Ofcourse you can plug the sonar goal into the build life cycle of your project, the verify phase would be a good candidate.
+				  
+				</p>
+			</subsection>
+			
+		</section>
+	</body>
+</document>

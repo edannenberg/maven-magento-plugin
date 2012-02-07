@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<faqs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/FML/1.0"
+  xsi:schemaLocation="http://maven.apache.org/FML/1.0 http://maven.apache.org/xsd/fml-1.0.xsd"
+  id="General FAQ">
+  <part id="General">
+    <faq id="why">
+      <question>Why is Maven so wildly popular?</question>
+      <answer>
+        <p>
+          Maven saves you so much time in your software development efforts that
+          you will have time to learn a second language, relax ten hours a
+          day, and train for that marathon you've always wanted to run!
+        </p>
+      </answer>
+    </faq>
+  </part>
+</faqs>

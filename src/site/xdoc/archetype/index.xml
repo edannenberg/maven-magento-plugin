@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Maven Magento Archetypes">
+			<subsection name="Overview">
+				<p>
+				Maven archetypes are project templates for fast creation of new Maven projects.<br/> 
+				Mavento provides a couple of archetypes configured for Magento projects. They can be used
+				as a base and modified to your needs quite easy. Once you got the perfect
+				project you can make your own Maven archetype from it.
+				<br/><br/>
+				All archetypes that include Magento sample code include the sample code from a
+				single project named <b>magento-archetype-sample-base</b>. If there is enough
+				interest this could be turned into a Magento reference module implementation that
+				can be used by all archetypes (including your own). For more details on how to create your own 
+				archetype have a look at the next <a href="create.html">page</a>.
+				<br/><br/>
+				To use one of the magento archetypes invoke:
+				
+				<source>
+mvn magento:archetype</source>
+				
+				</p>
+			</subsection>
+			<subsection name="Single Module Projects">
+				<p>
+				<ul>
+				<li>magento-empty-module-archetype</li>
+				<li>magento-sample-module-archetype</li>
+				</ul>				
+ 				The empty archetypes will just create a folder structure according to the namespace/modulename you entered, while
+ 				the sample archetypes include a fully functional Magento module.
+				</p>
+			</subsection>
+			<subsection name="Multi Module Projects">
+				<p>
+				<ul>
+				<li>magento-multi-parent-archetype</li>
+				<li>magento-empty-submodule-archetype</li>
+				<li>magento-sample-submodule-archetype</li>
+				</ul>				
+ 				The multi-parent-archetype provides the base project for multi module development. Once that is done you add
+ 				submodules to the project via the submodule archetypes, which are for the most part the same as the single module
+ 				archetypes. The main difference is that they don't include any Magento properties, as those are kept centralized
+ 				in the parent project.
+ 				<br/><br/>
+ 				<b>NOTE:</b>Take care to create the submodules in the <b>/modules</b> folder of your main project.
+ 				</p>
+			</subsection>
+		</section>
+	</body>
+</document>

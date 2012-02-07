@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Artifact Management">
+			<subsection name="Overview">
+				<p>
+				Another major feature of Maven is it's dependency management. As you probably noticed by now, Maven downloads
+				project dependencies on demand from several Maven repositories. You can utilize this feature for your 
+				office by setting up a Maven repository manager like <a href="http://nexus.sonatype.org/" target="_blank">Nexus</a>.
+				<br/><br/>
+				
+				The first small plus is that you can configure a repository manager as a transparent proxy, which will
+				then also act as a local cache. All team members only need to point to your internal repository from then on.
+				You can then also enforce artifact versions and other shenanigans.
+				<br/><br/>
+				
+				To deploy a build artifact to your internal repository, you just need to invoke:
+
+				<source>
+mvn deploy</source>
+
+				Artifacts can then be used by all Maven projects simply by adding the artifact coordinates to the dependencies block of a pom.xml.
+				<br/>
+				Below is the dependencies block of a typical Mavento project.
+				
+				<macro name="snippet">
+					<param name="id" value="pomDependencies"/>
+					<param name="file" value="src/site/include/pomDependencies.xml"/>
+				</macro>
+				
+				Putting a dependency into <b>scope</b> test means that this dependency is only used in the testing phases of the Maven project. 
+				E.g. it will not end up in the Magento instance when you run the magento:setup goal, but will get pulled into the Magento
+				test instance. For more information refer to the Maven 
+				<a href="http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html" target="_blank">documentation</a>.
+				
+				<br/><br/>
+				You could prepare your own bleeding edge phpunit Maven artifact, and use that instead, by simply changing the artifact coordinates. 
+				Or add commercial extensions not availabe on Magento Connect to your internal repository. The most common use case scenario 
+				for Magento development is to hold Magento snapshots of running instances, in a centralized and secured fashion.
+				</p>
+			</subsection>						
+		</section>
+	</body>
+</document>

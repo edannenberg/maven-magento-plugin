@@ -1,0 +1,27 @@
+<!-- START SNIPPET: pomDependencies -->
+	<dependencies>
+		<dependency>
+			<groupId>${magento.artifact.group.id}</groupId>
+			<artifactId>${magento.artifact.id}</artifactId>
+			<version>${magento.artifact.version}</version>
+		</dependency>
+		<!-- pull in mage.bat for windows compat. -->		
+		<dependency>
+			<groupId>com.chilipepperdesign</groupId>
+			<artifactId>mage-bat</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>nl.ibuildings</groupId>
+			<artifactId>mage-test</artifactId>
+			<version>0.1.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.phpunit</groupId>
+			<artifactId>phpunit5</artifactId>
+			<version>3.5.5</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+<!-- END SNIPPET: pomDependencies -->

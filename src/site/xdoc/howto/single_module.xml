@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title>Magento - Plugin</title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Single Module Development">
+			<subsection name="Hello Mavento!">
+			<p>
+			Lets say you need to write a Magento module for managing some stuff in the Magento backend.<br/>
+			Fire up a shell and navigate to a directory where you would like to create your new project,
+			then type:
+			
+			<source>
+mvn magento:archetype</source>
+			
+			If this is the first time you are running Maven it will download alot of dependencies now,
+			don't worry the next calls will be much smoother.<br/>
+			When Maven is ready it will present you a list of archetypes, think of it as project templates. 
+			Let's go with the default, the <b>magento-sample-module-archetype</b>.<br/>
+			Maven will ask for basic project properties now. Some properties like version have a default value (1.0-SNAPSHOT)
+			in which case you can just hit enter to accept.
+			
+			<source>
+Define value for property 'groupId': de.bbe-consulting.magento: 
+Define value for property 'artifactId': : stuff-manager
+Define value for property 'version': 1.0-SNAPSHOT: 
+Define value for property 'magentoModuleName': : StuffManager
+Define value for property 'magentoNamespace': : MyCompany
+Define value for property 'magentoModuleType: local:</source>
+			
+			<ul>
+			<li>groupId - The Maven namespace of the project, usually the url of your company to avoid namespace collisions. 
+				This will also define the folder structure in the Maven repository.</li>
+			<li>artifactId - The Maven artifactId, the created project folder will have the same name.</li>
+			<li>version - SNAPSHOT = beta in the Maven world.</li>
+			<li>magentoModuleName - The Magento module name.</li>
+			<li>magentoNameSpace - Same as above but for the Magento namespace of the module.</li>
+			<li>magentoModuleType - Local or community, local is default.</li>
+			</ul>
+			
+			Magento naming conventions apply to <b>magentoModuleName</b> and <b>magentoNameSpace</b>. (CamelCase, no underscores)
+			
+			Your new project should be ready now. Lets have a look at it:
+			 
+			<source>
+[~/workspace]$ cd stuff-manager/
+[~/workspace/stuff-manager]$ tree
+.
+|-- license.header
+|-- pom.xml
+`-- src
+    |-- main
+    |   |-- assembly
+    |   |   `-- config.xml
+    |   `-- php
+    |       |-- app
+    |       |   |-- code
+    |       |   |   `-- local
+    |       |   |       `-- MyCompany
+    |       |   |           `-- StuffManager
+    |       |   |               |-- Block
+    |       |   |               |   `-- Adminhtml
+    |       |   |               |       `-- MyBlock.php
+    |       |   |               |-- controllers
+    |       |   |               |   `-- Adminhtml
+    |       |   |               |       `-- MyController.php
+    |       |   |               |-- etc
+    |       |   |               |   |-- api.xml
+    |       |   |               |   |-- config.xml
+    |       |   |               |   `-- wsdl.xml
+    |       |   |               |-- Helper
+    |       |   |               |   `-- Data.php
+    |       |   |               |-- Model
+    |       |   |               |   |-- Api
+    |       |   |               |   |   |-- Resource.php
+    |       |   |               |   |   `-- V2.php
+    |       |   |               |   |-- Api.php
+    |       |   |               |   |-- Entity
+    |       |   |               |   |   `-- Setup.php
+    |       |   |               |   |-- MyModel.php
+    |       |   |               |   `-- Mysql4
+    |       |   |               |       |-- MyModel
+    |       |   |               |       |   `-- Collection.php
+    |       |   |               |       `-- MyModel.php
+    |       |   |               `-- sql
+    |       |   |                   `-- stuffmanager_setup
+    |       |   |                       `-- mysql4-install-0.0.1.php
+	.				
+	.
+	.</source>
+			
+			Your source folder is <b>/src/main/php</b>, as we picked the sample module archetype it includes a ready to run Magento module.
+			<br/>
+			
+			Note that the values you entered for ModuleNameSpace/Name were applied to the directory structure.
+			<br/><br/>
+			
+			But before we try it out lets setup our development environment real quick.<br/>
+			Open the pom.xml file in the project root directory. POM stands for project object model and is Maven's project configuration, 
+			scroll a bit down until you see:
+			
+			<macro name="snippet">
+				<param name="id" value="pomSettings"/>
+				<param name="file" value="src/site/include/pomSettings.xml"/>
+			</macro>
+			
+			This is a minimal Magento configuration which is suitable for developers, as the plugin will disable all caches, 
+			turn on logging and enable exception printing per default. All properties starting with <b>magento.test</b> are related 
+			to integration tests and code validating, which will run in a separate Magento instance. 
+			If you don't want to deal with that just now you can set..
+			
+			<ul>
+			<li>magento.test.ignore</li>
+			</ul>
+			  
+			..to true. Which will disable all tests/code validation.
+			<br/><br/>
+			
+			Below the dev profile is a production profile with properties suited for live Magento instance. If you would like to set
+			properties active in all profiles you can put them outside a profile in a properties block. <br/>
+			For more information about profiles check the Maven 
+			<a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">documentation</a>.
+			<br/><br/>
+			
+			But lets continue with configuring our Magento dev profile, scroll back to the dev profile properties and edit the database settings. 
+			<b>Note</b> that you will need <b>2</b> databases, one for the local instance, the other for integration tests. 
+			If you disabled tests/code validation you can of course omit the <b>magento.test.*</b> properties. Also edit the following properties:
+			
+			<ul>
+			<li>magento.version - See <b><a href="http://maven.bbe-consulting.de/content/repositories/releases/com/varien/magento/">here</a></b> for available versions. It should always reflect the actual Magento version.</li>
+			<li>magento.root.local - The Magento root folder. Should point to a directory from where your http daemon serves content.</li>
+			<li>magento.url.base - The Magento base url.</li>
+			<li>magento.test.root.link - For integration tests we just link a temporary Magento instance, that lives in the projects /target dir, to an htdocs dir.</li>
+			<li>magento.test.url.base - The Magento base url of the temporary Magento instance.</li>
+			</ul>
+			
+			You can specify Magento Connect extension keys to be installed or set any values in core_config_data. 
+			Have a look at the <b><a href="../setup-mojo.html">magento:setup</a></b> goal for a full overview on what is configurable.<br/> 
+			
+			To finally setup the local Magento instance you invoke:
+			
+			<source>
+mvn magento:setup</source>
+			
+			This will setup a Magento instance based on the active configuration and copy it to the path you put in <b>magento.root.local</b>. 
+			
+			You can then invoke:
+			
+			<source>
+mvn package magento:deploy</source>
+			
+			..which will validate the project source, run unit tests, create a .zip and then deploy the artifact to 
+			the previously setup Magento instance.
+			<br/>
+			
+			If you now login to the Magento backend you should see the StuffManager menu.
+			
+			All that is left to do is import the project into the IDE of your choice and you are ready to start hacking. :o)
+			</p>
+		</subsection>
+		<subsection name="Fiddling around..">
+			<p>
+			Sometimes it can be annoying having to run package/deploy every time you made a change to the sources. 
+			In these cases you can invoke..
+			
+			<source>
+mvn magento:symlink</source>
+
+			..which will symlink the project source folders to your Magento instance. Strg-s + f5 will work again. :D
+			<br/>
+			
+			<b>NOTE</b>: There is a symlink protection for template files in Magento versions 1.4.2.0 until 1.5.1.0, where Varien finally made it configurable.
+			</p>
+		</subsection>
+		
+		<subsection name="Optional: IDE integration">
+			<p>
+			There are plugins for Eclipse, IntelliJ and others.
+			If for example you invoke..
+			
+			<source>
+mvn eclipse:eclipse</source>
+			
+			..inside your project root Maven will generate Eclipse project files.
+			</p>
+		</subsection>
+		
+		</section>
+
+	</body>
+</document>

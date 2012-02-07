@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Installation">
+			<subsection name="General requirements">
+				<p>
+					<ul>
+		 				<li>Java JDK 7+</li>
+		 				<li>Maven 2.2.x, works with Maven 3 except for a minor issue with the archetype/snippet goals so better stick to 2.2.x for now.</li>
+		 				<li>PHP and MySQL need to be in your system path.</li>
+		 				<li>HTTPD of your choice with writeable htdocs directory.</li>
+	 				</ul>
+				</p>
+			</subsection>
+			<subsection name="Maven setup">
+				<p>Add the following block to your ~/.m2/settings.xml which is your user Maven configuration file, 
+				create the file if it doesn't exist yet:
+				
+				<macro name="snippet">
+					<param name="id" value="settings"/>
+					<param name="file" value="src/site/include/settings.xml"/>
+				</macro>
+				
+				This will inform Maven about the Mavento repositories and enable shorthand usage of the plugin's goals. 
+				
+				Continue with <a href="use_cases.html">use cases</a>.
+				</p>
+			</subsection>
+			<subsection name="Resources">
+				<p>
+				<a href="http://maven.apache.org/download.html" target="_blank">Maven installation Windows/Unix</a>
+				<br/>
+				<a href="http://docs.moodle.org/22/en/Windows_installation_using_XAMPP" target="_blank">XAMPP installation Windows</a>
+				</p>
+			</subsection>
+			
+		</section>
+	</body>
+</document>

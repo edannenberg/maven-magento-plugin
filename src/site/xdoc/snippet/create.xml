@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Create a Magento code snippet">
+			<subsection name="Setup">
+				<p>
+				Clone/Fork the <a href="https://github.com/edannenberg/maven-magento-snippets" target="_blank">maven-magento-snippets</a>
+				repository on github.
+				</p>
+			</subsection>
+			<subsection name="Create a new Snippet">
+				<p>
+				Import the project into your IDE and have a look at the <b>magento-simple-model-snippet</b> project inside
+				the modules folder.
+				<br/><br/>
+				First lets copy the magento-simple-model-snippet and use that as a base. Note that the new name has to include
+				the 2 words <b>magento</b> and <b>snippet</b>. The order does not matter. Else the magento:snippet goal will not 
+				pick up the new snippet.
+				<br/><br/>
+				Once copied open the <b>pom.xml</b> in the new snippet folder and update the artifactId, finally open
+				the <b>pom.xml</b> in the <b>/modules</b> folder and add the new project to the <b>modules</b> block.
+				</p>
+			</subsection>
+			<subsection name="Adding Stuff">
+				<p>
+				Now you are ready to work on your new snippet. All snippet data is in <b>/src/main/resources/archetype-resources</b>. 
+				The empty pom.xml inside the archetype-resources folder can be ignored. You should however do not delete 
+				the file as it is needed for some weird reason.
+				<br/><br/>
+				
+				A special configuration file named <b>archetype-metadata.xml</b> lives in <b>/src/main/resources/META-INF/maven</b>.
+				There you can specify which files will get included into the snippet artifact, and more importantly you can tell Maven
+				about properties it should ask the user before it creates the snippet.
+				
+				<macro name="snippet">
+					<param name="id" value="archetypeMetadata"/>
+					<param name="file" value="src/site/include/archetypeMetadata.xml"/>
+				</macro>
+				
+				These properties can then be used in your snippet files and will get replaced with the values entered by the user on snippet creation.
+				A special feature by the maven-magento-plugin gives you the ability to add <b>LowerCase</b> or <b>LowerCamel</b> to a property name.
+				The plugin will then auto fill these properties with the right format and not prompt the user. You still need to list them in the
+				requiredProperties block though.
+				<br/><br/>
+				
+				<b>NOTE</b>: Your property name should not start with "magento", else it will be ignored by the magento:snippet goal.
+				<br/><br/>
+				
+				To apply property values directly to file/directory names you can use the property name enclosed with double underscores:
+				
+				<source>
+__myProperty__-somethingstatic.php </source>
+
+				If you want your archetype to be unit tested before installation, you need to provide default values for all properties
+				in <b>src/test/resources/projects/basic/archetype.properties</b>. You can delete the folder if you don't want to bother
+				with that.
+				<br/><br/>
+				
+				Finally you can write a post install message in <b>_post_install_msg.txt</b> that will be displayed to the user after snippet creation.
+				
+				</p>
+			</subsection>	
+			<subsection name="Install">
+				<p>		
+				And that is basically all there is to it. Prepare the template files to your liking, once you are done invoke..
+				
+				<source>
+mvn install</source>
+
+				..to install the new snippet into your local Maven repository. The new snippet should now show up when 
+				you invoke the magento:snippet goal.
+				<br/><br/>
+				
+				If you think others could benefit from your snippet do not hesitate to make a pull request on github.
+				
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>

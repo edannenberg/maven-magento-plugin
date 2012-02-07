@@ -1,0 +1,12 @@
+<!-- START SNIPPET: pomArtifactSettings -->
+<properties>
+	<!-- magento artifact for magento:setup  -->
+	<magento.artifact.group.id>com.varien</magento.artifact.group.id>
+	<magento.artifact.id>magento</magento.artifact.id>
+	<magento.artifact.version>${magento.version}</magento.artifact.version>
+	<!-- artifact for integration tests  -->
+	<magento.test.artifact.group.id>${magento.artifact.group.id}</magento.test.artifact.group.id>
+	<magento.test.artifact.id>${magento.artifact.id}</magento.test.artifact.id>
+	<magento.test.artifact.version>${magento.artifact.version}</magento.test.artifact.version>
+</properties>
+<!-- END SNIPPET: pomArtifactSettings -->

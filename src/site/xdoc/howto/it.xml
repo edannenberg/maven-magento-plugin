@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Integration Testing">
+			<subsection name="Overview">
+				<p>
+				All test cases are in <b>/src/test</b>. Standard PHPUnit stuff. The archetypes are currently configured to 
+				include Mage-Test from ibuildings for controller testing. If you prefer something else you would just need 
+				to remove Mage-Test from the dependencies block in your pom.xml. Then if you lets say want to use the EcomDev 
+				module just add the extension key from Magento Connect to your Magento Configuration.
+				<br/><br/> 
+				
+				You can find some basic examples for a model and controller test in the sample module archetypes.
+				<br/>
+				
+				The plugin will setup a Magento instance dedicated for unit tests in the project's /target directory.
+				</p>
+			</subsection>
+			
+			<subsection name="Testing against snapshots">
+				<p>
+				Often running unit tests against a vanilla Magento is not enough and in most cases
+				it would be painfull to reconstruct a Magento live shop via pom.xml configuration.
+				<br/>
+				
+				For these cases you can invoke the
+				
+				<source>
+mvn magento:artifact -DmagentoPath=/path/to/live_store</source>
+				
+				goal to create a custom Magento artifact from a running Magento instance. 
+				This goal does not require an active project so you can run it from wherever you like.
+				<br/><br/>
+				
+				The plugin will copy the specified folder, read out and then scramble sensitive information like database settings in local.xml,
+    			create a sql dump and then finally jar it all up nicely into a format usable by the maven-magento-plugin.
+    			<br/><br/>
+    			
+    			To be able to use it for your projects you need to install the created jar into your local or remote Maven repository first. 
+    			The plugin will output a snippet for local install:
+    			
+    			<source>
+[INFO] mvn install:install-file -Dpackaging=jar -Dfile=live_store-20120202010934-SNAPSHOT.jar -Dversion=20120202010934-SNAPSHOT -DgroupId= -DartifactId=</source>
+    			
+    			Don't forget to fill out the <b>artifactId</b> and <b>groupId</b> values, as they are needed in the next step.
+    			<br/><br/>
+    			
+    			Finally lets use our shiny new custom Magento artifact, open the pom.xml and add the following properties to the dev profile:
+				
+				<macro name="snippet">
+					<param name="id" value="pomArtifactSettings"/>
+					<param name="file" value="src/site/include/pomArtifactSettings.xml"/>
+				</macro>
+				
+				Those tell the Magento plugin which Maven artifact to use for setting up Magento instances.
+				Change the artifactId/groupId/version as needed, if you want to use the artifact for both local Magento instances
+				and integration tests you just need to change the first three properties, as per default the 
+				<b>magento.test.artifact.*</b> properties mirror the values from <b>magento.artifact.*</b>
+				<br/><br/>
+				
+				Note that <b>magento.artifact.version</b> does not need to match the actual Magento version, as it refers to the Maven 
+				artifact version. You have to make sure though that	<b>magento.version</b> reflects the actual Magento version 
+				of the custom artifact.
+				<br/><br/>
+				
+				Whenever you invoke the magento:setup or package goals now the plugin will use the snapshot you just created, 
+				it will take care of modifying the baseurl/db settings according to your pom.xml as usual. 
+				</p>
+			</subsection>
+			
+		</section>
+	</body>
+</document>

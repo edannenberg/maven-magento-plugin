@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Maven Magento Snippets">
+			<subsection name="Overview">
+				<p>
+				The snippet goal (ab)uses a feature of Maven called partial archetypes. As the name implies
+				they are not meant to provide a full project but rather supplement it. 
+				<br/>
+				This makes them ideal for code snippets and such. 
+				<br/><br/>
+				As i just recently implemented the goal, there is only one simple snippet at the moment, which will add a 
+				Magento database model to your project. 
+				<br/>
+				It is however extremely easy to create your own snippets and i would love to see this grow into a nice database
+				of Magento code snippets.
+				</p>
+			</subsection>
+			<subsection name="Usage">
+				<p>
+				You will need a running Maven project, look <a href="../howto/single_module.html">here</a> if you need one.
+				<br/><br/>
+				Invoke the snippet goal:
+				
+				<source>
+mvn magento:snippet</source>
+				
+				Maven will look into your local and remote repositories and present you with a list of Magento code snippets.
+				At the time of writing, the selection is rather limited, so go ahead and pick the <b>magento-simple-model-snippet</b>.
+				The plugin will try to guess the existing Magento modulename/namespace and such, you can however enter your own
+				values should the presented defaults not be correct. Then enter the name of your new database model to finish snippet creation.
+				The post install message will tell you which files you need to merge with existing config files.
+				
+				<br/><br/>
+				<b>NOTE</b>: A snippet can never overwrite an existing file in your project. The plugin will throw an error in such a case.
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>

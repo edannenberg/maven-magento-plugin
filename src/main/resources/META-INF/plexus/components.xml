@@ -1,0 +1,52 @@
+<component-set>
+	<components>
+		<component>
+			<role>org.apache.maven.archetype.ui.ArchetypeSelector</role>
+			<role-hint>magento</role-hint>
+			<implementation>de.bbe_consulting.mavento.ui.MagentoArchetypeSelector
+			</implementation>
+			<requirements>
+				<requirement>
+					<role>org.apache.maven.archetype.ui.ArchetypeSelectionQueryer
+					</role>
+					<field-name>archetypeSelectionQueryer</field-name>
+				</requirement>
+				<requirement>
+					<role>org.apache.maven.archetype.ArchetypeManager</role>
+					<field-name>archetypeManager</field-name>
+				</requirement>
+			</requirements>
+		</component>
+
+		<component>
+			<role>org.apache.maven.archetype.ui.ArchetypeGenerationQueryer</role>
+			<implementation>de.bbe_consulting.mavento.ui.MagentoArchetypeGenerationQueryer
+			</implementation>
+			<description></description>
+			<isolated-realm>false</isolated-realm>
+			<requirements>
+				<requirement>
+					<role>org.codehaus.plexus.components.interactivity.Prompter</role>
+					<field-name>prompter</field-name>
+				</requirement>
+			</requirements>
+		</component>
+		
+		<component>
+			<role>de.bbe_consulting.mavento.ui.ArchetypeProperties</role>
+			<implementation>de.bbe_consulting.mavento.ui.MagentoArchetypeProperties</implementation>
+			<requirements>
+				<requirement>
+					<role>org.apache.maven.archetype.common.ArchetypeArtifactManager
+					</role>
+					<field-name>archetypeArtifactManager</field-name>
+				</requirement>
+				<requirement>
+					<role>org.apache.maven.archetype.ui.ArchetypeFactory</role>
+					<field-name>archetypeFactory</field-name>
+				</requirement>
+			</requirements>
+		</component>
+		
+	</components>
+</component-set>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title></title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento" />
+	<body>
+		<section name="Project Documentation">
+			<subsection name="Overview">
+			<p>
+			Maven can generate a static html site with project reports/source documentation for you, to do that invoke:
+			
+			<source>
+mvn site</source>
+		
+		The site will be rendered in <b>/target/site</b> of your project root. Note that you will either need 
+		<b>phpDocumentor</b> in your system path or disable the phpDocumentor report in your pom.xml.
+		<br/><br/>
+		
+		The site descriptor is in <b>/src/site/site.xml</b>, you can add/remove pages to the site structure here. 
+		The <b>changes.xml</b> in the same folder provides a simple way to keep a changelog.
+		<br/>
+		
+		To edit the manual content have a look at the files in <b>/src/site/xdoc</b>. The dynamic pages like team, source repository, etc 
+		are created from the data in your <b>pom.xml</b>.
+		<br/><br/>
+		
+		It is possible to style the page via css overrides, put them in <b>/src/site/resources/css/site.css</b>. You can also create 
+		your own Maven skin to be used by all your projects.
+		<br/><br/>
+		For more information on site generation refer to the Maven 
+		<a href="http://maven.apache.org/guides/mini/guide-site.html" target="_blank">documentation</a>.
+		
+			</p>
+			</subsection>
+			<subsection name="Multi Module Project Sites">
+			<p>
+			Maven will generate the site for each module in it's target/site directory, to consolidate all the parts of the complete site
+			you have to invoke an additional goal.. 
+			
+			<source>
+mvn site site:stage</source>
+			
+			..will create a complete local site with working links in <b>/target/staging</b>. Take care to invoke the command from the parent project. 
+			
+			<br/><br/>
+			Or..
+			
+			<source>
+mvn site-deploy</source>
+			
+			..will deploy the complete site according to your configuration in the distributionManagement block of your pom.xml. 
+			Which is in most cases a web server.
+			<br/><br/>
+			
+			Both commands will also work for single module projects, though site:stage is a bit silly in that case.
+			</p>
+			</subsection>
+		</section>
+	</body>
+</document>
