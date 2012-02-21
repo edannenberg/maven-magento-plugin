@@ -926,10 +926,10 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
 				getLog().info("..done.");
 			}
 			
-			// set extension prefered stability it something else then beta(default) is selected
-			if (!magentoExtensionsPreferedStability.equals("beta") && !magentoExtensionsPreferedStability.isEmpty()) {
-				getLog().info("Setting prefered extension stability to "+magentoExtensionsPreferedStability+"..");
-				MagentoUtil.executePearCommand(pearExecutable.getAbsolutePath(), new String[] {"config-set", "referred_state", magentoExtensionsPreferedStability}, magentoTargetPath.getAbsolutePath(), mVersion, getLog());
+			// set extension prefered stability
+			if (magentoExtensionsPreferedStability != null && !magentoExtensionsPreferedStability.isEmpty()) {
+				getLog().info("Setting preferred extension stability to "+magentoExtensionsPreferedStability+"..");
+				MagentoUtil.executePearCommand(pearExecutable.getAbsolutePath(), new String[] {"config-set", "preferred_state", magentoExtensionsPreferedStability}, magentoTargetPath.getAbsolutePath(), mVersion, getLog());
 				getLog().info("..done.");
 			}
 			
