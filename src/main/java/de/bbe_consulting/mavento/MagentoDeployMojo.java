@@ -45,15 +45,14 @@ public final class MagentoDeployMojo extends AbstractMagentoMojo {
 			if (magentoDeployType.equals("local")) {
 				
 				getLog().info("Checking for symlinks..");
-				String srcDirName = project.getBasedir().getAbsolutePath()+"/src/main/php/app";
-				String magentoDirName = magentoRootLocal+"/app";
-				File f = new File(magentoDirName+"/etc/local.xml");
+				String srcDirName = project.getBasedir().getAbsolutePath()+"/src/main/php";
+				File f = new File(magentoRootLocal+"/app/etc/local.xml");
 				if (!f.exists()) {
 					throw new MojoExecutionException("Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
 				}
 				Map<String,String> linkMap = new HashMap<String, String>();
 				try {
-					linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoDirName);
+					linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
 				} catch (IOException e) {
 					throw new MojoExecutionException(e.getMessage(), e);
 				}
