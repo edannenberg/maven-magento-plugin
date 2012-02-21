@@ -105,7 +105,7 @@ public class MagentoSnippetMojo extends AbstractArchetypeMojo {
             
             selector.selectArchetype( request, interactiveMode, archetypeCatalog );
             
-            List<String> requiredProperties = archetypeProperties.getRequiredProperties(request, executionProperties);
+            List<String> requiredProperties = getRequiredArchetypeProperties(request, executionProperties);
             
             // not needed in partial mode as we don't touch any poms anyways
             executionProperties.put("groupId", defaultGroupdId);

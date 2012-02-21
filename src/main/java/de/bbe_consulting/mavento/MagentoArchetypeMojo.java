@@ -70,7 +70,7 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
             
             selector.selectArchetype( request, interactiveMode, archetypeCatalog );
             
-            List<String> requiredProperties = archetypeProperties.getRequiredProperties(request, executionProperties);
+            List<String> requiredProperties = getRequiredArchetypeProperties(request, executionProperties);
             
             // check for existing pom in current dir, if yes try to set some defaults
             File p = new File("pom.xml");

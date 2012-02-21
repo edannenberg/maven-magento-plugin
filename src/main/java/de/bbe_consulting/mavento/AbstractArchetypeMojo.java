@@ -16,181 +16,230 @@
 
 package de.bbe_consulting.mavento;
 
-import org.apache.maven.archetype.ui.ArchetypeGenerationQueryer;
-import org.apache.maven.archetype.ui.ArchetypeSelector;
+import org.apache.maven.archetype.ui.generation.ArchetypeGenerationConfigurator;
+import org.apache.maven.archetype.ui.generation.ArchetypeGenerationQueryer;
+import org.apache.maven.archetype.ui.generation.ArchetypeSelector;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.ContextEnabled;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.archetype.ArchetypeGenerationRequest;
 import org.apache.maven.archetype.ArchetypeManager;
+import org.apache.maven.archetype.common.ArchetypeArtifactManager;
+import org.apache.maven.archetype.exception.ArchetypeGenerationConfigurationFailure;
+import org.apache.maven.archetype.exception.ArchetypeNotConfigured;
+import org.apache.maven.archetype.exception.ArchetypeNotDefined;
+import org.apache.maven.archetype.exception.UnknownArchetype;
 import org.apache.maven.archetype.generator.ArchetypeGenerator;
-import org.apache.maven.archetype.ui.ArchetypeGenerationConfigurator;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.xpath.DefaultXPath;
 
-import de.bbe_consulting.mavento.ui.ArchetypeProperties;
+import org.apache.maven.archetype.ui.ArchetypeConfiguration;
+import org.apache.maven.archetype.ui.ArchetypeDefinition;
+import org.apache.maven.archetype.ui.ArchetypeFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 /**
  * Create a new Magento project/module from a template (aka archetype).
- *
+ * 
  */
-public abstract class AbstractArchetypeMojo extends AbstractMojo implements ContextEnabled  {
+public abstract class AbstractArchetypeMojo extends AbstractMojo implements
+		ContextEnabled {
 
-	 /** @component */
+	/** @component */
 	protected ArchetypeManager archetype;
 
-    /** @component */
-    protected ArchetypeSelector selector;
+	/** @component role-hint="magento-archetype-selector" */
+	protected ArchetypeSelector selector;
 
-    /** @component */
-    ArchetypeGenerationConfigurator configurator;
+	/** @component */
+	ArchetypeGenerationConfigurator configurator;
 
-    /** @component */
-    ArchetypeGenerator generator;
-    
-    /** @component */
-    ArchetypeGenerationQueryer queryer;
-    
-    /** @component */
-    protected Invoker invoker;
-    
-    /** @component */
-    ArchetypeProperties archetypeProperties;
-       
-    /**
-     * The archetype's artifactId.
-     *
-     * @parameter expression="${archetypeArtifactId}"
-     */
-    protected String archetypeArtifactId;
+	/** @component */
+	ArchetypeGenerator generator;
 
-    /**
-     * The archetype's groupId.
-     *
-     * @parameter expression="${archetypeGroupId}"
-     */
-    protected String archetypeGroupId;
+	/** @component */
+	ArchetypeGenerationQueryer queryer;
 
-    /**
-     * The archetype's version.
-     *
-     * @parameter expression="${archetypeVersion}"
-     */
-    protected String archetypeVersion;
+	/** @component */
+	protected Invoker invoker;
 
-    /**
-     * The archetype's repository.
-     *
-     * @parameter expression="${archetypeRepository}"
-     */
-    protected String archetypeRepository;
+	/**
+	 * @component
+	 */
+	private ArchetypeArtifactManager archetypeArtifactManager;
 
-    /**
-     * The archetype's catalogs.
-     * It is a comma separated list of catalogs.
-     * Catalogs use scheme:
-     * <ul>
-     * <li>'<code>file://...</code>' with <code>archetype-catalog.xml</code> automatically appended when pointing to a directory</li>
-     * <li>'<code>http://...</code>' with <code>archetype-catalog.xml</code> always appended</li>
-     * <li>'<code>local</code>' which is the shortcut for '<code>file://~/.m2/archetype-catalog.xml</code>'</li>
-     * <li>'<code>remote</code>' which is the shortcut for Maven Central repository, ie '<code>http://repo1.maven.org/maven2</code>'</li>
-     * <li>'<code>internal</code>' which is an internal catalog</li>
-     * </ul>
-     *
-     * Since 2.0-alpha-5, default value is no longer <code>internal,local</code> but <code>remote,local</code>.
-     * If Maven Central repository catalog file is empty, <code>internal</code> catalog is used instead.
-     *
-     * @parameter expression="${archetypeCatalog}" default-value="http://maven.bbe-consulting.de/content/repositories/releases/,local"
-     */
-    protected String archetypeCatalog;
+	/**
+	 * @component
+	 */
+	private ArchetypeFactory archetypeFactory;
 
-    /**
-     * Local Maven repository.
-     *
-     * @parameter expression="${localRepository}"
-     * @required
-     * @readonly
-     */
-    protected ArtifactRepository localRepository;
+	/**
+	 * The archetype's artifactId.
+	 * 
+	 * @parameter expression="${archetypeArtifactId}"
+	 */
+	protected String archetypeArtifactId;
 
-    /**
-     * List of remote repositories used by the resolver.
-     *
-     * @parameter  expression="${project.remoteArtifactRepositories}"
-     * @readonly
-     * @required
-     */
-    protected List<ArtifactRepository> remoteArtifactRepositories;
+	/**
+	 * The archetype's groupId.
+	 * 
+	 * @parameter expression="${archetypeGroupId}"
+	 */
+	protected String archetypeGroupId;
 
-    /**
-     * User settings use to check the interactiveMode.
-     *
-     * @parameter expression="${interactiveMode}" default-value="${settings.interactiveMode}"
-     * @required
-     */
-    protected Boolean interactiveMode;
+	/**
+	 * The archetype's version.
+	 * 
+	 * @parameter expression="${archetypeVersion}"
+	 */
+	protected String archetypeVersion;
 
-    /** @parameter expression="${basedir}" */
-    protected File basedir;
+	/**
+	 * The archetype's repository.
+	 * 
+	 * @parameter expression="${archetypeRepository}"
+	 */
+	protected String archetypeRepository;
 
-    /**
-     *  @parameter expression="${session}"
-     *  @readonly
-     */
-    protected MavenSession session;
+	/**
+	 * The archetype's catalogs. It is a comma separated list of catalogs.
+	 * Catalogs use scheme:
+	 * <ul>
+	 * <li>'<code>file://...</code>' with <code>archetype-catalog.xml</code>
+	 * automatically appended when pointing to a directory</li>
+	 * <li>'<code>http://...</code>' with <code>archetype-catalog.xml</code>
+	 * always appended</li>
+	 * <li>'<code>local</code>' which is the shortcut for '
+	 * <code>file://~/.m2/archetype-catalog.xml</code>'</li>
+	 * <li>'<code>remote</code>' which is the shortcut for Maven Central
+	 * repository, ie '<code>http://repo1.maven.org/maven2</code>'</li>
+	 * <li>'<code>internal</code>' which is an internal catalog</li>
+	 * </ul>
+	 * 
+	 * Since 2.0-alpha-5, default value is no longer <code>internal,local</code>
+	 * but <code>remote,local</code>. If Maven Central repository catalog file
+	 * is empty, <code>internal</code> catalog is used instead.
+	 * 
+	 * @parameter expression="${archetypeCatalog}" default-value=
+	 *            "http://maven.bbe-consulting.de/content/repositories/releases/,local"
+	 */
+	protected String archetypeCatalog;
 
-    /**
-     * Additional goals that can be specified by the user during the creation of the archetype.
-     *
-     * @parameter expression="${goals}"
-     */
-    protected String goals;
+	/**
+	 * Local Maven repository.
+	 * 
+	 * @parameter expression="${localRepository}"
+	 * @required
+	 * @readonly
+	 */
+	protected ArtifactRepository localRepository;
 
-    protected void invokePostArchetypeGenerationGoals( String goals, String artifactId )
-        throws MojoExecutionException, MojoFailureException
-    {
-        File projectBasedir = new File( basedir, artifactId );
+	/**
+	 * List of remote repositories used by the resolver.
+	 * 
+	 * @parameter expression="${project.remoteArtifactRepositories}"
+	 * @readonly
+	 * @required
+	 */
+	protected List<ArtifactRepository> remoteArtifactRepositories;
 
-        if ( projectBasedir.exists() )
-        {
-            InvocationRequest request = new DefaultInvocationRequest()
-                .setBaseDirectory( projectBasedir )
-                .setGoals( Arrays.asList( StringUtils.split( goals, "," ) ) );
+	/**
+	 * User settings use to check the interactiveMode.
+	 * 
+	 * @parameter expression="${interactiveMode}"
+	 *            default-value="${settings.interactiveMode}"
+	 * @required
+	 */
+	protected Boolean interactiveMode;
 
-            try
-            {
-                invoker.execute( request );
-            }
-            catch ( MavenInvocationException e )
-            {
-                throw new MojoExecutionException("Cannot run additions goals.", e);
-            }
-        }
-    }
+	/** @parameter expression="${basedir}" */
+	protected File basedir;
 
-    protected String getXmlNodeValueFromPom(String xpathNode, Document pom) throws MojoExecutionException {
-	        DefaultXPath path = new DefaultXPath( xpathNode );
-	        Map<String,String> namespaces = new TreeMap<String,String>();
-	        namespaces.put("x","http://maven.apache.org/POM/4.0.0");
-	        
-	        path.setNamespaceURIs( namespaces );
-	        Node n = path.selectSingleNode( pom.getRootElement() );
-	        
-			return n.getStringValue();
-    }
-    
+	/**
+	 * @parameter expression="${session}"
+	 * @readonly
+	 */
+	protected MavenSession session;
+
+	/**
+	 * Additional goals that can be specified by the user during the creation of
+	 * the archetype.
+	 * 
+	 * @parameter expression="${goals}"
+	 */
+	protected String goals;
+
+	protected void invokePostArchetypeGenerationGoals(String goals,
+			String artifactId) throws MojoExecutionException,
+			MojoFailureException {
+		File projectBasedir = new File(basedir, artifactId);
+
+		if (projectBasedir.exists()) {
+			InvocationRequest request = new DefaultInvocationRequest()
+					.setBaseDirectory(projectBasedir).setGoals(
+							Arrays.asList(StringUtils.split(goals, ",")));
+
+			try {
+				invoker.execute(request);
+			} catch (MavenInvocationException e) {
+				throw new MojoExecutionException("Cannot run additions goals.",
+						e);
+			}
+		}
+	}
+
+	protected String getXmlNodeValueFromPom(String xpathNode, Document pom)
+			throws MojoExecutionException {
+		DefaultXPath path = new DefaultXPath(xpathNode);
+		Map<String, String> namespaces = new TreeMap<String, String>();
+		namespaces.put("x", "http://maven.apache.org/POM/4.0.0");
+
+		path.setNamespaceURIs(namespaces);
+		Node n = path.selectSingleNode(pom.getRootElement());
+
+		return n.getStringValue();
+	}
+
+	public List<String> getRequiredArchetypeProperties(
+			ArchetypeGenerationRequest request, Properties commandLineProperties)
+			throws ArchetypeNotDefined, UnknownArchetype,
+			ArchetypeNotConfigured, IOException, PrompterException,
+			ArchetypeGenerationConfigurationFailure {
+
+		ArtifactRepository archetypeRepository = null;
+
+		ArchetypeDefinition ad = new ArchetypeDefinition(request);
+		request.setArchetypeVersion(ad.getVersion());
+
+		ArchetypeConfiguration archetypeConfiguration;
+
+		org.apache.maven.archetype.metadata.ArchetypeDescriptor archetypeDescriptor = archetypeArtifactManager
+				.getFileSetArchetypeDescriptor(ad.getGroupId(),
+						ad.getArtifactId(), ad.getVersion(),
+						archetypeRepository, request.getLocalRepository(),
+						request.getRemoteArtifactRepositories());
+
+		archetypeConfiguration = archetypeFactory.createArchetypeConfiguration(
+				archetypeDescriptor, commandLineProperties);
+
+		return archetypeConfiguration.getRequiredProperties();
+	}
+
 }
