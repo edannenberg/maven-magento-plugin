@@ -155,9 +155,11 @@ public final class MagentoUtil {
 			DirectoryStream<Path> files = null;
 			try {
 				files = Files.newDirectoryStream( base );
-				for ( Path path : files ) {
-					r.put( path.toAbsolutePath().toString(), targetBaseDir+"/"+path.getFileName());
-				}
+                for (Path path : files) {
+                    if (!path.toString().contains(".svn")) {
+                        r.put(path.toAbsolutePath().toString(), targetBaseDir + "/" + path.getFileName());
+                    }
+                }
 			} finally {
 			  files.close();
 			}
