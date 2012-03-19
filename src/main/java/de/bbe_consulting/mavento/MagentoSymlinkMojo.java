@@ -50,13 +50,13 @@ public class MagentoSymlinkMojo extends AbstractMagentoMojo {
 			} catch (IOException e) {
 				throw new MojoExecutionException("IO Error while collecting symlinks. " + e.getMessage(), e);
 			}
-			
+			getLog().info("Linking project source to: " + magentoRootLocal);
 			try {
 				FileUtil.symlinkFiles(linkMap, getLog());
 			} catch (IOException e) {
 				throw new MojoExecutionException(e.getMessage(), e);
 			}
-			
+			getLog().info("..done.");
 		} else {
 			throw new MojoExecutionException("Symlinking for remote deploy not implemented.");			
 		}

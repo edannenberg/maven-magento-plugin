@@ -147,7 +147,7 @@ public final class FileUtil {
 	 */
 	public static void symlinkFiles(Map<String,String> fileNameMap, Log logger) throws MojoExecutionException, IOException {
 		for ( Map.Entry<String,String> fileNames : fileNameMap.entrySet()) {
-			logger.info("linking: "+fileNames.getKey());
+			logger.info("..linking: "+fileNames.getKey());
 			symlinkFile(fileNames.getKey(), fileNames.getValue(), logger);
 		}
 	}
