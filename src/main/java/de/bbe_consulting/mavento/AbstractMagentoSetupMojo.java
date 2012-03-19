@@ -696,13 +696,15 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
     	}
     	
 		// extract magento artifact
-		try {
-			getLog().info("Resolving dependencies..");
-			MavenUtil.extractCompileDependencies(tempDir, project, getLog());
-			getLog().info("..done.");
-		} catch (IOException e) {
-			throw new MojoExecutionException("Error extracting artifact: " + e.getMessage(), e);
-		}
+    	if (!isIntegrationTest) {
+    		try {
+    			getLog().info("Resolving dependencies..");
+    			MavenUtil.extractCompileDependencies(tempDir, project, getLog());
+    			getLog().info("..done.");
+    		} catch (IOException e) {
+    			throw new MojoExecutionException("Error extracting artifact: " + e.getMessage(), e);
+    		}
+    	}
     			
     	// drop db if existing
 		MagentoSqlUtil.dropMagentoDb(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, getLog());
