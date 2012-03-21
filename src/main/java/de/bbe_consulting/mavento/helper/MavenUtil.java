@@ -31,56 +31,76 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
- * Maven Util Class
+ * Maven related helpers.
  * 
  * @author Erik Dannenberg
  */
 public final class MavenUtil {
 
-	/*
-	 * Private constructor, only static methods in this util class 
-	 */
-	private MavenUtil() {
-	}
-	
-	public static void extractCompileDependencies(String targetDirectory, MavenProject project, Log logger) throws MojoExecutionException, IOException {
-		
-    	Set<?> projectDependencies = project.getDependencyArtifacts();
-    	// create temp dir if it doesn't exist
-        File f = new File(targetDirectory);
-        if ( !f.exists() )
-        {
+    /**
+     * Private constructor, only static methods in this util class
+     */
+    private MavenUtil() {
+    }
+
+    /**
+     * Extracts all compile dependencies.
+     * 
+     * @param targetDirectory
+     * @param project
+     * @param logger
+     * @throws MojoExecutionException
+     * @throws IOException
+     */
+    public static void extractCompileDependencies(String targetDirectory, MavenProject project, Log logger)
+            throws MojoExecutionException, IOException {
+
+        final Set<?> projectDependencies = project.getDependencyArtifacts();
+        // create temp dir if it doesn't exist
+        final File f = new File(targetDirectory);
+        if (!f.exists()) {
             f.mkdirs();
         } else {
-        	try {
-				FileUtils.cleanDirectory(f);
-			} catch (IOException e) {
-				throw new MojoExecutionException(e.getMessage(), e);
-			}
+            try {
+                FileUtils.cleanDirectory(f);
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
         }
-    	
+
         // cycle through project dependencies
-    	for (Iterator<?> artifactIterator = projectDependencies.iterator() ; artifactIterator.hasNext() ;) {
-    	  Artifact artifact = (Artifact) artifactIterator.next();
-    		  if ( "compile".equals(artifact.getScope()) ) {
-	    	  	  logger.info("Extracting "+artifact.getGroupId()+":"+artifact.getArtifactId()+":"+artifact.getVersion()+"..");
-	    		  String artifactPath = artifact.getFile().getPath();
-	    		  FileUtil.unzipFile(artifactPath, targetDirectory);
-    		  }
-    	}
-	}
-	
-	// filter pom.xml properties for magento.config entries and put them into magento core_config format
-	public static Map<String, String> addMagentoMiscProperties(MavenProject project, Map<String, String> tokenMap, Log logger) {
-		Properties p = project.getProperties();
-		for (Enumeration<?> e = p.keys() ; e.hasMoreElements() ;) {
-			String propertyKey = (String) e.nextElement();
-			if (propertyKey.startsWith("magento.config.")) {
-				String finalToken = propertyKey.substring("magento.config.".length()).replace(".", "/");
-				tokenMap.put(finalToken, p.getProperty(propertyKey) );
-			}
-	     }
-		return tokenMap;
-	}
-	
+        for (Iterator<?> artifactIterator = projectDependencies.iterator(); artifactIterator.hasNext();) {
+            Artifact artifact = (Artifact) artifactIterator.next();
+            if ("compile".equals(artifact.getScope())) {
+                logger.info("Extracting " + artifact.getGroupId() + ":"
+                        + artifact.getArtifactId() + ":"
+                        + artifact.getVersion() + "..");
+                String artifactPath = artifact.getFile().getPath();
+                FileUtil.unzipFile(artifactPath, targetDirectory);
+            }
+        }
+    }
+
+    /**
+     * Filter pom.xml properties for magento.config entries and convert them into
+     * magento core_config format.
+     * 
+     * @param project
+     * @param tokenMap
+     * @param logger
+     * @return Map<String, String> tokenMap with added magento.misc properties 
+     */
+    public static Map<String, String> addMagentoMiscProperties(
+            MavenProject project, Map<String, String> tokenMap, Log logger) {
+        final Properties p = project.getProperties();
+        for (Enumeration<?> e = p.keys(); e.hasMoreElements();) {
+            String propertyKey = (String) e.nextElement();
+            if (propertyKey.startsWith("magento.config.")) {
+                String finalToken = propertyKey.substring("magento.config.".length()).replace(".", "/");
+                tokenMap.put(finalToken, p.getProperty(propertyKey));
+            }
+        }
+        return tokenMap;
+    }
+
 }

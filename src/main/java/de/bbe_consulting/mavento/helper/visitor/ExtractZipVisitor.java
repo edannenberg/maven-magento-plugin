@@ -28,27 +28,33 @@ import org.apache.maven.plugin.logging.Log;
 
 import de.bbe_consulting.mavento.helper.FileUtil;
 
+/**
+ * File visitor to extract zip files.
+ * 
+ * @author Erik Dannenberg
+ */
 public class ExtractZipVisitor extends SimpleFileVisitor<Path> {
 
     private final Path target;
     private final Log logger;
-	
+
     public ExtractZipVisitor(Path target, Log logger) {
         this.target = target;
         this.logger = logger;
     }
-	
+
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-			try {
-				if (!file.getFileName().toString().startsWith(".")) {
-					logger.info("Extracting "+file.getFileName());
-					FileUtil.unzipFile(file.toAbsolutePath().toString(), target.toAbsolutePath().toString());
-				}
-			} catch (IOException e) {
-				return TERMINATE;
-			}
+
+        try {
+            if (!file.getFileName().toString().startsWith(".")) {
+                logger.info("Extracting " + file.getFileName());
+                FileUtil.unzipFile(file.toAbsolutePath().toString(), target.toAbsolutePath().toString());
+            }
+        } catch (IOException e) {
+            return TERMINATE;
+        }
         return CONTINUE;
     }
-    
+
 }

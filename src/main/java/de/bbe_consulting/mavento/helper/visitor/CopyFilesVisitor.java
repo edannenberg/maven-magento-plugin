@@ -27,13 +27,19 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
+/**
+ * File visitor for copying files recursive.
+ * 
+ * @author Erik Dannenberg
+ */
 public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
 
     private final Path source;
     private final Path target;
     private final boolean preserve;
-	
+
     public CopyFilesVisitor(Path source, Path target, boolean preserve) {
+
         this.source = source;
         this.target = target;
         this.preserve = preserve;
@@ -41,12 +47,17 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+
         // before visiting entries in a directory we copy the directory
         // (okay if directory already exists).
-        CopyOption[] options = (preserve) ?
-            new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES } : new CopyOption[0];
+        CopyOption[] options = null;
+        if (this.preserve) {
+            options = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES };
+        } else {
+            options = new CopyOption[0];
+        }
 
-        Path newdir = target.resolve(source.relativize(dir));
+        final Path newdir = target.resolve(source.relativize(dir));
         try {
             Files.copy(dir, newdir, options);
         } catch (FileAlreadyExistsException x) {
@@ -60,19 +71,32 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+
         copyFile(file, target.resolve(source.relativize(file)), preserve);
         return CONTINUE;
     }
     
+    /**
+     * Copy a file to target path.
+     * 
+     * @param source
+     * @param target
+     * @param preserve preserve file attributes?
+     */
     static void copyFile(Path source, Path target, boolean preserve) {
-        CopyOption[] options = (preserve) ?
-            new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING } :
-            new CopyOption[] { StandardCopyOption.REPLACE_EXISTING };
+
+        CopyOption[] options = null;
+        if (preserve) {
+            options = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES,
+                    StandardCopyOption.REPLACE_EXISTING };
+        } else {
+            options = new CopyOption[] { StandardCopyOption.REPLACE_EXISTING };
+        }
         try {
             Files.copy(source, target, options);
         } catch (IOException x) {
             System.err.format("Unable to copy: %s: %s%n", source, x);
         }
     }
-    
+
 }

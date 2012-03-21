@@ -18,13 +18,19 @@ package de.bbe_consulting.mavento.type;
 
 import java.util.Comparator;
 
+/**
+ * Comperator implementation for MagentoModule type.
+ * 
+ * @author Erik Dannenberg
+ * @see MagentoModule
+ */
 public class MagentoModuleComperator implements Comparator<MagentoModule> {
 
-	@Override
-	public int compare(MagentoModule o1, MagentoModule o2) {
-		String o1Name = o1.getNamespace()+"_"+o1.getName();
-		String o2Name = o2.getNamespace()+"_"+o2.getName();
-		return o1Name.compareTo(o2Name);
-	}
+    @Override
+    public int compare(MagentoModule m1, MagentoModule m2) {
+        String m1Name = m1.getNamespace() + "_" + m1.getName();
+        String m2Name = m2.getNamespace() + "_" + m2.getName();
+        return m1Name.compareTo(m2Name);
+    }
 
 }

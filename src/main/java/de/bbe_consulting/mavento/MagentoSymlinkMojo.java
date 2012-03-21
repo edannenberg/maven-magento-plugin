@@ -29,37 +29,38 @@ import de.bbe_consulting.mavento.helper.FileUtil;
 import de.bbe_consulting.mavento.helper.MagentoUtil;
 
 /**
- * Symlink project source to local Magento instance.
- *
+ * Symlink source files to local Magento instance.
+ * 
  * @goal symlink
  * @requiresDependencyResolution compile
  * @author Erik Dannenberg
  */
 public class MagentoSymlinkMojo extends AbstractMagentoMojo {
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		
-		String srcDirName = project.getBasedir().getAbsolutePath()+"/src/main/php";
-		if (magentoDeployType.equals("local")) {
-			if (Files.notExists(Paths.get(magentoRootLocal+"/app/etc/local.xml"))) {
-				throw new MojoExecutionException("Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
-			}
-			Map<String,String> linkMap = new HashMap<String, String>();
-			try {
-				linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
-			} catch (IOException e) {
-				throw new MojoExecutionException("IO Error while collecting symlinks. " + e.getMessage(), e);
-			}
-			getLog().info("Linking project source to: " + magentoRootLocal);
-			try {
-				FileUtil.symlinkFiles(linkMap, getLog());
-			} catch (IOException e) {
-				throw new MojoExecutionException(e.getMessage(), e);
-			}
-			getLog().info("..done.");
-		} else {
-			throw new MojoExecutionException("Symlinking for remote deploy not implemented.");			
-		}
-	}
-	
+    public void execute() throws MojoExecutionException, MojoFailureException {
+
+        String srcDirName = project.getBasedir().getAbsolutePath() + "/src/main/php";
+        if (magentoDeployType.equals("local")) {
+            if (Files.notExists(Paths.get(magentoRootLocal + "/app/etc/local.xml"))) {
+                throw new MojoExecutionException(
+                        "Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
+            }
+            Map<String, String> linkMap = new HashMap<String, String>();
+            try {
+                linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
+            } catch (IOException e) {
+                throw new MojoExecutionException("IO Error while collecting symlinks. " + e.getMessage(), e);
+            }
+            getLog().info("Linking project source to: " + magentoRootLocal);
+            try {
+                FileUtil.symlinkFiles(linkMap, getLog());
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+            getLog().info("..done.");
+        } else {
+            throw new MojoExecutionException("Symlinking for remote deploy not implemented.");
+        }
+    }
+
 }

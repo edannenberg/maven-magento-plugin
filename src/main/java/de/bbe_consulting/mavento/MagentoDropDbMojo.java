@@ -23,7 +23,7 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 
 /**
  * Drop the current Magento database.
- *
+ * 
  * @goal drop-db
  * @aggregator false
  * @requiresDependencyResolution compile
@@ -31,8 +31,9 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
  */
 public final class MagentoDropDbMojo extends AbstractMagentoSqlMojo {
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		MagentoSqlUtil.dropMagentoDb(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, getLog());
-	}
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        MagentoSqlUtil.dropMagentoDb(magentoDbUser, magentoDbPasswd,
+                magentoDbHost, magentoDbPort, magentoDbName, getLog());
+    }
 
 }

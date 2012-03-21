@@ -26,8 +26,11 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 /**
  * Import a sql dump into database. Use magento.dump.file to specify the dump.<br/>
  * The dump file is expected in /sqldumps of your project root directory.<br/>
- * <pre>mvn magento:import-db -Dmagento.dump.file=mydump.sql</pre>
- *
+ * 
+ * <pre>
+ * mvn magento:import-db -Dmagento.dump.file=mydump.sql
+ * </pre>
+ * 
  * @goal import-db
  * @aggregator false
  * @requiresDependencyResolution compile
@@ -37,24 +40,27 @@ public class MagentoImportDbMojo extends AbstractMagentoSqlMojo {
 
     /**
      * Mysql dump filename, dump is expected in /sqldumps of your project root.<br/>
+     * 
      * @parameter expression="${magento.dump.file}"
      * @required
      */
-	private String magentoDumpFile;
-	
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		
-		File f = null;
-		if (magentoDumpFile.startsWith("sqldumps/")) {
-			f = new File(project.getBasedir()+"/"+magentoDumpFile);
-		} else {
-			f = new File(project.getBasedir()+"/sqldumps/"+magentoDumpFile);
-		}
-		if (!f.exists()) {
-			throw new MojoExecutionException("Could not find dump file. Make sure it is placed in /sqldumps of your project root.");
-		}
-		MagentoSqlUtil.importSqlDump(f.getAbsolutePath(), magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, getLog());
-		
-	}
+    private String magentoDumpFile;
+
+    public void execute() throws MojoExecutionException, MojoFailureException {
+
+        File f = null;
+        if (magentoDumpFile.startsWith("sqldumps/")) {
+            f = new File(project.getBasedir() + "/" + magentoDumpFile);
+        } else {
+            f = new File(project.getBasedir() + "/sqldumps/" + magentoDumpFile);
+        }
+        if (!f.exists()) {
+            throw new MojoExecutionException(
+                    "Could not find dump file. Make sure it is placed in /sqldumps of your project root.");
+        }
+        MagentoSqlUtil.importSqlDump(f.getAbsolutePath(), magentoDbUser, magentoDbPasswd,
+                magentoDbHost, magentoDbPort, magentoDbName, getLog());
+
+    }
 
 }

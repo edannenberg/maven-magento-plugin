@@ -25,26 +25,33 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static java.nio.file.FileVisitResult.*;
 
+/**
+ * File visitor for deleting a file/tree.
+ * 
+ * @author Erik Dannenberg
+ */
 public class DeleteFilesVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-    	try {
-			Files.delete(file);
-		} catch (IOException e) {
-			return TERMINATE;
-		}
+
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            return TERMINATE;
+        }
         return CONTINUE;
     }
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-    	try {
-			Files.delete(dir);
-		} catch (IOException e) {
-			return TERMINATE;
-		}
+
+        try {
+            Files.delete(dir);
+        } catch (IOException e) {
+            return TERMINATE;
+        }
         return CONTINUE;
     }
-	
+
 }

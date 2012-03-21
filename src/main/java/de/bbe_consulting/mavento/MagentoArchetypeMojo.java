@@ -31,8 +31,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Create a new Magento project/module from a template (aka archetype). This goal does not need an active Maven project.
- *
+ * Create a new Magento project/module from a template (aka archetype). This
+ * goal does not need an active Maven project.
+ * 
  * @goal archetype
  * @aggregator false
  * @requiresProject false
@@ -40,138 +41,138 @@ import java.util.Properties;
  */
 public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
 
-    public void execute() throws MojoExecutionException, MojoFailureException
-    {
-        Properties executionProperties = session.getExecutionProperties();
-        
-        ArchetypeGenerationRequest request = new ArchetypeGenerationRequest()
-            .setArchetypeGroupId( archetypeGroupId )
-            .setArchetypeArtifactId( archetypeArtifactId )
-            .setArchetypeVersion( archetypeVersion )
-            .setOutputDirectory( basedir.getAbsolutePath() )
-            .setLocalRepository( localRepository )
-            .setArchetypeRepository( archetypeRepository )
-            .setRemoteArtifactRepositories( remoteArtifactRepositories );
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        final Properties executionProperties = session.getExecutionProperties();
 
-        try
-        {
-            if ( interactiveMode.booleanValue() )
-            {
-                getLog().info( "Generating project in Interactive mode" );
+        final ArchetypeGenerationRequest request = new ArchetypeGenerationRequest()
+                .setArchetypeGroupId(archetypeGroupId)
+                .setArchetypeArtifactId(archetypeArtifactId)
+                .setArchetypeVersion(archetypeVersion)
+                .setOutputDirectory(basedir.getAbsolutePath())
+                .setLocalRepository(localRepository)
+                .setArchetypeRepository(archetypeRepository)
+                .setRemoteArtifactRepositories(remoteArtifactRepositories);
+
+        try {
+            if (interactiveMode.booleanValue()) {
+                getLog().info("Generating project in Interactive mode");
+            } else {
+                getLog().info("Generating project in Batch mode");
             }
-            else
-            {
-                getLog().info( "Generating project in Batch mode" );
-            }
-            
-            Properties rp = new Properties();
+
+            final Properties rp = new Properties();
             rp.setProperty("magentoArchetypeIdentifier", "archetype");
             request.setProperties(rp);
-            
-            selector.selectArchetype( request, interactiveMode, archetypeCatalog );
-            
-            List<String> requiredProperties = getRequiredArchetypeProperties(request, executionProperties);
-            
+
+            selector.selectArchetype(request, interactiveMode, archetypeCatalog);
+
+            List<String> requiredProperties = getRequiredArchetypeProperties(
+                    request, executionProperties);
+
             // check for existing pom in current dir, if yes try to set some defaults
             File p = new File("pom.xml");
             String defaultGroupdId = "de.bbe-consulting.magento";
-            if ( p.exists() ) {
-    			SAXReader reader = new SAXReader();
-    	        Document document = reader.read(p);
-            	String parentArtifactId = getXmlNodeValueFromPom("/x:project/x:artifactId", document);
-            	defaultGroupdId = getXmlNodeValueFromPom("/x:project/x:groupId", document)+"."+parentArtifactId;
+            if (p.exists()) {
+                final SAXReader reader = new SAXReader();
+                final Document document = reader.read(p);
+                final String parentArtifactId = getXmlNodeValueFromPom("/x:project/x:artifactId", document);
+                defaultGroupdId = getXmlNodeValueFromPom("/x:project/x:groupId", document) + "." + parentArtifactId;
             }
-            
-            String reqGroupdId = queryer.getPropertyValue("groupId", defaultGroupdId);
+
+            final String reqGroupdId = queryer.getPropertyValue("groupId", defaultGroupdId);
             executionProperties.put("groupId", reqGroupdId);
-            
-            String reqArtifactId = queryer.getPropertyValue("artifactId", null);
+
+            final String reqArtifactId = queryer.getPropertyValue("artifactId", null);
             executionProperties.put("artifactId", reqArtifactId);
-            
-            String reqVersion = queryer.getPropertyValue("version", "1.0-SNAPSHOT");
+
+            final String reqVersion = queryer.getPropertyValue("version", "1.0-SNAPSHOT");
             executionProperties.put("version", reqVersion);
-            
+
             if (requiredProperties.contains("magentoModuleName")) {
-	            String reqMagentoModuleName = queryer.getPropertyValue("magentoModuleName", null);
-	            executionProperties.put("magentoModuleName", reqMagentoModuleName);
-	            executionProperties.put("magentoModuleNameLowerCase", reqMagentoModuleName.toLowerCase());
+                final String reqMagentoModuleName = queryer.getPropertyValue("magentoModuleName", null);
+                executionProperties.put("magentoModuleName", reqMagentoModuleName);
+                executionProperties.put("magentoModuleNameLowerCase", reqMagentoModuleName.toLowerCase());
             }
-            
+
             if (requiredProperties.contains("magentoNameSpace")) {
-	            String reqMagentoNamespace = queryer.getPropertyValue("magentoNamespace", null);
-	            executionProperties.put("magentoNameSpace", reqMagentoNamespace);
+                final String reqMagentoNamespace = queryer.getPropertyValue("magentoNamespace", null);
+                executionProperties.put("magentoNameSpace", reqMagentoNamespace);
             }
-            
+
             if (requiredProperties.contains("magentoModuleType")) {
-	            String reqMagentoNamespace = queryer.getPropertyValue("magentoModuleType", "local");
-	            executionProperties.put("magentoModuleType", reqMagentoNamespace);
+                final String reqMagentoNamespace = queryer.getPropertyValue("magentoModuleType", "local");
+                executionProperties.put("magentoModuleType", reqMagentoNamespace);
             }
-            
-            configurator.configureArchetype( request, false, executionProperties );
-            
-            ArchetypeGenerationResult generationResult = archetype.generateProjectFromArchetype( request );
 
-            if ( generationResult.getCause() != null )
-            {
-                throw new MojoFailureException( generationResult.getCause(), generationResult.getCause().getMessage(),
-                                                generationResult.getCause().getMessage() );
+            configurator.configureArchetype(request, false, executionProperties);
+
+            ArchetypeGenerationResult generationResult = archetype.generateProjectFromArchetype(request);
+
+            if (generationResult.getCause() != null) {
+                throw new MojoFailureException(generationResult.getCause(),
+                        generationResult.getCause().getMessage(),
+                        generationResult.getCause().getMessage());
             }
-           
-        }
-        catch ( Exception ex )
-        {
-            throw (MojoFailureException) new MojoFailureException( ex.getMessage() ).initCause( ex );
+
+        } catch (Exception ex) {
+            throw (MojoFailureException) new MojoFailureException(ex.getMessage()).initCause(ex);
         }
 
-        String artifactId = request.getArtifactId();
+        final String artifactId = request.getArtifactId();
 
         String postArchetypeGenerationGoals = request.getArchetypeGoals();
 
-        if ( StringUtils.isEmpty( postArchetypeGenerationGoals ) )
-        {
+        if (StringUtils.isEmpty(postArchetypeGenerationGoals)) {
             postArchetypeGenerationGoals = goals;
         }
 
-        if ( StringUtils.isNotEmpty( postArchetypeGenerationGoals ) )
-        {
-            invokePostArchetypeGenerationGoals( postArchetypeGenerationGoals, artifactId );
+        if (StringUtils.isNotEmpty(postArchetypeGenerationGoals)) {
+            invokePostArchetypeGenerationGoals(postArchetypeGenerationGoals, artifactId);
         }
-        
+
         try {
-			fixModuleStructure(artifactId, executionProperties);
-		} catch (IOException e) {
-			throw new MojoExecutionException("Error while finishing up module structure!", e);
-		}
-        
+            fixModuleStructure(artifactId, executionProperties);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error while finishing up module structure!", e);
+        }
+
     }
 
-    private void fixModuleStructure (String artifactId, Properties props) throws IOException {
-    	
-    	File projectBasedir = new File( basedir, artifactId );
-    	String moduleName = props.getProperty("magentoModuleName");
-    	String nameSpace = props.getProperty("magentoNameSpace");
-    	
-    	if (moduleName != null && nameSpace != null) 
-    	{
-	        if ( projectBasedir.exists() && !nameSpace.equals("Company") && !moduleName.equals("MyModule") )
-	        {
-	        	LinkedHashMap<String,String> fileNames = new LinkedHashMap<String,String>();
-	        	
-	        	String magentoBasePath = projectBasedir.getAbsolutePath()+"/src/main/php/app";
-	        	
-	        	String etcModulesConfigOld = magentoBasePath+"/etc/modules/Company_MyModule.xml";
-	        	String configName = props.getProperty("magentoNameSpace")+"_"+props.getProperty("magentoModuleName")+".xml";
-	        	String etcModulesConfigNew = magentoBasePath+"/etc/modules/"+configName;
-	        	fileNames.put(etcModulesConfigOld, etcModulesConfigNew);
-	        	
-	        	String localeOld = magentoBasePath+"/locale/en_US/Company_MyModule.csv";
-	        	String localeName = props.getProperty("magentoNameSpace")+"_"+props.getProperty("magentoModuleName")+".csv";
-	        	String localeNew = magentoBasePath+"/locale/en_US/"+localeName;
-	        	fileNames.put(localeOld, localeNew);
-        	
-	        	FileUtil.renameFiles(fileNames);
-	        }
-    	}
+    /**
+     * Fixes some shortcomings of the maven archetype plugin.
+     * 
+     * @param artifactId
+     * @param props maven properties
+     * @throws IOException
+     */
+    private void fixModuleStructure(String artifactId, Properties props)
+            throws IOException {
+
+        final File projectBasedir = new File(basedir, artifactId);
+        final String moduleName = props.getProperty("magentoModuleName");
+        final String nameSpace = props.getProperty("magentoNameSpace");
+
+        if (moduleName != null && nameSpace != null) {
+            if (projectBasedir.exists() && !nameSpace.equals("Company") && !moduleName.equals("MyModule")) {
+                final LinkedHashMap<String, String> fileNames = new LinkedHashMap<String, String>();
+
+                final String magentoBasePath = projectBasedir.getAbsolutePath() + "/src/main/php/app";
+
+                final String etcModulesConfigOld = magentoBasePath + "/etc/modules/Company_MyModule.xml";
+                final String configName = props.getProperty("magentoNameSpace") + "_" 
+                        + props.getProperty("magentoModuleName") + ".xml";
+                final String etcModulesConfigNew = magentoBasePath + "/etc/modules/" + configName;
+                fileNames.put(etcModulesConfigOld, etcModulesConfigNew);
+
+                final String localeOld = magentoBasePath + "/locale/en_US/Company_MyModule.csv";
+                final String localeName = props.getProperty("magentoNameSpace") + "_"
+                        + props.getProperty("magentoModuleName") + ".csv";
+                final String localeNew = magentoBasePath + "/locale/en_US/" + localeName;
+                fileNames.put(localeOld, localeNew);
+
+                FileUtil.renameFiles(fileNames);
+            }
+        }
     }
-    
+
 }

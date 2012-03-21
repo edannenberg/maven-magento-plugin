@@ -42,12 +42,16 @@ import de.bbe_consulting.mavento.type.MagentoModuleComperator;
 import de.bbe_consulting.mavento.type.MagentoVersion;
 
 /**
- * Display some basic information of a Magento instance. This goal does not need an active Maven project. <br/>
- * It will however honor the properties in your pom.xml if called from a project.<br/>
+ * Display some basic information of a Magento instance. This goal does not need
+ * an active Maven project. <br/>
+ * It will however honor the properties in your pom.xml if called from a
+ * project.<br/>
  * To specify any Magento folder you can set the magentoPath property.<br/>
  * 
- * <pre>mvn magento:info -DmagentoPath=/path/to/magento/folder</pre>
- *
+ * <pre>
+ * mvn magento:info -DmagentoPath=/path/to/magento/folder
+ * </pre>
+ * 
  * @goal info
  * @aggregator false
  * @requiresProject false
@@ -60,154 +64,169 @@ public class MagentoInfoMojo extends AbstractMojo {
      * @required
      */
     protected MavenProject project;
-	
-    /** 
+
+    /**
      * Root path of the magento instance you want to scan.<br/>
+     * 
      * @parameter expression="${magentoPath}
      */
     protected String magentoPath;
-    
-	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		
-		// try to use existing project if no magentoPath is specified
-		if (magentoPath == null && project != null) {
-			Properties projectProperties = project.getProperties();
-			if ( projectProperties.containsKey("magento.root.local") ) {
-				magentoPath = (String) projectProperties.get("magento.root.local");
-			}
-		}
-		if (magentoPath == null) {
-			throw new MojoExecutionException("Error: no magentoPath specified. Use -DmagentoPath=/your/path");
-		}
-		
-		if (magentoPath.endsWith("/")) {
-			magentoPath = magentoPath.substring(0, magentoPath.length()-1);
-		}
 
-		getLog().info("Scanning: "+Paths.get(magentoPath).toAbsolutePath().toString());
-		getLog().info("");
-		
-		// try to find magento version
-		Path appMage = Paths.get(magentoPath+"/app/Mage.php");
-		MagentoVersion mVersion = null;
-		try {
-			mVersion = MagentoUtil.getMagentoVersion(appMage);
-		} catch (Exception e) {
-			getLog().info("..could not find Magento version.");
-		} 		
-		if (mVersion != null) {
-			getLog().info("Version: Magento "+mVersion.toString());
-		}
-		
-		// parse sql properties from local.xml
-		Path localXmlPath = Paths.get(magentoPath+"/app/etc/local.xml");
-		Document localXml = null;
-		if ( Files.exists(localXmlPath) ) {
-			localXml = MagentoXmlUtil.readXmlFile(localXmlPath.toAbsolutePath().toString());
-		} else {
-			throw new MojoExecutionException("Could not read or parse /app/etc/local.xml");
-		}
-		Map<String, String> dbSettings = MagentoXmlUtil.getDbValues(localXml);
-		String jdbcUrl = MagentoSqlUtil.getJdbcUrl(dbSettings.get("host"), dbSettings.get("port"), dbSettings.get("dbname"));
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
-		// fetch installdate
-		String magentoInstallDate = MagentoXmlUtil.getMagentoInstallData(localXml);
-		getLog().info("Installed: " + magentoInstallDate);
-		getLog().info("");
-		
-		// read baseUrl
-		MagentoCoreConfig baseUrl = null;
-		try {
-			baseUrl = new MagentoCoreConfig("web/unsecure/base_url");
-		} catch (Exception e) {
-			throw new MojoExecutionException("Error creating config entry. "+e.getMessage(), e);
-		}
-		
-		String sqlError = "valid";
-		try {
-			baseUrl = MagentoSqlUtil.getCoreConfigData(baseUrl, dbSettings.get("user"), dbSettings.get("password"), jdbcUrl, getLog());
-			getLog().info("URL: " + baseUrl.getValue());
-			getLog().info("");
-		} catch (MojoExecutionException e) {
-			sqlError = e.getMessage();
-		}
-		
-		getLog().info("Database: "+dbSettings.get("dbname")+" via "+dbSettings.get("user")+"@"+dbSettings.get("host")+":"+dbSettings.get("port"));
-		getLog().info("Connection: "+sqlError);
-		getLog().info("");
-		
-		// parse modules
-		Path modulesXmlPath = Paths.get(magentoPath+"/app/etc/modules");
-		if (!Files.exists(modulesXmlPath)) {
-			throw new MojoExecutionException("Could not find /app/etc/modules directory.");
-		}
-		
-		DirectoryStream<Path> files = null;
-		ArrayList<MagentoModule> localModules = new ArrayList<MagentoModule>();
-		ArrayList<MagentoModule> communityModules = new ArrayList<MagentoModule>();
-		try {
-			files = Files.newDirectoryStream( modulesXmlPath );
-			for ( Path path : files ) {
-				if ( !path.getFileName().toString().startsWith("Mage") ) {
-					MagentoModule m = new MagentoModule(path);
-					if (m.getCodePool().equals("local")) {
-						localModules.add(m);
-					} else {
-						communityModules.add(m);
-					}
-				}
-			}
-		} catch (IOException e) {
-			throw new MojoExecutionException("Could not read modules directory. " + e.getMessage(), e);
-		} finally {
-		  try {
-			files.close();
-		  } catch (IOException e) {
-			  throw new MojoExecutionException("Error closing directory stream. " + e.getMessage(), e);
-		  }
-		}
-		
-		// print module sorted module list
-		MagentoModuleComperator mmc = new MagentoModuleComperator();
-		Collections.sort(localModules, mmc);
-		Collections.sort(communityModules, mmc);
-		
-		getLog().info("Installed modules in..");
-		
-		getLog().info("..local: ");
-		for (MagentoModule m : localModules) {
-			getLog().info(m.getNamespace()+"_"+m.getName()+" version: "+m.getVersion()+" active: "+m.isActive());
-		}
-		if (localModules.size() == 0) { getLog().info("--none--"); }
-		getLog().info("");
-		
-		getLog().info("..community: ");
-		for (MagentoModule m : communityModules) {
-			getLog().info(m.getNamespace()+"_"+m.getName()+" version: "+m.getVersion()+" active: "+m.isActive());
-		}
-		if (communityModules.size() == 0) { getLog().info("--none--"); }
-		getLog().info("");
-		
-		// check local overlays for content
-		getLog().info("Overlay status..");
-		int fileCount = -1;
-		File localMage = new File(magentoPath+"/app/code/local/Mage");
-		if (localMage.exists()) {
-			fileCount = localMage.list().length;
-			if (fileCount > 0) { getLog().info("local/Mage: "+localMage.list().length+" file(s)"); }
-		}
-		File localVarien = new File(magentoPath+"/app/code/local/Varien");
-		
-		if (localVarien.exists()) {
-			fileCount = localVarien.list().length;
-			if (fileCount > 0) { getLog().info("local/Varien: "+localVarien.list().length+" file(s)"); }
-		}
-		
-		if (fileCount == -1) {
-			getLog().info("..not in use.");
-		}
-		
-	}
-	
+        // try to use existing project if no magentoPath is specified
+        if (magentoPath == null && project != null) {
+            final Properties projectProperties = project.getProperties();
+            if (projectProperties.containsKey("magento.root.local")) {
+                magentoPath = (String) projectProperties.get("magento.root.local");
+            }
+        }
+        if (magentoPath == null) {
+            throw new MojoExecutionException("Error: no magentoPath specified. Use -DmagentoPath=/your/path");
+        }
+
+        if (magentoPath.endsWith("/")) {
+            magentoPath = magentoPath.substring(0, magentoPath.length() - 1);
+        }
+
+        getLog().info("Scanning: " + Paths.get(magentoPath).toAbsolutePath().toString());
+        getLog().info("");
+
+        // try to find magento version
+        final Path appMage = Paths.get(magentoPath + "/app/Mage.php");
+        MagentoVersion mVersion = null;
+        try {
+            mVersion = MagentoUtil.getMagentoVersion(appMage);
+        } catch (Exception e) {
+            getLog().info("..could not find Magento version.");
+        }
+        if (mVersion != null) {
+            getLog().info("Version: Magento " + mVersion.toString());
+        }
+
+        // parse sql properties from local.xml
+        final Path localXmlPath = Paths.get(magentoPath + "/app/etc/local.xml");
+        Document localXml = null;
+        if (Files.exists(localXmlPath)) {
+            localXml = MagentoXmlUtil.readXmlFile(localXmlPath.toAbsolutePath().toString());
+        } else {
+            throw new MojoExecutionException("Could not read or parse /app/etc/local.xml");
+        }
+        final Map<String, String> dbSettings = MagentoXmlUtil.getDbValues(localXml);
+        final String jdbcUrl = MagentoSqlUtil.getJdbcUrl(dbSettings.get("host"),
+                dbSettings.get("port"), dbSettings.get("dbname"));
+
+        // fetch installdate
+        final String magentoInstallDate = MagentoXmlUtil.getMagentoInstallData(localXml);
+        getLog().info("Installed: " + magentoInstallDate);
+        getLog().info("");
+
+        // read baseUrl
+        MagentoCoreConfig baseUrl = null;
+        try {
+            baseUrl = new MagentoCoreConfig("web/unsecure/base_url");
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error creating config entry. " + e.getMessage(), e);
+        }
+
+        String sqlError = "valid";
+        try {
+            baseUrl = MagentoSqlUtil.getCoreConfigData(baseUrl, dbSettings.get("user"),
+                    dbSettings.get("password"), jdbcUrl, getLog());
+            getLog().info("URL: " + baseUrl.getValue());
+            getLog().info("");
+        } catch (MojoExecutionException e) {
+            sqlError = e.getMessage();
+        }
+
+        getLog().info("Database: " + dbSettings.get("dbname") + " via "
+                        + dbSettings.get("user") + "@" + dbSettings.get("host")
+                        + ":" + dbSettings.get("port"));
+        getLog().info("Connection: " + sqlError);
+        getLog().info("");
+
+        // parse modules
+        final Path modulesXmlPath = Paths.get(magentoPath + "/app/etc/modules");
+        if (!Files.exists(modulesXmlPath)) {
+            throw new MojoExecutionException("Could not find /app/etc/modules directory.");
+        }
+
+        DirectoryStream<Path> files = null;
+        final ArrayList<MagentoModule> localModules = new ArrayList<MagentoModule>();
+        final ArrayList<MagentoModule> communityModules = new ArrayList<MagentoModule>();
+        try {
+            files = Files.newDirectoryStream(modulesXmlPath);
+            for (Path path : files) {
+                if (!path.getFileName().toString().startsWith("Mage")) {
+                    MagentoModule m = new MagentoModule(path);
+                    if (m.getCodePool().equals("local")) {
+                        localModules.add(m);
+                    } else {
+                        communityModules.add(m);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not read modules directory. " + e.getMessage(), e);
+        } finally {
+            try {
+                files.close();
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error closing directory stream. " + e.getMessage(), e);
+            }
+        }
+
+        // print module sorted module list
+        final MagentoModuleComperator mmc = new MagentoModuleComperator();
+        Collections.sort(localModules, mmc);
+        Collections.sort(communityModules, mmc);
+
+        getLog().info("Installed modules in..");
+
+        getLog().info("..local: ");
+        for (MagentoModule m : localModules) {
+            getLog().info(m.getNamespace() + "_" + m.getName() + " version: "
+                            + m.getVersion() + " active: " + m.isActive());
+        }
+        if (localModules.size() == 0) {
+            getLog().info("--none--");
+        }
+        getLog().info("");
+
+        getLog().info("..community: ");
+        for (MagentoModule m : communityModules) {
+            getLog().info(m.getNamespace() + "_" + m.getName() + " version: "
+                            + m.getVersion() + " active: " + m.isActive());
+        }
+        if (communityModules.size() == 0) {
+            getLog().info("--none--");
+        }
+        getLog().info("");
+
+        // check local overlays for content
+        getLog().info("Overlay status..");
+        int fileCount = -1;
+        final File localMage = new File(magentoPath + "/app/code/local/Mage");
+        if (localMage.exists()) {
+            fileCount = localMage.list().length;
+            if (fileCount > 0) {
+                getLog().info("local/Mage: " + localMage.list().length + " file(s)");
+            }
+        }
+        final File localVarien = new File(magentoPath + "/app/code/local/Varien");
+
+        if (localVarien.exists()) {
+            fileCount = localVarien.list().length;
+            if (fileCount > 0) {
+                getLog().info("local/Varien: " + localVarien.list().length + " file(s)");
+            }
+        }
+
+        if (fileCount == -1) {
+            getLog().info("..not in use.");
+        }
+
+    }
+
 }

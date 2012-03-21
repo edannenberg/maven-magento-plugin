@@ -26,65 +26,66 @@ import java.util.regex.Pattern;
  */
 public class MagentoVersion {
 
-	private Integer magentoVersionMajor;
-	private Integer magentoVersionMinor;
-	private Integer magentoVersionRevision;
-	private Integer magentoVersionPatch;
-	private String magentoVersionStability = "";
-	private Integer magentoVersionNumber = 0;
-	
-	public MagentoVersion(String magentoVersion) throws Exception {
-		Pattern pattern = Pattern.compile("([0-9]+).([0-9]+).([0-9]+).([0-9]+)-?([a-zA-Z]+)?([0-9]+)?");
-		Matcher matcher = pattern.matcher(magentoVersion);
-		if (matcher.find()) {
-	    	magentoVersionMajor = Integer.parseInt(matcher.group(1));
-	    	magentoVersionMinor = Integer.parseInt(matcher.group(2));
-	    	magentoVersionRevision = Integer.parseInt(matcher.group(3));
-	    	magentoVersionPatch = Integer.parseInt(matcher.group(4));
-	    	if (matcher.group(5) != null) {
-	    		magentoVersionStability = matcher.group(5);
-	    	}
-	    	if (matcher.group(6) != null) {
-	    		magentoVersionNumber = Integer.parseInt(matcher.group(6));
-	    	}
-		} else {
-    		throw new Exception("Could not parse Magento version. Check your pom.xml");
-    	}
-	}
+    private Integer magentoVersionMajor;
+    private Integer magentoVersionMinor;
+    private Integer magentoVersionRevision;
+    private Integer magentoVersionPatch;
+    private String magentoVersionStability = "";
+    private Integer magentoVersionNumber = 0;
 
-	public int getMajorVersion() {
-		return magentoVersionMajor;
-	}
-	
-	public int getMinorVersion() {
-		return magentoVersionMinor;
-	}
-	
-	public int getRevisionVersion() {
-		return magentoVersionRevision;
-	}
-	
-	public int getPatchVersion() {
-		return magentoVersionPatch;
-	}
-	
-	public String getStabilityVersion() {
-		return magentoVersionStability;
-	}
-	
-	public int getNumberVersion() {
-		return magentoVersionNumber;
-	}
-	
-	public String toString() {
-		String v = magentoVersionMajor+"."+magentoVersionMinor+"."+magentoVersionRevision+"."+magentoVersionPatch;
-		if (!magentoVersionStability.equals("")) {
-			v += "-"+magentoVersionStability;
-		}
-		if (magentoVersionNumber != 0) {
-			v += magentoVersionNumber;
-		}
-		return v; 
-	}
-	
+    public MagentoVersion(String magentoVersion) throws Exception {
+        final Pattern pattern = Pattern.compile("([0-9]+).([0-9]+).([0-9]+).([0-9]+)-?([a-zA-Z]+)?([0-9]+)?");
+        final Matcher matcher = pattern.matcher(magentoVersion);
+        if (matcher.find()) {
+            magentoVersionMajor = Integer.parseInt(matcher.group(1));
+            magentoVersionMinor = Integer.parseInt(matcher.group(2));
+            magentoVersionRevision = Integer.parseInt(matcher.group(3));
+            magentoVersionPatch = Integer.parseInt(matcher.group(4));
+            if (matcher.group(5) != null) {
+                magentoVersionStability = matcher.group(5);
+            }
+            if (matcher.group(6) != null) {
+                magentoVersionNumber = Integer.parseInt(matcher.group(6));
+            }
+        } else {
+            throw new Exception("Could not parse Magento version. Check your pom.xml");
+        }
+    }
+
+    public int getMajorVersion() {
+        return magentoVersionMajor;
+    }
+
+    public int getMinorVersion() {
+        return magentoVersionMinor;
+    }
+
+    public int getRevisionVersion() {
+        return magentoVersionRevision;
+    }
+
+    public int getPatchVersion() {
+        return magentoVersionPatch;
+    }
+
+    public String getStabilityVersion() {
+        return magentoVersionStability;
+    }
+
+    public int getNumberVersion() {
+        return magentoVersionNumber;
+    }
+
+    public String toString() {
+        String v = magentoVersionMajor + "." + magentoVersionMinor + "."
+                + magentoVersionRevision + "." + magentoVersionPatch;
+        if (!magentoVersionStability.equals("")) {
+            v += "-" + magentoVersionStability;
+        }
+        if (magentoVersionNumber != 0) {
+            v += magentoVersionNumber;
+        }
+        return v;
+    }
+
 }

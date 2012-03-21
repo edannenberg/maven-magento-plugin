@@ -121,8 +121,8 @@ Define value for property 'magentoModuleType: local:</source>
 			..to true. Which will disable all tests/code validation.
 			<br/><br/>
 			
-			Below the dev profile is a production profile with properties suited for live Magento instance. If you would like to set
-			properties active in all profiles you can put them outside a profile in a properties block. <br/>
+			Below the dev profile is a production profile with properties suited for a live Magento instance. If you would like to set
+			properties active in all profiles you can put them outside a profile in the pom.xml properties block. <br/>
 			For more information about profiles check the Maven 
 			<a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">documentation</a>.
 			<br/><br/>

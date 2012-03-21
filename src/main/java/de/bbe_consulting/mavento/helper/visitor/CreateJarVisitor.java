@@ -33,73 +33,82 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.zip.CRC32;
 
+/**
+ * File visitor for creating a jar file.
+ * 
+ * @author Erik Dannenberg
+ */
 public class CreateJarVisitor extends SimpleFileVisitor<Path> {
 
-	private Path sourcePath;
+    private Path sourcePath;
     private JarOutputStream jarOutputStream;
     private CRC32 checkSum;
     private byte[] buffer;
     private boolean includeEmptyDirs = true;
-    
-    public CreateJarVisitor(Path source, JarOutputStream jarOutputStream, Boolean includeEmpty) throws IOException {
-    	sourcePath = source;
+
+    public CreateJarVisitor(Path source, JarOutputStream jarOutputStream, Boolean includeEmpty) 
+            throws IOException {
+
+        this.sourcePath = source;
         this.jarOutputStream = jarOutputStream;
-        buffer = new byte[1024];
-        checkSum = new CRC32();
+        this.buffer = new byte[1024];
+        this.checkSum = new CRC32();
         this.includeEmptyDirs = includeEmpty;
     }
-    
-    public CreateJarVisitor(Path source, JarOutputStream jarOutputStream) throws IOException {
-    	sourcePath = source;
-    	this.jarOutputStream = jarOutputStream;
-    	buffer = new byte[1024];
-        checkSum = new CRC32();
+
+    public CreateJarVisitor(Path source, JarOutputStream jarOutputStream)
+            throws IOException {
+
+        this.sourcePath = source;
+        this.jarOutputStream = jarOutputStream;
+        this.buffer = new byte[1024];
+        this.checkSum = new CRC32();
     }
-	
+
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-    	int bytesRead;
-    	try {
-	        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.toFile()));
-	        checkSum.reset();
-	        while ((bytesRead = bis.read(buffer)) != -1) {
-	        	checkSum.update(buffer, 0, bytesRead);
-	        }
-	        bis.close();
-	        // Reset to beginning of input stream
-	        bis = new BufferedInputStream(new FileInputStream(file.toFile()));
-	        JarEntry entry = new JarEntry(sourcePath.relativize(file).toString());
-	        entry.setMethod(JarEntry.STORED);
-	        entry.setCompressedSize(Files.size(file));
-	        entry.setSize(Files.size(file));
-	        entry.setCrc(checkSum.getValue());
-	        jarOutputStream.putNextEntry(entry);
-	        while ((bytesRead = bis.read(buffer)) != -1) {
-	        	jarOutputStream.write(buffer, 0, bytesRead);
-	        }
-	        bis.close();
-    	} catch (FileNotFoundException e) {
-    		return FileVisitResult.TERMINATE;
-    	} catch (IOException e) {
-			return FileVisitResult.TERMINATE;
-		}
+
+        int bytesRead;
+        try {
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.toFile()));
+            checkSum.reset();
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                checkSum.update(buffer, 0, bytesRead);
+            }
+            bis.close();
+            // Reset to beginning of input stream
+            bis = new BufferedInputStream(new FileInputStream(file.toFile()));
+            final JarEntry entry = new JarEntry(sourcePath.relativize(file).toString());
+            entry.setMethod(JarEntry.STORED);
+            entry.setCompressedSize(Files.size(file));
+            entry.setSize(Files.size(file));
+            entry.setCrc(checkSum.getValue());
+            jarOutputStream.putNextEntry(entry);
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                jarOutputStream.write(buffer, 0, bytesRead);
+            }
+            bis.close();
+        } catch (FileNotFoundException e) {
+            return FileVisitResult.TERMINATE;
+        } catch (IOException e) {
+            return FileVisitResult.TERMINATE;
+        }
         return CONTINUE;
     }
-	
+
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-    	try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-    	    if (!stream.iterator().hasNext() && includeEmptyDirs) {
-    	    	// add / to make it a dir entry
-    	    	JarEntry entry = new JarEntry(sourcePath.relativize(dir).toString()+"/");
-    	    	jarOutputStream.putNextEntry(entry);
-    	    }
-    	} catch (IOException e) {
-    	    return TERMINATE;
-    	}
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            if (!stream.iterator().hasNext() && includeEmptyDirs) {
+                // add / to make it a dir entry
+                final JarEntry entry = new JarEntry(sourcePath.relativize(dir).toString() + "/");
+                jarOutputStream.putNextEntry(entry);
+            }
+        } catch (IOException e) {
+            return TERMINATE;
+        }
         return CONTINUE;
     }
-	
-    
-    
+
 }

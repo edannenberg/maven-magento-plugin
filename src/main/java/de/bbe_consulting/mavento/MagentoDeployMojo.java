@@ -30,7 +30,10 @@ import de.bbe_consulting.mavento.helper.MagentoUtil;
 /**
  * Deploy current build artifact to Magento instance.<br/>
  * If run manually call it together with the package phase:<br/>
- * <pre>mvn package magento:deploy</pre>
+ * 
+ * <pre>
+ * mvn package magento:deploy
+ * </pre>
  * 
  * @goal deploy
  * @requiresDependencyResolution compile
@@ -38,51 +41,52 @@ import de.bbe_consulting.mavento.helper.MagentoUtil;
  */
 public final class MagentoDeployMojo extends AbstractMagentoMojo {
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		
-		File buildArtifact = new File(project.getBuild().getDirectory()+"/"+project.getArtifactId()+"-"+project.getVersion()+".zip");
-		if ( buildArtifact.exists() ) {
-			if (magentoDeployType.equals("local")) {
-				
-				getLog().info("Checking for symlinks..");
-				String srcDirName = project.getBasedir().getAbsolutePath()+"/src/main/php";
-				File f = new File(magentoRootLocal+"/app/etc/local.xml");
-				if (!f.exists()) {
-					throw new MojoExecutionException("Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
-				}
-				Map<String,String> linkMap = new HashMap<String, String>();
-				try {
-					linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
-				} catch (IOException e) {
-					throw new MojoExecutionException(e.getMessage(), e);
-				}
-				
-				for ( Map.Entry<String,String> fileNames : linkMap.entrySet()) {
-					File t = new File(fileNames.getValue());
-					if (t.exists()) {
-						getLog().info("..deleting: "+fileNames.getValue());
-						t.delete();
-					}
-				}
-				getLog().info("..done.");
-				
-				getLog().info("Deploying local to: "+magentoRootLocal);
-				try {
-					FileUtil.unzipFile(buildArtifact.getAbsolutePath(), magentoRootLocal);
-				} catch (IOException e) {
-					throw new MojoExecutionException(e.getMessage(), e);
-				}
-				
-				getLog().info("..extracting: "+buildArtifact.getName());
-				getLog().info("..done.");
-				
-			} else {
-				getLog().info("Deploying remote to: "+magentoRootRemote);
-				throw new MojoExecutionException("oops, remote deploy not implemented yet :(");
-			}
-		} else if (project.getPackaging().equals("php")) {
-			throw new MojoExecutionException("Could not find build artifact, forgot 'mvn package'? ;)");
-		}
-	}
-	
+    public void execute() throws MojoExecutionException, MojoFailureException {
+
+        final File buildArtifact = new File(project.getBuild().getDirectory() + "/"
+                + project.getArtifactId() + "-" + project.getVersion() + ".zip");
+        if (buildArtifact.exists()) {
+            if (magentoDeployType.equals("local")) {
+                getLog().info("Checking for symlinks..");
+                final String srcDirName = project.getBasedir().getAbsolutePath() + "/src/main/php";
+                final File f = new File(magentoRootLocal + "/app/etc/local.xml");
+                if (!f.exists()) {
+                    throw new MojoExecutionException(
+                            "Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
+                }
+                Map<String, String> linkMap = new HashMap<String, String>();
+                try {
+                    linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
+                } catch (IOException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+
+                for (Map.Entry<String, String> fileNames : linkMap.entrySet()) {
+                    File t = new File(fileNames.getValue());
+                    if (t.exists()) {
+                        getLog().info("..deleting: " + fileNames.getValue());
+                        t.delete();
+                    }
+                }
+                getLog().info("..done.");
+
+                getLog().info("Deploying local to: " + magentoRootLocal);
+                try {
+                    FileUtil.unzipFile(buildArtifact.getAbsolutePath(), magentoRootLocal);
+                } catch (IOException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+
+                getLog().info("..extracting: " + buildArtifact.getName());
+                getLog().info("..done.");
+
+            } else {
+                getLog().info("Deploying remote to: " + magentoRootRemote);
+                throw new MojoExecutionException("oops, remote deploy not implemented yet :(");
+            }
+        } else if (project.getPackaging().equals("php")) {
+            throw new MojoExecutionException("Could not find build artifact, forgot 'mvn package'? ;)");
+        }
+    }
+
 }

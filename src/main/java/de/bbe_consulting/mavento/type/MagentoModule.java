@@ -33,71 +33,73 @@ import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
  */
 public class MagentoModule {
 
-	private String name;
-	private String namespace;
-	private String version;
-	private String codePool;
-	private Boolean active;
-	
-	public MagentoModule(Path modulesConfigXmlPath) throws MojoExecutionException {
-		
-		Path magentoAppRoot = modulesConfigXmlPath.getParent().getParent().getParent().toAbsolutePath();
-		Document modulXml = MagentoXmlUtil.readXmlFile(modulesConfigXmlPath.toAbsolutePath().toString());
-		
-		// parse /etc/modules/ config
-		Map<String, String> moduleConfig = MagentoXmlUtil.getEtcModulesValues(modulXml);
-		name = moduleConfig.get("moduleName");
-		namespace = moduleConfig.get("nameSpace");
-		codePool = moduleConfig.get("codePool");
-		active = Boolean.parseBoolean(moduleConfig.get("active"));
-		
-		// parse modules config.xml for version
-		Path configXmlPath = Paths.get(magentoAppRoot + "/code/" + codePool + "/" + namespace + "/" + name + "/etc/config.xml");
-		if (Files.exists(configXmlPath)) {
-			Document configXml = MagentoXmlUtil.readXmlFile(configXmlPath.toAbsolutePath().toString());
-			version = MagentoXmlUtil.getModuleVersion(configXml, namespace + "_" + name);
-		}
-		
-	}
-	
-	public String getName() {
-		return name;
-	}
+    private String name;
+    private String namespace;
+    private String version;
+    private String codePool;
+    private Boolean active;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public MagentoModule(Path modulesConfigXmlPath)
+            throws MojoExecutionException {
 
-	public String getNamespace() {
-		return namespace;
-	}
+        final Path magentoAppRoot = modulesConfigXmlPath.getParent().getParent().getParent().toAbsolutePath();
+        final Document modulXml = MagentoXmlUtil.readXmlFile(modulesConfigXmlPath.toAbsolutePath().toString());
 
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
-	}
+        // parse /etc/modules/ config
+        final Map<String, String> moduleConfig = MagentoXmlUtil.getEtcModulesValues(modulXml);
+        name = moduleConfig.get("moduleName");
+        namespace = moduleConfig.get("nameSpace");
+        codePool = moduleConfig.get("codePool");
+        active = Boolean.parseBoolean(moduleConfig.get("active"));
 
-	public String getVersion() {
-		return version;
-	}
+        // parse modules config.xml for version
+        final Path configXmlPath = Paths.get(magentoAppRoot + "/code/" + codePool
+                + "/" + namespace + "/" + name + "/etc/config.xml");
+        if (Files.exists(configXmlPath)) {
+            final Document configXml = MagentoXmlUtil.readXmlFile(configXmlPath.toAbsolutePath().toString());
+            version = MagentoXmlUtil.getModuleVersion(configXml, namespace + "_" + name);
+        }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    }
 
-	public String getCodePool() {
-		return codePool;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setCodePool(String codePool) {
-		this.codePool = codePool;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Boolean isActive() {
-		return active;
-	}
+    public String getNamespace() {
+        return namespace;
+    }
 
-	public void setActive(Boolean active) {
-		this.active = active;
-	}
-	
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getCodePool() {
+        return codePool;
+    }
+
+    public void setCodePool(String codePool) {
+        this.codePool = codePool;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
 }

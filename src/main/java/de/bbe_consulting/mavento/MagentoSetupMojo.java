@@ -21,20 +21,18 @@ import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Setup a local Magento instance for development.
- *
+ * 
  * @goal setup
  * @aggregator false
  * @requiresDependencyResolution runtime
  * @author Erik Dannenberg
  */
-public final class MagentoSetupMojo extends AbstractMagentoSetupMojo
-{
-    
-	public void execute() throws MojoExecutionException, MojoFailureException
-    {
-		tempDir = "target/magento_setup";
-		targetDir = magentoRootLocal;
-		setupMagento();
+public final class MagentoSetupMojo extends AbstractMagentoSetupMojo {
+
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        tempDir = "target/magento_setup";
+        targetDir = magentoRootLocal;
+        setupMagento();
     }
-    
+
 }

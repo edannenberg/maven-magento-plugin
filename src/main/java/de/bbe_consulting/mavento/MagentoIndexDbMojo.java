@@ -23,7 +23,7 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 
 /**
  * Reindex current Magento database.
- *
+ * 
  * @goal index-db
  * @aggregator false
  * @requiresDependencyResolution compile
@@ -31,12 +31,12 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
  */
 public class MagentoIndexDbMojo extends AbstractMagentoMojo {
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		if (magentoDeployType.equals("local")) {
-			MagentoSqlUtil.indexDb(magentoRootLocal, getLog());
-		} else {
-			throw new MojoExecutionException("Ooops, remote indexing not implementet yet! :(");
-		}
-	}
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (magentoDeployType.equals("local")) {
+            MagentoSqlUtil.indexDb(magentoRootLocal, getLog());
+        } else {
+            throw new MojoExecutionException("Ooops, remote indexing not implementet yet! :(");
+        }
+    }
 
 }

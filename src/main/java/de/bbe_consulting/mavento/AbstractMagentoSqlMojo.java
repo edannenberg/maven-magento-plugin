@@ -17,7 +17,8 @@
 package de.bbe_consulting.mavento;
 
 /**
- * Abstract class for mojos that want to access the magento database
+ * Abstract class for mojos that want to access the magento database.
+ * 
  * @author Erik Dannenberg
  */
 
@@ -29,31 +30,31 @@ public abstract class AbstractMagentoSqlMojo extends AbstractMagentoMojo {
      * @required
      */
     protected String magentoDbName;
-    
+
     /** 
      * Database user.
      * @parameter expression="${magento.db.user}"
      * @required
      */
     protected String magentoDbUser;
-    
+
     /** 
      * Password for db user.
      * @parameter expression="${magento.db.passwd}"
      * @required
      */
     protected String magentoDbPasswd;
-    
+
     /**
      * Url to mysql database.<br/>
      * @parameter expression="${magento.db.host}" default-value="localhost"
      */
     protected String magentoDbHost;
-    
+
     /** 
      * Port of mysql database.<br/>
      * @parameter expression="${magento.db.port}" default-value="3306"
      */
     protected String magentoDbPort;
-	
+
 }

@@ -25,10 +25,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.execution.MavenSession;
 
 /**
- * The basics for all magento mojos
+ * Base class for magento mojos.
  * @author Erik Dannenberg
  */
-
 public abstract class AbstractMagentoMojo extends AbstractMojo {
 
     /**
@@ -45,7 +44,7 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
      * @required
      * @readonly
      */
-    protected MavenSession session;    
+    protected MavenSession session;
     
     /**
      * @parameter default-value="${project.dependencies}
@@ -56,6 +55,7 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
     
     /**
      * Project build directory.
+     * 
      * @parameter expression="${magento.build.directory}"
      * @required
      */
@@ -65,6 +65,7 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
      * Magento version, this should always reflect the actual Magento version.<br/>
      * For available versions have a look at: <br/>
      * <pre>http://maven.bbe-consulting.de/content/repositories/releases/com/varien/magento/</pre>
+     * 
      * @parameter expression="${magento.version}"
      * @required
      */
@@ -72,12 +73,14 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
 
     /** 
      * Deploy type. Did not backport remote deploy yet, so only local for now. local|remote<br/>
+     * 
      * @parameter expression="${magento.deploy.type}" default-value="local"
      */
     protected String magentoDeployType;
     
     /** 
      * Local root directory of Magento installation.
+     * 
      * @parameter expression="${magento.root.local}" 
      * @required
      */
@@ -85,18 +88,21 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
     
     /** 
      * Remote root directory of Magento installation.
+     * 
      * @parameter expression="${magento.root.remote}"
      */
     protected String magentoRootRemote;
     
     /** 
      * Url for remote deploy.
+     * 
      * @parameter expression="${remote.scp.host}"
      */
     protected String remoteScpHost;
     
     /**
-     * Username on remote system. Expects ssh public key access. 
+     * Username on remote system. Expects ssh public key access.
+     * 
      * @parameter expression="${remote.scp.username}"
      */
     protected String remoteScpUsername;

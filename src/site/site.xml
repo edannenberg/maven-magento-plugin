@@ -23,7 +23,7 @@
     <menu name="Magento Maven Plugin">
       <item name="Overview" href="index.html"/>
       <item name="Installation" href="install.html"/>
-	  <item name="Usecases" href="use_cases.html">
+	  <item name="Use Cases" href="use_cases.html">
       	<item name="Magento Module" href="howto/single_module.html" />
       	<item name="Bigger Projects" href="howto/bigger_projects.html" />
       	<item name="Integration Tests" href="howto/it.html" />
