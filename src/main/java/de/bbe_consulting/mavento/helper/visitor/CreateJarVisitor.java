@@ -76,7 +76,7 @@ public class CreateJarVisitor extends SimpleFileVisitor<Path> {
                 checkSum.update(buffer, 0, bytesRead);
             }
             bis.close();
-            // Reset to beginning of input stream
+            // reset to beginning of input stream
             bis = new BufferedInputStream(new FileInputStream(file.toFile()));
             final JarEntry entry = new JarEntry(sourcePath.relativize(file).toString());
             entry.setMethod(JarEntry.STORED);

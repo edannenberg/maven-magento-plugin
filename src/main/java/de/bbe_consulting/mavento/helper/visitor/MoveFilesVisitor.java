@@ -30,21 +30,19 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * File visitor for copying files recursive.
+ * File visitor to moves files recursive.
  * 
  * @author Erik Dannenberg
  */
-public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
+public class MoveFilesVisitor extends SimpleFileVisitor<Path> {
 
     private final Path source;
     private final Path target;
-    private final boolean preserve;
 
-    public CopyFilesVisitor(Path source, Path target, boolean preserve) {
+    public MoveFilesVisitor(Path source, Path target) {
 
         this.source = source;
         this.target = target;
-        this.preserve = preserve;
     }
 
     @Override
@@ -63,33 +61,37 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
 
         try {
-            copyFile(file, target.resolve(source.relativize(file)), preserve);
+            Files.delete(dir);
         } catch (IOException e) {
             return TERMINATE;
         }
         return CONTINUE;
     }
-    
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+
+        try {
+            moveFile(file, target.resolve(source.relativize(file)));
+        } catch (IOException e) {
+            return TERMINATE;
+        }
+        return CONTINUE;
+    }
+
     /**
-     * Copy a file to target path.
+     * Move source file to target.
      * 
      * @param source
      * @param target
      * @param preserve preserve file attributes?
+     * @throws IOException 
      */
-    private static void copyFile(Path source, Path target, boolean preserve) throws IOException {
+    static void moveFile(Path source, Path target) throws IOException {
 
-        CopyOption[] options = null;
-        if (preserve) {
-            options = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES,
-                    StandardCopyOption.REPLACE_EXISTING };
-        } else {
-            options = new CopyOption[] { StandardCopyOption.REPLACE_EXISTING };
-        }
-        Files.copy(source, target, options);
+        Files.move(source, target, new CopyOption[] { StandardCopyOption.REPLACE_EXISTING });
     }
-
 }

@@ -37,6 +37,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
+import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 import org.codehaus.plexus.util.cli.CommandLineUtils.StringStreamConsumer;
 
 import de.bbe_consulting.mavento.type.MagentoVersion;
@@ -417,6 +418,61 @@ public final class MagentoUtil {
             }
         }
         return moduleNames;
+    }
+    
+    /**
+     * Execute magento install.php with some bogus values.<br/>
+     * Only used for vanilla artifact creation.
+     * 
+     * @param magentoRoot
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbName
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void execMagentoInstall (Path magentoRoot, String magentoDbUser,
+            String magentoDbPasswd, String magentoDbHost, String magentoDbName, Log logger)
+                    throws MojoExecutionException {
+
+        final Commandline cl = new Commandline();
+        cl.addArguments(new String[] { "install.php", "--license_agreement_accepted", "yes",
+                "--locale", "de_DE", "--timezone", "\"Europe/Berlin\"",
+                "--default_currency", "EUR",
+                "--db_user", magentoDbUser,
+                "--db_pass", magentoDbPasswd,
+                "--db_host", magentoDbHost,
+                "--db_name", magentoDbName,
+                "--url", "\"http://mavento.local/\"",
+                "--secure_base_url", "\"https://mavento.local/\"",
+                "--skip_url_validation", "yes",
+                "--use_secure", "yes",
+                "--use_secure_admin", "yes",
+                "--use_rewrites", "yes",
+                "--admin_lastname", "Floppel",
+                "--admin_firstname", "Heinzi",
+                "--admin_email", "\"heinzi@floppel.net\"",
+                "--admin_username", "admin",
+                "--admin_password", "123test"
+                });
+        cl.setExecutable("php");
+        cl.setWorkingDirectory(magentoRoot.toString()+"/magento");
+
+        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
+        WriterStreamConsumer output = null;
+        try {
+            logger.info("Executing install.php on db " + magentoDbName + "..");
+            final int returnValue = CommandLineUtils.executeCommandLine(cl, output, error);
+            if (returnValue != 0) {
+                logger.info(error.getOutput().toString());
+                logger.info("retval: " + returnValue);
+                throw new MojoExecutionException("Error while executing install.php.");
+            }
+            logger.info("..done.");
+        } catch (CommandLineException e) {
+            throw new MojoExecutionException("Error while executing install.php.", e);
+        }
     }
 
 }
