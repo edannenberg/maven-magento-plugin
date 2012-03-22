@@ -33,6 +33,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -44,6 +46,7 @@ import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 import org.apache.maven.plugin.logging.Log;
 
 import de.bbe_consulting.mavento.type.MagentoCoreConfig;
+import de.bbe_consulting.mavento.type.MysqlTable;
 
 /**
  * Magento related SQL helpers.
@@ -181,6 +184,14 @@ public final class MagentoSqlUtil {
         }
     }
 
+    public static void recreateMagentoDb(String magentoDbUser, String magentoDbPasswd,
+            String magentoDbHost, String magentoDbPort, String magentoDbName, Log logger) 
+                    throws MojoExecutionException {
+
+        dropMagentoDb(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, logger);
+        createMagentoDb(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, logger);
+    }
+    
     /**
      * Imports a mysql dump.
      * 
@@ -212,7 +223,7 @@ public final class MagentoSqlUtil {
 
         try {
             logger.info("Importing sql dump into database " + magentoDbName + "..");
-            int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
+            final int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
             if (returnValue != 0) {
                 logger.info(output.getOutput().toString());
                 logger.info(error.getOutput().toString());
@@ -258,7 +269,7 @@ public final class MagentoSqlUtil {
 
         try {
             logger.info("Dumping database " + magentoDbName + " to " + sqlDump + "..");
-            int returnValue = CommandLineUtils.executeCommandLine(cl, output, error);
+            final int returnValue = CommandLineUtils.executeCommandLine(cl, output, error);
             if (returnValue != 0) {
                 logger.info(error.getOutput().toString());
                 logger.info("retval: " + returnValue);
@@ -608,8 +619,16 @@ public final class MagentoSqlUtil {
     }
 
     /**
-     * Truncates magento's log tables.
-     * 
+     * Truncate magento's log tables.<br/>
+     * Affected tables: <br/>
+     *      dataflow_batch_export<br/>
+     *      dataflow_batch_import<br/>
+     *      log_url<br/>
+     *      log_url_info<br/>
+     *      log_visitor<br/>
+     *      log_visitor_info<br/>
+     *      report_event<br/>
+     *
      * @param magentoDbUser
      * @param magentoDbPasswd
      * @param jdbcUrl
@@ -619,17 +638,121 @@ public final class MagentoSqlUtil {
     public static void truncateLogTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
             throws MojoExecutionException {
 
-        final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
-
         final String[] tableData = { "dataflow_batch_export",
-                "dataflow_batch_import", "log_url", "log_url_info",
-                "log_visitor", "log_visitor_info", "report_event" };
+                                        "dataflow_batch_import",
+                                        "log_url",
+                                        "log_url_info",
+                                        "log_visitor",
+                                        "log_visitor_info",
+                                        "report_event"
+                                       };
+        truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
+    }
+    
+    /**
+     * Truncates magento's sales tables.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void truncateSalesTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
+            throws MojoExecutionException {
+
+        final String[] tableData = { "sales_flat_creditmemo",
+                                        "sales_flat_creditmemo_comment",
+                                        "sales_flat_creditmemo_grid",
+                                        "sales_flat_creditmemo_item",
+                                        "sales_flat_invoice",
+                                        "sales_flat_invoice_comment",
+                                        "sales_flat_invoice_grid",
+                                        "sales_flat_invoice_item",
+                                        "sales_flat_order",
+                                        "sales_flat_order_address",
+                                        "sales_flat_order_grid",
+                                        "sales_flat_order_item",
+                                        "sales_flat_order_payment",
+                                        "sales_flat_order_status_history",
+                                        "sales_flat_quote",
+                                        "sales_flat_quote_address",
+                                        "sales_flat_quote_address_item",
+                                        "sales_flat_quote_item",
+                                        "sales_flat_quote_item_option",
+                                        "sales_flat_quote_payment",
+                                        "sales_flat_quote_shipping_rate",
+                                        "sales_flat_shipment",
+                                        "sales_flat_shipment_comment",
+                                        "sales_flat_shipment_grid",
+                                        "sales_flat_shipment_item",
+                                        "sales_flat_shipment_track",
+                                        "sales_invoiced_aggregated",
+                                        "sales_invoiced_aggregated_order",
+                                        "log_quote",
+                                        "downloadable_link_purchased",
+                                        "downloadable_link_purchased_item",
+                                        "eav_entity_store"
+                                    };
+        truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
+    }
+    
+    /**
+     * Truncates magento's customer tables.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void truncateCustomerTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
+            throws MojoExecutionException {
+
+        final String[] tableData = { "customer_address_entity",
+                                        "customer_address_entity_datetime",
+                                        "customer_address_entity_decimal",
+                                        "customer_address_entity_int",
+                                        "customer_address_entity_text",
+                                        "customer_address_entity_varchar",
+                                        "customer_entity",
+                                        "customer_entity_datetime",
+                                        "customer_entity_decimal",
+                                        "customer_entity_int",
+                                        "customer_entity_text",
+                                        "customer_entity_varchar",
+                                        "tag",
+                                        "tag_relation",
+                                        "tag_summary",
+                                        "tag_properties",
+                                        "wishlist",
+                                        "log_customer",
+                                        "report_viewed_product_index",
+                                        "sendfriend_log"
+                                    };
+        truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
+    }
+
+    /**
+     * Mass truncate magento db tables.
+     * 
+     * @param tableNames
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void truncateTables(String[] tableNames, String magentoDbUser, String magentoDbPasswd,
+            String jdbcUrl, Log logger) throws MojoExecutionException {
+        
+        final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
 
         try {
             c.setAutoCommit(false);
             final Statement st = c.createStatement();
-            for (int i = 0; i < tableData.length; i++) {
-                st.addBatch("TRUNCATE TABLE " + tableData[i]);
+            for (int i = 0; i < tableNames.length; i++) {
+                st.addBatch("TRUNCATE TABLE " + tableNames[i]);
             }
             final int[] updateCounts = st.executeBatch();
             for (int i = 0; i < updateCounts.length; i++) {
@@ -652,6 +775,97 @@ public final class MagentoSqlUtil {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
+    }
+    
+    /**
+     * Get mysql database size in mb.
+     *  
+     * @param dbNameToCheck
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @param logger
+     * @return String size in mb
+     * @throws MojoExecutionException
+     */
+    public static Map<String,Integer> getDbSize (String dbNameToCheck, String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
+            throws MojoExecutionException {
+        
+        final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
+        final HashMap<String, Integer> result = new HashMap<String, Integer>();
+        try {
+            final String query = "SELECT SUM( ROUND( ( (DATA_LENGTH + INDEX_LENGTH) /1024 /1024 ) , 0 ))" +
+                    " 'db_size_in_mb', SUM(table_rows) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?";
+            final PreparedStatement st = c.prepareStatement(query);
+            st.setString(1, dbNameToCheck);
+            final ResultSet r = st.executeQuery();
+            if (r.next()) {
+                result.put("totalSize", r.getInt(1));
+                result.put("totalRows", r.getInt(2));
+            } else {
+                throw new MojoExecutionException("Error fetching db details.");
+            }
+        } catch (SQLException e) {
+            throw new MojoExecutionException("SQL error. " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error. " + e.getMessage(), e);
+        } finally {
+            try {
+                c.close();
+            } catch (SQLException e) {
+                throw new MojoExecutionException("Error closing database connection. " + e.getMessage(), e);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get magento log tables details.
+     * 
+     * @param dbNameToCheck
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @param logger
+     * @return List<MysqlTable>
+     * @throws MojoExecutionException
+     */
+    public static List<MysqlTable> getLogTablesSize (String dbNameToCheck, String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
+            throws MojoExecutionException {
+
+        final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
+        final ArrayList<MysqlTable> tableList = new ArrayList<MysqlTable>();
+        try {
+            final String query = "SELECT TABLE_NAME, table_rows, data_length, index_length " +
+                    "FROM information_schema.TABLES WHERE table_schema = ? " +
+                    "AND (TABLE_NAME like ? OR TABLE_NAME like ?) " +
+                    "ORDER BY table_rows DESC";
+            final PreparedStatement st = c.prepareStatement(query);
+            st.setString(1, dbNameToCheck);
+            st.setString(2, "log_%");
+            st.setString(3, "report_%");
+            final ResultSet r = st.executeQuery();
+            while (r.next()) {
+                MysqlTable m = new MysqlTable();
+                m.setDbName(dbNameToCheck);
+                m.setTableName(r.getString(1));
+                m.setTableRows(r.getInt(2));
+                m.setTableLength(r.getInt(3));
+                m.setTableIndexLength(r.getInt(4));
+                tableList.add(m);
+            }
+        } catch (SQLException e) {
+            throw new MojoExecutionException("SQL error. " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error. " + e.getMessage(), e);
+        } finally {
+            try {
+                c.close();
+            } catch (SQLException e) {
+                throw new MojoExecutionException("Error closing database connection. " + e.getMessage(), e);
+            }
+        }
+        return tableList;
     }
 
 }

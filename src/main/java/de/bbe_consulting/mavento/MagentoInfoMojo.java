@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,13 +41,14 @@ import de.bbe_consulting.mavento.type.MagentoCoreConfig;
 import de.bbe_consulting.mavento.type.MagentoModule;
 import de.bbe_consulting.mavento.type.MagentoModuleComperator;
 import de.bbe_consulting.mavento.type.MagentoVersion;
+import de.bbe_consulting.mavento.type.MysqlTable;
 
 /**
  * Display some basic information of a Magento instance. This goal does not need
  * an active Maven project. <br/>
  * It will however honor the properties in your pom.xml if called from a
  * project.<br/>
- * To specify any Magento folder you can set the magentoPath property.<br/>
+ * Use -DmagentoPath=/path/to/magento to override.<br/>
  * 
  * <pre>
  * mvn magento:info -DmagentoPath=/path/to/magento/folder
@@ -71,6 +73,13 @@ public class MagentoInfoMojo extends AbstractMojo {
      * @parameter expression="${magentoPath}
      */
     protected String magentoPath;
+    
+    /**
+     * If true the plugin will print even more details.
+     * 
+     * @parameter expression="${showDetails}" default-value="false"
+     */
+    protected Boolean showDetails;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -145,6 +154,30 @@ public class MagentoInfoMojo extends AbstractMojo {
                         + ":" + dbSettings.get("port"));
         getLog().info("Connection: " + sqlError);
         getLog().info("");
+        
+        try {
+            final Map<String, Integer> dbDetails = MagentoSqlUtil.getDbSize(dbSettings.get("dbname"), dbSettings.get("user"),
+                    dbSettings.get("password"), jdbcUrl, getLog());
+            final List<MysqlTable> logTableDetails = MagentoSqlUtil.getLogTablesSize(dbSettings.get("dbname"), dbSettings.get("user"),
+                    dbSettings.get("password"), jdbcUrl, getLog());
+            getLog().info("Database total: " + String.format("%,8d", dbDetails.get("totalRows")).trim() +
+                    " entries / " + String.format("%,8d", dbDetails.get("totalSize")).trim() + "mb");
+            int logSizeTotal = 0;
+            int logRowsTotal = 0;
+            for (MysqlTable t : logTableDetails) {
+                logSizeTotal += t.getTableSizeInMb();
+                logRowsTotal += t.getTableRows();
+                if (showDetails) {
+                    getLog().info(" " + t.getTableName() + ": " + t.getFormatedTableEntries() +
+                            " entries / " + t.getFormatedTableSizeInMb() + "mb");
+                }
+            }
+            getLog().info("Log tables total: " + String.format("%,8d", logRowsTotal).trim() +
+                    " entries / " + String.format("%,8d", logSizeTotal).trim() + "mb");
+            getLog().info("");
+        } catch (MojoExecutionException e) {
+            getLog().info("Error: " + e.getMessage());
+        }
 
         // parse modules
         final Path modulesXmlPath = Paths.get(magentoPath + "/app/etc/modules");
