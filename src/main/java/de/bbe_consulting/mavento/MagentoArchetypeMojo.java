@@ -42,7 +42,7 @@ import java.util.Properties;
 public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        final Properties executionProperties = session.getExecutionProperties();
+        final Properties executionProperties = session.getUserProperties();
 
         final ArchetypeGenerationRequest request = new ArchetypeGenerationRequest()
                 .setArchetypeGroupId(archetypeGroupId)

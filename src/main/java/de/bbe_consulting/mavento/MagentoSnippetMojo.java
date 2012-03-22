@@ -79,7 +79,7 @@ public class MagentoSnippetMojo extends AbstractArchetypeMojo {
             throw new MojoExecutionException("This mojo can only be run from a maven project root.");
         }
 
-        final Properties executionProperties = session.getExecutionProperties();
+        final Properties executionProperties = session.getUserProperties();
 
         final ArchetypeGenerationRequest request = new ArchetypeGenerationRequest()
                 .setArchetypeGroupId(archetypeGroupId)

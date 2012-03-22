@@ -37,7 +37,6 @@ import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -221,7 +220,7 @@ public abstract class AbstractArchetypeMojo extends AbstractMojo implements
     public List<String> getRequiredArchetypeProperties(
             ArchetypeGenerationRequest request, Properties commandLineProperties)
             throws ArchetypeNotDefined, UnknownArchetype,
-            ArchetypeNotConfigured, IOException, PrompterException,
+            ArchetypeNotConfigured, IOException,
             ArchetypeGenerationConfigurationFailure {
 
         ArtifactRepository archetypeRepository = null;

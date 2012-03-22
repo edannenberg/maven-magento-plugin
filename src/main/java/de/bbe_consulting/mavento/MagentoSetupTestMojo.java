@@ -162,7 +162,6 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        @SuppressWarnings("unchecked")
         final List<String> l = session.getGoals();
         if (l.get(0).equals("eclipse:eclipse") || magentoTestIgnore) {
             return;
