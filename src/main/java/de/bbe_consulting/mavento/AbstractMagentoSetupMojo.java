@@ -1277,6 +1277,9 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         tokenMap.put("host", magentoDbHost);
         tokenMap.put("dbname", magentoDbName);
         tokenMap.put("username", magentoDbUser);
+        if (magentoDbPasswd == null) {
+            magentoDbPasswd = "";
+        }
         tokenMap.put("password", magentoDbPasswd);
         if (magentoDbTablePrefix == null) {
             magentoDbTablePrefix = "";

@@ -441,7 +441,6 @@ public final class MagentoUtil {
                 "--locale", "de_DE", "--timezone", "\"Europe/Berlin\"",
                 "--default_currency", "EUR",
                 "--db_user", magentoDbUser,
-                "--db_pass", magentoDbPasswd,
                 "--db_host", magentoDbHost,
                 "--db_name", magentoDbName,
                 "--url", "\"http://mavento.local/\"",
@@ -456,6 +455,9 @@ public final class MagentoUtil {
                 "--admin_username", "admin",
                 "--admin_password", "123test"
                 });
+        if (magentoDbPasswd != null && !magentoDbPasswd.isEmpty()) {
+            cl.addArguments(new String[] {"--db_pass", magentoDbPasswd});
+        }
         cl.setExecutable("php");
         cl.setWorkingDirectory(magentoRoot.toString()+"/magento");
 

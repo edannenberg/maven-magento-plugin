@@ -167,8 +167,7 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
             return;
         }
 
-        if (magentoTestDbName == null || magentoTestDbPasswd == null
-                || magentoTestDbUser == null || magentoTestRootLink == null
+        if (magentoTestDbName == null || magentoTestDbUser == null || magentoTestRootLink == null
                 || magentoTestUrlBase == null) {
             throw new MojoExecutionException(
                     "Error missing properties magento.test.db.* ,magento.test.root.link or magento.test.url.base."

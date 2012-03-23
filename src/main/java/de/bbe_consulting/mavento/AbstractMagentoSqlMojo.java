@@ -41,7 +41,6 @@ public abstract class AbstractMagentoSqlMojo extends AbstractMagentoMojo {
     /** 
      * Password for db user.
      * @parameter expression="${magento.db.passwd}"
-     * @required
      */
     protected String magentoDbPasswd;
 

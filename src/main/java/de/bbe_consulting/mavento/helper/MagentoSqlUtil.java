@@ -252,10 +252,9 @@ public final class MagentoSqlUtil {
             String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
             String magentoDbName, Log logger) throws MojoExecutionException {
 
-        final Commandline cl = new Commandline("mysqldump");
-        cl.addArguments(new String[] { "--user=" + magentoDbUser,
-                "--password=" + magentoDbPasswd, "--host=" + magentoDbHost,
-                "--port=" + magentoDbPort, "-C", magentoDbName });
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
+        cl.setExecutable("mysqldump");
+        cl.addArguments(new String[] { "-C", magentoDbName });
 
         final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
         WriterStreamConsumer output = null;
@@ -288,15 +287,14 @@ public final class MagentoSqlUtil {
      * @param magentoDbPasswd
      * @param magentoDbHost
      * @param magentoDbPort
+     * @param magentoDbName
      * @return Commandline object configured for mysql exec
      */
     public static Commandline getMysqlCommandLine(String magentoDbUser,
-            String magentoDbPasswd, String magentoDbHost, String magentoDbPort) {
+            String magentoDbPasswd, String magentoDbHost, String magentoDbPort, String magentoDbName) {
 
-        final Commandline cl = new Commandline("mysql");
-        cl.addArguments(new String[] { "--user=" + magentoDbUser,
-                "--password=" + magentoDbPasswd, "--host=" + magentoDbHost,
-                "--port=" + magentoDbPort });
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
+        cl.addArguments(new String[] {magentoDbName});
         return cl;
     }
 
@@ -307,17 +305,32 @@ public final class MagentoSqlUtil {
      * @param magentoDbPasswd
      * @param magentoDbHost
      * @param magentoDbPort
-     * @param magentoDbName
      * @return Commandline object configured for mysql exec
      */
     public static Commandline getMysqlCommandLine(String magentoDbUser,
-            String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
-            String magentoDbName) {
+            String magentoDbPasswd, String magentoDbHost, String magentoDbPort) {
+
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbHost, magentoDbPort);
+        if (magentoDbPasswd != null && !magentoDbPasswd.isEmpty()) {
+            cl.addArguments(new String[] {"--password=" + magentoDbPasswd});
+        }
+        return cl;
+    }
+
+    /**
+     * Get a commandline object for mysql exec calls.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @return
+     */
+    public static Commandline getMysqlCommandLine(String magentoDbUser,
+            String magentoDbHost, String magentoDbPort) {
 
         final Commandline cl = new Commandline("mysql");
         cl.addArguments(new String[] { "--user=" + magentoDbUser,
-                "--password=" + magentoDbPasswd, "--host=" + magentoDbHost,
-                "--port=" + magentoDbPort, magentoDbName });
+                "--host=" + magentoDbHost, "--port=" + magentoDbPort });
         return cl;
     }
 
