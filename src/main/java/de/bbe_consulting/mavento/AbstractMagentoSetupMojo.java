@@ -737,7 +737,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         final String localXmlPath = tempDir + "/app/etc/local.xml";
         final Document localXml = MagentoXmlUtil.readXmlFile(localXmlPath);
 
-        MagentoXmlUtil.updateDbValues(magentoDbHost, magentoDbUser,
+        MagentoXmlUtil.updateDbValues(magentoDbHost+":"+magentoDbPort, magentoDbUser,
                 magentoDbPasswd, magentoDbName, localXml);
 
         try {
@@ -1274,7 +1274,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
     private Map<String, String> getLocalXmlTagMap() {
         final Map<String, String> tokenMap = new HashMap<String, String>();
 
-        tokenMap.put("host", magentoDbHost);
+        tokenMap.put("host", magentoDbHost+":"+magentoDbPort);
         tokenMap.put("dbname", magentoDbName);
         tokenMap.put("username", magentoDbUser);
         if (magentoDbPasswd == null) {
