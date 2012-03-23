@@ -287,6 +287,11 @@ public final class MagentoXmlUtil {
             switch (dbNode.getNodeName()) {
             case "host":
                 magentoDbHost = getNodeValue(dbNode);
+                if (magentoDbHost.contains(":")) {
+                    final String[] s = magentoDbHost.split(":", 2);
+                    magentoDbHost = s[0];
+                    magentoDbPort = s[1];
+                }
                 break;
             case "username":
                 magentoDbUser = getNodeValue(dbNode);
@@ -300,12 +305,12 @@ public final class MagentoXmlUtil {
             }
         }
 
-        if (magentoDbHost == null || magentoDbUser == null || magentoDbPasswd == null || magentoDbName == null) {
+        if (magentoDbHost == null || magentoDbUser == null || magentoDbName == null) {
             throw new MojoExecutionException("Could not find db settings in /app/etc/local.xml");
         }
 
         // TODO: parse host for possible port
-
+        
         final Map<String, String> result = new HashMap<String, String>();
         result.put("host", magentoDbHost);
         result.put("port", magentoDbPort);
@@ -359,6 +364,9 @@ public final class MagentoXmlUtil {
                     dbNodes.item(j).setNodeValue("");
                     while (cdataNodes.getLength() > 0) {
                         dbNode.removeChild(cdataNodes.item(0));
+                    }
+                    if (magentoDbPasswd == null) {
+                        magentoDbPasswd = "";
                     }
                     cdata = payload.createCDATASection(magentoDbPasswd);
                     dbNodes.item(j).appendChild(cdata);
