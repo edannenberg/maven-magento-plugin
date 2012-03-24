@@ -648,17 +648,20 @@ public final class MagentoSqlUtil {
      * @param logger
      * @throws MojoExecutionException
      */
-    public static void truncateLogTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
-            throws MojoExecutionException {
-
-        final String[] tableData = { "dataflow_batch_export",
-                                        "dataflow_batch_import",
-                                        "log_url",
-                                        "log_url_info",
-                                        "log_visitor",
-                                        "log_visitor_info",
-                                        "report_event"
-                                       };
+    public static void truncateLogTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl,
+            boolean includeViewedProduct, Log logger) throws MojoExecutionException {
+        
+        final List<String> tableData = new ArrayList<String> ();
+        tableData.add("dataflow_batch_export");
+        tableData.add("dataflow_batch_import");
+        tableData.add("log_url");
+        tableData.add("log_url_info");
+        tableData.add("log_visitor");
+        tableData.add("log_visitor_info");
+        tableData.add("report_event");
+        if (includeViewedProduct) {
+            tableData.add("report_viewed_product_index");
+        }
         truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
     }
     
@@ -674,39 +677,39 @@ public final class MagentoSqlUtil {
     public static void truncateSalesTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
             throws MojoExecutionException {
 
-        final String[] tableData = { "sales_flat_creditmemo",
-                                        "sales_flat_creditmemo_comment",
-                                        "sales_flat_creditmemo_grid",
-                                        "sales_flat_creditmemo_item",
-                                        "sales_flat_invoice",
-                                        "sales_flat_invoice_comment",
-                                        "sales_flat_invoice_grid",
-                                        "sales_flat_invoice_item",
-                                        "sales_flat_order",
-                                        "sales_flat_order_address",
-                                        "sales_flat_order_grid",
-                                        "sales_flat_order_item",
-                                        "sales_flat_order_payment",
-                                        "sales_flat_order_status_history",
-                                        "sales_flat_quote",
-                                        "sales_flat_quote_address",
-                                        "sales_flat_quote_address_item",
-                                        "sales_flat_quote_item",
-                                        "sales_flat_quote_item_option",
-                                        "sales_flat_quote_payment",
-                                        "sales_flat_quote_shipping_rate",
-                                        "sales_flat_shipment",
-                                        "sales_flat_shipment_comment",
-                                        "sales_flat_shipment_grid",
-                                        "sales_flat_shipment_item",
-                                        "sales_flat_shipment_track",
-                                        "sales_invoiced_aggregated",
-                                        "sales_invoiced_aggregated_order",
-                                        "log_quote",
-                                        "downloadable_link_purchased",
-                                        "downloadable_link_purchased_item",
-                                        "eav_entity_store"
-                                    };
+        final List<String> tableData = new ArrayList<String> ();
+        tableData.add("sales_flat_creditmemo");
+        tableData.add("sales_flat_creditmemo_comment");
+        tableData.add("sales_flat_creditmemo_grid");
+        tableData.add("sales_flat_creditmemo_item");
+        tableData.add("sales_flat_invoice");
+        tableData.add("sales_flat_invoice_comment");
+        tableData.add("sales_flat_invoice_grid");
+        tableData.add("sales_flat_invoice_item");
+        tableData.add("sales_flat_order");
+        tableData.add("sales_flat_order_address");
+        tableData.add("sales_flat_order_grid");
+        tableData.add("sales_flat_order_item");
+        tableData.add("sales_flat_order_payment");
+        tableData.add("sales_flat_order_status_history");
+        tableData.add("sales_flat_quote");
+        tableData.add("sales_flat_quote_address");
+        tableData.add("sales_flat_quote_address_item");
+        tableData.add("sales_flat_quote_item");
+        tableData.add("sales_flat_quote_item_option");
+        tableData.add("sales_flat_quote_payment");
+        tableData.add("sales_flat_quote_shipping_rate");
+        tableData.add("sales_flat_shipment");
+        tableData.add("sales_flat_shipment_comment");
+        tableData.add("sales_flat_shipment_grid");
+        tableData.add("sales_flat_shipment_item");
+        tableData.add("sales_flat_shipment_track");
+        tableData.add("sales_invoiced_aggregated");
+        tableData.add("sales_invoiced_aggregated_order");
+        tableData.add("log_quote");
+        tableData.add("downloadable_link_purchased");
+        tableData.add("downloadable_link_purchased_item");
+        tableData.add("eav_entity_store");
         truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
     }
     
@@ -722,27 +725,28 @@ public final class MagentoSqlUtil {
     public static void truncateCustomerTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
             throws MojoExecutionException {
 
-        final String[] tableData = { "customer_address_entity",
-                                        "customer_address_entity_datetime",
-                                        "customer_address_entity_decimal",
-                                        "customer_address_entity_int",
-                                        "customer_address_entity_text",
-                                        "customer_address_entity_varchar",
-                                        "customer_entity",
-                                        "customer_entity_datetime",
-                                        "customer_entity_decimal",
-                                        "customer_entity_int",
-                                        "customer_entity_text",
-                                        "customer_entity_varchar",
-                                        "tag",
-                                        "tag_relation",
-                                        "tag_summary",
-                                        "tag_properties",
-                                        "wishlist",
-                                        "log_customer",
-                                        "report_viewed_product_index",
-                                        "sendfriend_log"
-                                    };
+        final List<String> tableData = new ArrayList<String> ();
+        tableData.add("customer_address_entity");
+        tableData.add( "customer_address_entity_datetime");
+        tableData.add("customer_address_entity_decimal");
+        tableData.add("customer_address_entity_int");
+        tableData.add("customer_address_entity_text");
+        tableData.add("customer_address_entity_varchar");
+        tableData.add("customer_entity");
+        tableData.add("customer_entity_datetime");
+        tableData.add("customer_entity_decimal");
+        tableData.add("customer_entity_int");
+        tableData.add("customer_entity_text");
+        tableData.add("customer_entity_varchar");
+        tableData.add("tag");
+        tableData.add("tag_relation");
+        tableData.add("tag_summary");
+        tableData.add("tag_properties");
+        tableData.add("wishlist");
+        tableData.add("log_customer");
+        tableData.add("report_viewed_product_index");
+        tableData.add("sendfriend_log");
+
         truncateTables(tableData, magentoDbUser, magentoDbPasswd, jdbcUrl, logger);
     }
 
@@ -756,7 +760,7 @@ public final class MagentoSqlUtil {
      * @param logger
      * @throws MojoExecutionException
      */
-    public static void truncateTables(String[] tableNames, String magentoDbUser, String magentoDbPasswd,
+    public static void truncateTables(List<String> tableNames, String magentoDbUser, String magentoDbPasswd,
             String jdbcUrl, Log logger) throws MojoExecutionException {
         
         final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
@@ -764,8 +768,8 @@ public final class MagentoSqlUtil {
         try {
             c.setAutoCommit(false);
             final Statement st = c.createStatement();
-            for (int i = 0; i < tableNames.length; i++) {
-                st.addBatch("TRUNCATE TABLE " + tableNames[i]);
+            for (String tableName : tableNames) {
+                st.addBatch("TRUNCATE TABLE " + tableName);
             }
             final int[] updateCounts = st.executeBatch();
             for (int i = 0; i < updateCounts.length; i++) {

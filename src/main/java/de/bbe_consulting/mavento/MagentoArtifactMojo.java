@@ -211,6 +211,14 @@ public class MagentoArtifactMojo extends AbstractMojo {
     protected Boolean truncateLogs;
     
     /**
+     * When truncating magento log tables also truncate the report_viewed_product_index table.<br/>
+     * Activating truncateCustomers will truncate the table in any case.
+     * 
+     * @parameter expression="${includeViewedProduct}" default-value="false"
+     */
+    protected Boolean includeViewedProduct;
+    
+    /**
      * Truncate magento sales/customer tables before final dump.<br/>
      * 
      * @parameter expression="${truncateCustomers}" default-value="false"
@@ -248,6 +256,11 @@ public class MagentoArtifactMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * Create a maven artifact from a vanilla magento zip.
+     * 
+     * @throws MojoExecutionException
+     */
     private void createVanillaArtifact() throws MojoExecutionException {
         getLog().info("Working directory is: " + tempDirPath);
         try {
@@ -387,9 +400,13 @@ public class MagentoArtifactMojo extends AbstractMojo {
             );
         getLog().info("");
         getLog().info("Great success! " + artifactFile + " was successfully installed and is ready for use.");
-
     }
 
+    /**
+     * Create a maven artifact from a running magento instance.
+     * 
+     * @throws MojoExecutionException
+     */
     private void createCustomArtifact() throws MojoExecutionException {
 
         if (magentoPath.endsWith("/")) {
@@ -453,7 +470,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
         if (!skipTempDb && tempDb.equals(dbSettings.get("dbname"))) {
             throw new MojoExecutionException("Error: source and temp database names are the same, aborting..");
         }
-        // do cleaning work on source db
+        // do cleaning work on source db?
         if (skipTempDb) {
             tempDb = dbName;
         }
@@ -470,7 +487,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
         if (truncateLogs) {
             getLog().info("Cleaning log tables..");
             MagentoSqlUtil.truncateLogTables(dbSettings.get("user"), dbSettings.get("password"),
-                    jdbcUrlTempDb, getLog());
+                    jdbcUrlTempDb, includeViewedProduct, getLog());
             getLog().info("..done.");
         }
         if (truncateCustomers) {
