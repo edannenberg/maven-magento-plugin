@@ -463,45 +463,9 @@ public class MagentoArtifactMojo extends AbstractMojo {
                 dbSettings.get("password"), dbSettings.get("host"),
                 dbSettings.get("port"), dbSettings.get("dbname"), getLog());
         
-        // import into temp db
-        if (tempDb == null || tempDb.isEmpty()) {
-            tempDb = dbSettings.get("dbname") + "_temp";
+        if (!skipTempDb && (truncateLogs || truncateCustomers)) {
+            truncateTables(dbSettings, dumpFile);
         }
-        if (!skipTempDb && tempDb.equals(dbSettings.get("dbname"))) {
-            throw new MojoExecutionException("Error: source and temp database names are the same, aborting..");
-        }
-        // do cleaning work on source db?
-        if (skipTempDb) {
-            tempDb = dbName;
-        }
-
-        if (!skipTempDb) {
-            // import dump into temp db
-            MagentoSqlUtil.recreateMagentoDb(dbSettings.get("user"), dbSettings.get("password"),
-                    dbSettings.get("host"), dbSettings.get("port"), tempDb, getLog());
-            MagentoSqlUtil.importSqlDump(dumpFile, dbSettings.get("user"), dbSettings.get("password"),
-                    dbSettings.get("host"), dbSettings.get("port"), tempDb, getLog());
-        }
-        final String jdbcUrlTempDb = MagentoSqlUtil.getJdbcUrl(dbSettings.get("host"),
-                dbSettings.get("port"), tempDb);
-        if (truncateLogs) {
-            getLog().info("Cleaning log tables..");
-            MagentoSqlUtil.truncateLogTables(dbSettings.get("user"), dbSettings.get("password"),
-                    jdbcUrlTempDb, includeViewedProduct, getLog());
-            getLog().info("..done.");
-        }
-        if (truncateCustomers) {
-            getLog().info("Deleting customer/sales data..");
-            MagentoSqlUtil.truncateSalesTables(dbSettings.get("user"), dbSettings.get("password"),
-                    jdbcUrlTempDb, getLog());
-            MagentoSqlUtil.truncateCustomerTables(dbSettings.get("user"), dbSettings.get("password"),
-                    jdbcUrlTempDb, getLog());
-            getLog().info("..done.");
-        }
-        // dump purged db
-        MagentoSqlUtil.dumpSqlDb(dumpFile, dbSettings.get("user"),
-                dbSettings.get("password"), dbSettings.get("host"),
-                dbSettings.get("port"), tempDb, getLog());
 
         // scramble db settings in local.xml
         if (!keepDbSettings) {
@@ -555,6 +519,48 @@ public class MagentoArtifactMojo extends AbstractMojo {
                         + artifactFile + " -Dversion=" + defaultVersion
                         + " -DgroupId= -DartifactId= \n");
         getLog().info("..to install the jar into your local maven repository.");
+    }
+    
+    private void truncateTables(Map<String,String> dbSettings, String dumpFile) throws MojoExecutionException {
+        // import into temp db
+        if (tempDb == null || tempDb.isEmpty()) {
+            tempDb = dbSettings.get("dbname") + "_temp";
+        }
+        if (!skipTempDb && tempDb.equals(dbSettings.get("dbname"))) {
+            throw new MojoExecutionException("Error: source and temp database names are the same, aborting..");
+        }
+        // do cleaning work on source db?
+        if (skipTempDb) {
+            tempDb = dbName;
+        }
+
+        if (!skipTempDb) {
+            // import dump into temp db
+            MagentoSqlUtil.recreateMagentoDb(dbSettings.get("user"), dbSettings.get("password"),
+                    dbSettings.get("host"), dbSettings.get("port"), tempDb, getLog());
+            MagentoSqlUtil.importSqlDump(dumpFile, dbSettings.get("user"), dbSettings.get("password"),
+                    dbSettings.get("host"), dbSettings.get("port"), tempDb, getLog());
+        }
+        final String jdbcUrlTempDb = MagentoSqlUtil.getJdbcUrl(dbSettings.get("host"),
+                dbSettings.get("port"), tempDb);
+        if (truncateLogs) {
+            getLog().info("Cleaning log tables..");
+            MagentoSqlUtil.truncateLogTables(dbSettings.get("user"), dbSettings.get("password"),
+                    jdbcUrlTempDb, includeViewedProduct, getLog());
+            getLog().info("..done.");
+        }
+        if (truncateCustomers) {
+            getLog().info("Deleting customer/sales data..");
+            MagentoSqlUtil.truncateSalesTables(dbSettings.get("user"), dbSettings.get("password"),
+                    jdbcUrlTempDb, getLog());
+            MagentoSqlUtil.truncateCustomerTables(dbSettings.get("user"), dbSettings.get("password"),
+                    jdbcUrlTempDb, getLog());
+            getLog().info("..done.");
+        }
+        // dump purged db
+        MagentoSqlUtil.dumpSqlDb(dumpFile, dbSettings.get("user"),
+                dbSettings.get("password"), dbSettings.get("host"),
+                dbSettings.get("port"), tempDb, getLog());
     }
 
 }
