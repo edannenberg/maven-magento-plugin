@@ -1012,6 +1012,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
 
                 final CopyFilesVisitor cv = new CopyFilesVisitor(magentoSourcePath, magentoTargetPath, false);
                 Files.walkFileTree(magentoSourcePath, cv);
+                FileUtil.deleteFile(tempDir, getLog());
             } catch (IOException e) {
                 throw new MojoExecutionException("Error while copying to: "
                         + magentoTargetPath.toAbsolutePath() + " "
