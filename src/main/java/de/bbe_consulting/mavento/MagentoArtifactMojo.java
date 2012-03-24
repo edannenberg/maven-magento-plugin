@@ -440,7 +440,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
         
         // copy magento source to tmp dir
         getLog().info("Creating snapshot..");
-        final CopyFilesVisitor cv = new CopyFilesVisitor(Paths.get(magentoPath), tempDirPath, false);
+        final CopyFilesVisitor cv = new CopyFilesVisitor(Paths.get(magentoPath), tempDirPath, true);
         try {
             Files.walkFileTree(Paths.get(magentoPath),
                     EnumSet.of(FileVisitOption.FOLLOW_LINKS),

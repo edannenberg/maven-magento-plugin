@@ -1010,7 +1010,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
                 FileUtil.deleteFile(magentoRootLocal, getLog());
                 Files.createDirectories(magentoTargetPath);
 
-                final CopyFilesVisitor cv = new CopyFilesVisitor(magentoSourcePath, magentoTargetPath, false);
+                final CopyFilesVisitor cv = new CopyFilesVisitor(magentoSourcePath, magentoTargetPath, true);
                 Files.walkFileTree(magentoSourcePath, cv);
                 FileUtil.deleteFile(tempDir, getLog());
             } catch (IOException e) {
