@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.execution.MavenSession;
 
@@ -45,7 +46,15 @@ public abstract class AbstractMagentoMojo extends AbstractMojo {
      * @readonly
      */
     protected MavenSession session;
-    
+
+    /**
+     * The Maven PluginManager Object
+     *
+     * @component
+     * @required
+     */
+    protected BuildPluginManager pluginManager;
+
     /**
      * @parameter default-value="${project.dependencies}
      * @required

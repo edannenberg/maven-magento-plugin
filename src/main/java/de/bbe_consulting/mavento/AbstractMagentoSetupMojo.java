@@ -16,6 +16,17 @@
 
 package de.bbe_consulting.mavento;
 
+import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,6 +42,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
@@ -826,6 +838,46 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         if (!isIntegrationTest) {
             try {
                 getLog().info("Resolving dependencies..");
+                final Properties p = project.getProperties();
+                final String depId = (String)p.get("magento.artifact.id");
+                final String depGroupdId = (String)p.get("magento.artifact.group.id");
+                final String depVersion = (String)p.get("magento.artifact.version");
+                final Path markerDir = Paths.get(project.getBuild().getDirectory() +"/mav-dep-marker");
+                if (depId == null || depGroupdId == null || depVersion == null) {
+                    throw new MojoExecutionException("Error: One of the magento.artifact.* properties" +
+                            " is not defined. Please fix your pom.xml.");
+                }
+                getLog().info("Extracting " + depId + ":"
+                        + depGroupdId + ":"
+                        + depVersion + "..");
+                // call dependency plugin to resolve and extract magento core to be used for magento:setup
+                executeMojo(
+                        plugin(
+                            groupId("org.apache.maven.plugins"),
+                            artifactId("maven-dependency-plugin"),
+                            version("2.0")
+                        ),
+                        goal("unpack"),
+                        configuration(
+                            element(name("outputDirectory"), tempDir),
+                            element(name("markersDirectory"), markerDir.toString()),
+                            element("silent", "true"),
+                            element("artifactItems",
+                                element("artifactItem", 
+                                    element("groupId", depGroupdId),
+                                    element("artifactId", depId),
+                                    element("version", depVersion),
+                                    element("type", "jar")
+                                    ))
+                        ),
+                        executionEnvironment(
+                            project,
+                            session,
+                            pluginManager
+                        )
+                    );
+                FileUtil.deleteFile(markerDir.toString(), getLog());
+                // extract all other compile deps, minus the configured magento core for testing
                 MavenUtil.extractCompileDependencies(tempDir, project, getLog());
                 getLog().info("..done.");
             } catch (IOException e) {

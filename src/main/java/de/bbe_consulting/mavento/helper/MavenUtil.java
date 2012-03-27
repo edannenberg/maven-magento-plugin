@@ -16,8 +16,10 @@
 
 package de.bbe_consulting.mavento.helper;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,7 +30,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Maven related helpers.
@@ -55,28 +56,36 @@ public final class MavenUtil {
     public static void extractCompileDependencies(String targetDirectory, MavenProject project, Log logger)
             throws MojoExecutionException, IOException {
 
-        final Set<?> projectDependencies = project.getDependencyArtifacts();
+        final Set<Artifact> projectDependencies = project.getDependencyArtifacts();
         // create temp dir if it doesn't exist
-        final File f = new File(targetDirectory);
-        if (!f.exists()) {
-            f.mkdirs();
-        } else {
-            try {
-                FileUtils.cleanDirectory(f);
-            } catch (IOException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
+        final Path f = Paths.get(targetDirectory);
+        if (!Files.exists(f)) {
+            Files.createDirectories(f);
         }
 
+        final Properties p = project.getProperties();
+        final String testId = (String)p.get("magento.test.artifact.id");
+        final String testGroupdId = (String)p.get("magento.test.artifact.group.id");
+        final String testVersion = (String)p.get("magento.test.artifact.version");
+        
+        if (testId == null && testGroupdId == null && testVersion == null) {
+            throw new MojoExecutionException("Error: One of the magento.test.artifact.* properties" +
+                    " is not defined. Please fix your pom.xml.");
+        }
+        
         // cycle through project dependencies
-        for (Iterator<?> artifactIterator = projectDependencies.iterator(); artifactIterator.hasNext();) {
-            Artifact artifact = (Artifact) artifactIterator.next();
+        for (Iterator<Artifact> artifactIterator = projectDependencies.iterator(); artifactIterator.hasNext();) {
+            Artifact artifact = artifactIterator.next();
             if ("compile".equals(artifact.getScope())) {
-                logger.info("Extracting " + artifact.getGroupId() + ":"
-                        + artifact.getArtifactId() + ":"
-                        + artifact.getVersion() + "..");
-                String artifactPath = artifact.getFile().getPath();
-                FileUtil.unzipFile(artifactPath, targetDirectory);
+                if (!artifact.getArtifactId().equals(testId) &&
+                        !artifact.getGroupId().equals(testGroupdId) &&
+                        !artifact.getVersion().equals(testVersion)) {
+                    logger.info("Extracting " + artifact.getGroupId() + ":"
+                            + artifact.getArtifactId() + ":"
+                            + artifact.getVersion() + "..");
+                    String artifactPath = artifact.getFile().getPath();
+                    FileUtil.unzipFile(artifactPath, targetDirectory);
+                }
             }
         }
     }
