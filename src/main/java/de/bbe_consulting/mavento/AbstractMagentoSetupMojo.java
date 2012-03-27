@@ -831,7 +831,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
             magentoUrlBaseHttps = MagentoUtil.validateBaseUrl(
                     magentoUrlBaseHttps, true);
         } else {
-            magentoUrlBaseHttps = magentoUrlBase;
+            magentoUrlBaseHttps = MagentoUtil.validateBaseUrl(magentoUrlBase, true);
         }
 
         // extract magento artifact

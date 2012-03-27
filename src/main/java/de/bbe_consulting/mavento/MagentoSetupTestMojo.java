@@ -16,6 +16,7 @@
 
 package de.bbe_consulting.mavento;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -29,7 +30,6 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import de.bbe_consulting.mavento.helper.MagentoUtil;
 import de.bbe_consulting.mavento.helper.visitor.CopyFilesVisitor;
 
 /**
@@ -105,14 +105,14 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
     /**
      * Url to mysql database used for integration tests.<br/>
      * 
-     * @parameter expression="${magento.test.db.host}" default-value="localhost"
+     * @parameter expression="${magento.test.db.host}"
      */
     protected String magentoTestDbHost;
 
     /**
      * Port of mysql database used for integration tests..<br/>
      * 
-     * @parameter expression="${magento.test.db.port}" default-value="3306"
+     * @parameter expression="${magento.test.db.port}"
      */
     protected String magentoTestDbPort;
 
@@ -167,31 +167,43 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
             return;
         }
 
-        if (magentoTestDbName == null || magentoTestDbUser == null || magentoTestRootLink == null
-                || magentoTestUrlBase == null) {
-            throw new MojoExecutionException(
-                    "Error missing properties magento.test.db.* ,magento.test.root.link or magento.test.url.base."
-                            + "Or disable tests altogether by setting magento.test.ignore to true.");
-        }
-
         isIntegrationTest = true;
         targetDir = Paths.get(phpDependenciesTargetDir).toAbsolutePath().toString();
         tempDir = targetDir;
 
         // override base urls
-        magentoUrlBase = MagentoUtil.validateBaseUrl(magentoTestUrlBase, false);
-        magentoTestUrlBase = magentoUrlBase;
+        if (magentoTestUrlBase != null && !magentoTestUrlBase.isEmpty()) {
+            magentoUrlBase = magentoTestUrlBase;
+        } else {
+            if (magentoUrlBase.endsWith("/")) {
+                magentoUrlBase = magentoUrlBase.substring(0, magentoUrlBase.length()-1);
+            }
+            magentoUrlBase = magentoUrlBase+"_it"; 
+        }
         if (magentoTestUrlBaseHttps != null && !magentoTestUrlBaseHttps.isEmpty()) {
             magentoUrlBaseHttps = magentoTestUrlBaseHttps;
         } else {
             magentoUrlBaseHttps = null;
         }
+
         // override db settings
-        magentoDbHost = magentoTestDbHost;
-        magentoDbPort = magentoTestDbPort;
-        magentoDbUser = magentoTestDbUser;
-        magentoDbPasswd = magentoTestDbPasswd;
-        magentoDbName = magentoTestDbName;
+        if (magentoTestDbName == null || magentoTestDbName.isEmpty()) {
+            magentoDbName += "_it";
+        } else {
+            magentoDbName = magentoTestDbName;
+        }
+        if (magentoTestDbHost != null && !magentoTestDbHost.isEmpty()) {
+            magentoDbHost = magentoTestDbHost;
+        }
+        if (magentoTestDbPort != null && !magentoTestDbPort.isEmpty()) {
+            magentoDbPort = magentoTestDbPort;
+        }
+        if (magentoTestDbUser != null && !magentoTestDbUser.isEmpty()) {
+            magentoDbUser = magentoTestDbUser;
+        }
+        if (magentoTestDbPasswd != null && !magentoTestDbPasswd.isEmpty()) {
+            magentoDbPasswd = magentoTestDbPasswd;
+        }
 
         // override custom magento artifact settings
         if (magentoTestArtifactGroupId != null && !magentoTestArtifactGroupId.isEmpty()) {
@@ -226,6 +238,12 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
             }
 
             // (re)create symlink for http requests
+            if (magentoTestRootLink == null || magentoTestRootLink.isEmpty()) {
+                if (magentoRootLocal.endsWith(File.pathSeparator)) {
+                    magentoRootLocal = magentoRootLocal.substring(0, magentoRootLocal.length()-1);
+                }
+                magentoTestRootLink = magentoRootLocal + "_it";
+            }
             getLog().info("Linking magento test instance to " + magentoTestRootLink + "..");
             final Path magentoSource = Paths.get(tempDir);
             final Path magentoTarget = Paths.get(magentoTestRootLink);
@@ -262,9 +280,9 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         }
 
         // make http request to init possible db changes by the module
-        getLog().info("Sending http request to " + magentoTestUrlBase + "admin");
+        getLog().info("Sending http request to " + magentoUrlBase );
         try {
-            final URL magentoUrl = new URL(magentoTestUrlBase + "index.php/admin");
+            final URL magentoUrl = new URL(magentoUrlBase);
             final HttpURLConnection mc = (HttpURLConnection) magentoUrl.openConnection();
             int statusCode = mc.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
