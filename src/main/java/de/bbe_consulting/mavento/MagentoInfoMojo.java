@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -37,6 +38,7 @@ import org.w3c.dom.Document;
 import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 import de.bbe_consulting.mavento.helper.MagentoUtil;
 import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
+import de.bbe_consulting.mavento.helper.visitor.FileSizeVisitor;
 import de.bbe_consulting.mavento.type.MagentoCoreConfig;
 import de.bbe_consulting.mavento.type.MagentoModule;
 import de.bbe_consulting.mavento.type.MagentoModuleComperator;
@@ -61,6 +63,8 @@ import de.bbe_consulting.mavento.type.MysqlTable;
  */
 public class MagentoInfoMojo extends AbstractMojo {
 
+    private static final String SQL_CONNECTION_VALID = "valid";
+    
     /**
      * @parameter default-value="${project}"
      * @required
@@ -80,6 +84,13 @@ public class MagentoInfoMojo extends AbstractMojo {
      * @parameter expression="${showDetails}" default-value="false"
      */
     protected Boolean showDetails;
+    
+    /**
+     * Do not scan for directory and database size.<br/>
+     * 
+     * @parameter expression="${skipSize}" default-value="false"
+     */
+    protected Boolean skipSize;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -92,14 +103,16 @@ public class MagentoInfoMojo extends AbstractMojo {
             }
         }
         if (magentoPath == null) {
-            throw new MojoExecutionException("Error: no magentoPath specified. Use -DmagentoPath=/your/path");
+            magentoPath = Paths.get(".").toString();
         }
+        magentoPath = Paths.get(magentoPath).toAbsolutePath().toString();
 
         if (magentoPath.endsWith("/")) {
             magentoPath = magentoPath.substring(0, magentoPath.length() - 1);
+        } else if (magentoPath.endsWith("/.")) {
+            magentoPath = magentoPath.substring(0, magentoPath.length() - 2);
         }
-
-        getLog().info("Scanning: " + Paths.get(magentoPath).toAbsolutePath().toString());
+        getLog().info("Scanning: " + magentoPath);
         getLog().info("");
 
         // try to find magento version
@@ -120,7 +133,8 @@ public class MagentoInfoMojo extends AbstractMojo {
         if (Files.exists(localXmlPath)) {
             localXml = MagentoXmlUtil.readXmlFile(localXmlPath.toAbsolutePath().toString());
         } else {
-            throw new MojoExecutionException("Could not read or parse /app/etc/local.xml");
+            throw new MojoExecutionException("Could not read or parse /app/etc/local.xml." +
+                    " Use -DmagentoPath= to set Magento dir.");
         }
         final Map<String, String> dbSettings = MagentoXmlUtil.getDbValues(localXml);
         final String jdbcUrl = MagentoSqlUtil.getJdbcUrl(dbSettings.get("host"),
@@ -139,7 +153,7 @@ public class MagentoInfoMojo extends AbstractMojo {
             throw new MojoExecutionException("Error creating config entry. " + e.getMessage(), e);
         }
 
-        String sqlError = "valid";
+        String sqlError = SQL_CONNECTION_VALID;
         try {
             baseUrl = MagentoSqlUtil.getCoreConfigData(baseUrl, dbSettings.get("user"),
                     dbSettings.get("password"), jdbcUrl, getLog());
@@ -155,30 +169,42 @@ public class MagentoInfoMojo extends AbstractMojo {
         getLog().info("Connection: " + sqlError);
         getLog().info("");
         
-        try {
-            final Map<String, Integer> dbDetails = MagentoSqlUtil.getDbSize(dbSettings.get("dbname"), dbSettings.get("user"),
-                    dbSettings.get("password"), jdbcUrl, getLog());
-            final List<MysqlTable> logTableDetails = MagentoSqlUtil.getLogTablesSize(dbSettings.get("dbname"), dbSettings.get("user"),
-                    dbSettings.get("password"), jdbcUrl, getLog());
-            getLog().info("Database total: " + String.format("%,8d", dbDetails.get("totalRows")).trim() +
-                    " entries / " + String.format("%,8d", dbDetails.get("totalSize")).trim() + "mb");
-            int logSizeTotal = 0;
-            int logRowsTotal = 0;
-            for (MysqlTable t : logTableDetails) {
-                logSizeTotal += t.getTableSizeInMb();
-                logRowsTotal += t.getTableRows();
-                if (showDetails) {
-                    getLog().info(" " + t.getTableName() + ": " + t.getFormatedTableEntries() +
-                            " entries / " + t.getFormatedTableSizeInMb() + "mb");
+        if (!skipSize) {
+            MutableLong rootSizeTotal = new MutableLong();
+            try {
+                FileSizeVisitor fs = new FileSizeVisitor(rootSizeTotal);
+                Files.walkFileTree(Paths.get(magentoPath), fs);
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+            getLog().info("Magento files total: "
+                    + String.format("%,8d", rootSizeTotal.toLong()).trim() + " bytes");
+            if (SQL_CONNECTION_VALID.equals(sqlError)) {
+                try {
+                    final Map<String, Integer> dbDetails = MagentoSqlUtil.getDbSize(dbSettings.get("dbname"), dbSettings.get("user"),
+                            dbSettings.get("password"), jdbcUrl, getLog());
+                    final List<MysqlTable> logTableDetails = MagentoSqlUtil.getLogTablesSize(dbSettings.get("dbname"), dbSettings.get("user"),
+                            dbSettings.get("password"), jdbcUrl, getLog());
+                    getLog().info("Database total: " + String.format("%,8d", dbDetails.get("totalRows")).trim() +
+                            " entries / " + String.format("%,8d", dbDetails.get("totalSize")).trim() + "mb");
+                    int logSizeTotal = 0;
+                    int logRowsTotal = 0;
+                    for (MysqlTable t : logTableDetails) {
+                        logSizeTotal += t.getTableSizeInMb();
+                        logRowsTotal += t.getTableRows();
+                        if (showDetails) {
+                            getLog().info(" " + t.getTableName() + ": " + t.getFormatedTableEntries() +
+                                    " entries / " + t.getFormatedTableSizeInMb() + "mb");
+                        }
+                    }
+                    getLog().info("Log tables total: " + String.format("%,8d", logRowsTotal).trim() +
+                            " entries / " + String.format("%,8d", logSizeTotal).trim() + "mb");
+                } catch (MojoExecutionException e) {
+                    getLog().info("Error: " + e.getMessage());
                 }
             }
-            getLog().info("Log tables total: " + String.format("%,8d", logRowsTotal).trim() +
-                    " entries / " + String.format("%,8d", logSizeTotal).trim() + "mb");
             getLog().info("");
-        } catch (MojoExecutionException e) {
-            getLog().info("Error: " + e.getMessage());
         }
-
         // parse modules
         final Path modulesXmlPath = Paths.get(magentoPath + "/app/etc/modules");
         if (!Files.exists(modulesXmlPath)) {
