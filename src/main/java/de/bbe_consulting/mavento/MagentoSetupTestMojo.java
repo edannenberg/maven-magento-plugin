@@ -211,7 +211,7 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         }
 
         // run setup if marker does not exist
-        final Path setupMarker = Paths.get(buildDirectory.getAbsolutePath() + "/maven-magento-plugin/"
+        final Path setupMarker = Paths.get(Paths.get(tempDir).getParent() + "/maven-magento-plugin/"
                 + Paths.get(phpDependenciesTargetDir).getFileName() + "_setup");
         if (Files.notExists(setupMarker)) {
 

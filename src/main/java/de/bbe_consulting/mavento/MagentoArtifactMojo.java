@@ -56,20 +56,26 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 /**
- * To create a dependency artifact from a running Magento instance:
+ * Create a magento dependency artifact for magento:setup and unit tests.<br/><br/>
+ * 
+ * To create a dependency artifact from a running Magento instance:<br/>
  * 
  * <pre>
  * mvn magento:artifact -DmagentoPath=/path/to/magento/folder
  * </pre>
  * 
- * Use -DskipTempDb to do all cleaning operations directly on the source db.
- * NOT recommended for actual live instances.
+ * Per default this will import the source db into a temporary db and clean all
+ * log tables, except report_viewed_product_index, before creating the final dump.<br/><br/>
  * 
- * Use -DtempDb to specify temp db name, default is source db name + _temp 
- * Use -DtruncateLogs to prune all log tables. Enabled per default.
- * Use -DtruncateCustomers to also prune all customer/order data.
+ * Use -DskipTempDb to do all cleaning operations directly on the source db. Disabled per default.
+ * Not recommended unless you are already working on a backup.<br/><br/>
  * 
- * To create a dependency artifact from a vanilla Magento zip:
+ * Use -DtruncateLogs to prune all log tables. Enabled per default.<br/>
+ * Use -DincludeViewedProduct to also truncate report_viewed_product_index. Disabled per default.<br/>
+ * Use -DtruncateCustomers to prune all customer/order data. Disabled per default.<br/>
+ * Use -DtempDb to specify the temporary db name, default is source db name + "_temp"<br/><br/> 
+ *
+ * To create a dependency artifact from a vanilla Magento zip:<br/>
  * 
  * <pre>
  * mvn magento:artifact -DmagentoZip=/path/to/.zip -DdbUser= -DdbPassword= -DdbName=
@@ -128,7 +134,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
      * Database name to use for magento install.<br/>
      * Only used when creating an artifact from a vanilla magento zip.
      * 
-     * @parameter expression="${dbName}"
+     * @parameter expression="${dbName}" default-value="mavento_artifact"
      */
     protected String dbName;
 
@@ -199,7 +205,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
     /**
      * Use a temporary database for cleaning operations. (log tables, customer data, etc)<br/>
      * 
-     * @parameter expression="${useTempDb}" default-value="false"
+     * @parameter expression="${skipTempDb}" default-value="false"
      */
     protected Boolean skipTempDb;
 
@@ -211,8 +217,8 @@ public class MagentoArtifactMojo extends AbstractMojo {
     protected Boolean truncateLogs;
     
     /**
-     * When truncating magento log tables also truncate the report_viewed_product_index table.<br/>
-     * Activating truncateCustomers will truncate the table in any case.
+     * When truncating magento log tables also inlcude the report_viewed_product_index table.<br/>
+     * Activating truncateCustomers will truncate the table in any case, making this option irrelevant.
      * 
      * @parameter expression="${includeViewedProduct}" default-value="false"
      */
@@ -244,7 +250,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
             try {
                 tempDirPath = Files.createTempDirectory("mavento_artifact_");
             } catch (IOException e) {
-                throw new MojoExecutionException("Could not create tmp dir. " + e.getMessage(), e);
+                throw new MojoExecutionException("Could not get tmp dir from underlying os. " + e.getMessage(), e);
             }
         }
         if (magentoPath != null && !magentoPath.isEmpty()) {
@@ -252,7 +258,10 @@ public class MagentoArtifactMojo extends AbstractMojo {
         } else if (magentoZip != null && !magentoZip.isEmpty()) {
             createVanillaArtifact();
         } else {
-            getLog().info("use -DmagentoPath to create a custom artifact or -DmagentoTar to create a vanilla artifact");
+            getLog().error("");
+            getLog().error("Use -DmagentoPath to create a custom artifact or -DmagentoZip to create a vanilla artifact");
+            getLog().error("");
+            throw new MojoExecutionException("Error: missing parameters");
         }
     }
 
@@ -365,11 +374,12 @@ public class MagentoArtifactMojo extends AbstractMojo {
             artifactFile = "magento-"+mageVersion+".jar";
         }
         getLog().info("Creating jar file: " + artifactFile + "..");
-        FileUtil.createJar(artifactFile, tempDirPath.toAbsolutePath().toString());
+        FileUtil.createJar(artifactFile, tempDirPath.toString());
         getLog().info("..done.");
         
         // clean up
         try {
+            MagentoSqlUtil.dropMagentoDb(dbUser, dbPassword, dbHost, dbPort, dbName, getLog());
             getLog().info("Cleaning up..");
             FileUtil.deleteFile(tempDirPath.toString(), getLog());
             getLog().info("..done.");
@@ -452,19 +462,36 @@ public class MagentoArtifactMojo extends AbstractMojo {
         }
         getLog().info("..done.");
 
-        // dump db
+        // prepare db dump
         try {
             Files.createDirectories(Paths.get(tempDirPath + "/mavento_setup/sql"));
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating directory. " + e.getMessage(), e);
         }
         final String dumpFile = Paths.get(tempDirPath + "/mavento_setup/sql/magento.sql").toString();
+        // set temp db
+        if (tempDb == null || tempDb.isEmpty()) {
+            tempDb = dbSettings.get("dbname") + "_temp";
+        }
+        if (!skipTempDb && tempDb.equals(dbSettings.get("dbname"))) {
+            throw new MojoExecutionException("Error: source and temp database names are the same, aborting..");
+        }
+        // do cleaning work on source db?
+        if (skipTempDb) {
+            tempDb = dbSettings.get("dbname");
+        }
+        if (truncateLogs || truncateCustomers) {
+            truncateTables(dbSettings, dumpFile);
+        }
+        // final dump
         MagentoSqlUtil.dumpSqlDb(dumpFile, dbSettings.get("user"),
                 dbSettings.get("password"), dbSettings.get("host"),
-                dbSettings.get("port"), dbSettings.get("dbname"), getLog());
-        
-        if (!skipTempDb && (truncateLogs || truncateCustomers)) {
-            truncateTables(dbSettings, dumpFile);
+                dbSettings.get("port"), tempDb, getLog());
+        // drop temp db if we created one
+        if (!skipTempDb && truncateLogs || truncateCustomers) {
+        MagentoSqlUtil.dropMagentoDb(dbSettings.get("user"),
+                dbSettings.get("password"), dbSettings.get("host"),
+                dbSettings.get("port"), tempDb, getLog());
         }
 
         // scramble db settings in local.xml
@@ -520,22 +547,21 @@ public class MagentoArtifactMojo extends AbstractMojo {
                         + " -DgroupId= -DartifactId= \n");
         getLog().info("..to install the jar into your local maven repository.");
     }
-    
+
+    /**
+     * Handle table truncating.
+     * 
+     * @param dbSettings
+     * @param dumpFile
+     * @throws MojoExecutionException
+     */
     private void truncateTables(Map<String,String> dbSettings, String dumpFile) throws MojoExecutionException {
-        // import into temp db
-        if (tempDb == null || tempDb.isEmpty()) {
-            tempDb = dbSettings.get("dbname") + "_temp";
-        }
-        if (!skipTempDb && tempDb.equals(dbSettings.get("dbname"))) {
-            throw new MojoExecutionException("Error: source and temp database names are the same, aborting..");
-        }
-        // do cleaning work on source db?
-        if (skipTempDb) {
-            tempDb = dbName;
-        }
 
         if (!skipTempDb) {
             // import dump into temp db
+            MagentoSqlUtil.dumpSqlDb(dumpFile, dbSettings.get("user"),
+                    dbSettings.get("password"), dbSettings.get("host"),
+                    dbSettings.get("port"), dbSettings.get("dbname"), getLog());
             MagentoSqlUtil.recreateMagentoDb(dbSettings.get("user"), dbSettings.get("password"),
                     dbSettings.get("host"), dbSettings.get("port"), tempDb, getLog());
             MagentoSqlUtil.importSqlDump(dumpFile, dbSettings.get("user"), dbSettings.get("password"),
@@ -557,10 +583,6 @@ public class MagentoArtifactMojo extends AbstractMojo {
                     jdbcUrlTempDb, getLog());
             getLog().info("..done.");
         }
-        // dump purged db
-        MagentoSqlUtil.dumpSqlDb(dumpFile, dbSettings.get("user"),
-                dbSettings.get("password"), dbSettings.get("host"),
-                dbSettings.get("port"), tempDb, getLog());
     }
 
 }
