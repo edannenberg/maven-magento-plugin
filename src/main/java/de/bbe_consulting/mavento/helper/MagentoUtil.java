@@ -317,6 +317,9 @@ public final class MagentoUtil {
         String prefix = "http://";
         String validatedUrl = url;
         if (secure) {
+            if (url.startsWith("http://")) {
+                url = url.substring(7, url.length()); 
+            }
             prefix = "https://";
         }
 
