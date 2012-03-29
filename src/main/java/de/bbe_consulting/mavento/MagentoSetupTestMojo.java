@@ -34,6 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.w3c.dom.Document;
 
 import de.bbe_consulting.mavento.helper.FileUtil;
+import de.bbe_consulting.mavento.helper.MagentoUtil;
 import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
 
@@ -314,7 +315,7 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         // make http request to init possible db changes by the module
         getLog().info("Sending http request to " + magentoUrlBase );
         try {
-            final URL magentoUrl = new URL(magentoUrlBase);
+            final URL magentoUrl = new URL(MagentoUtil.validateBaseUrl(magentoUrlBase,false));
             final HttpURLConnection mc = (HttpURLConnection) magentoUrl.openConnection();
             int statusCode = mc.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
