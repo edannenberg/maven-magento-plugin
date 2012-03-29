@@ -111,6 +111,11 @@
 			<version>2.2</version>
 		</dependency>
 		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
 			<version>2.1</version>
@@ -258,4 +263,9 @@
 		<url>https://github.com/edannenberg/maven-magento-plugin</url>
 		<connection>scm:git://github.com/edannenberg/maven-magento-plugin.git</connection>
 	</scm>
+
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/edannenberg/maven-magento-plugin/issues</url>
+	</issueManagement>
 </project>

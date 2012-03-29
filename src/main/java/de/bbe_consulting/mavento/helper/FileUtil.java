@@ -21,11 +21,11 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -34,6 +34,8 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -43,6 +45,7 @@ import java.nio.file.Paths;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
+import de.bbe_consulting.mavento.helper.visitor.CopyFilesVisitor;
 import de.bbe_consulting.mavento.helper.visitor.DeleteFilesVisitor;
 import de.bbe_consulting.mavento.helper.visitor.CreateJarVisitor;
 
@@ -69,18 +72,25 @@ public final class FileUtil {
     public static void createJar(String fileName, String sourcePath)
             throws MojoExecutionException {
 
-        FileOutputStream outputStream = null;
+        final OutputStream outputStream;
+        FileChannel channel = null;
         try {
-            outputStream = new FileOutputStream(fileName);
+            channel = new RandomAccessFile(Paths.get(fileName).toFile(), "rw").getChannel();
+            outputStream = Channels.newOutputStream(channel);
         } catch (FileNotFoundException e) {
             throw new MojoExecutionException("Error: " + e.getMessage(), e);
         }
         try (JarOutputStream jarOutputStream = new JarOutputStream(outputStream)) {
-            CreateJarVisitor jv = new CreateJarVisitor(Paths.get(sourcePath),
-                    jarOutputStream);
+            CreateJarVisitor jv = new CreateJarVisitor(Paths.get(sourcePath), jarOutputStream);
             Files.walkFileTree(Paths.get(sourcePath), jv);
         } catch (IOException e) {
             throw new MojoExecutionException("Error: " + e.getMessage(), e);
+        } finally {
+            try {
+                channel.close();
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
         }
     }
 
@@ -118,11 +128,13 @@ public final class FileUtil {
 
         InputStream input = null;
         OutputStream output = null;
+        FileChannel channel = null;
         try {
             final InputStream rawIn = archive.getInputStream(zipEntry);
             input = new BufferedInputStream(rawIn);
-
-            final FileOutputStream rawOut = new FileOutputStream(targetFile);
+            
+            channel = new RandomAccessFile(targetFile, "rw").getChannel();
+            final OutputStream rawOut = Channels.newOutputStream(channel);
             output = new BufferedOutputStream(rawOut);
 
             // pump data from zip file into new files
@@ -137,6 +149,9 @@ public final class FileUtil {
             }
             if (output != null) {
                 output.close();
+            }
+            if (channel != null) {
+                channel.close();
             }
         }
     }
@@ -232,6 +247,28 @@ public final class FileUtil {
     }
 
     /**
+     * Copy a file or directory to target.
+     * 
+     * @param sourceFile
+     * @param targetFile
+     * @throws MojoExecutionException
+     */
+    public static void copyFile(Path sourceFile, Path targetFile)
+            throws MojoExecutionException {
+
+        // copy module source to magento instance so the autoloader can pick it up
+        if (Files.exists(sourceFile)) {
+            final CopyFilesVisitor crv = new CopyFilesVisitor(sourceFile, targetFile, true);
+            try {
+                Files.walkFileTree(sourceFile, crv);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error copying file(s) to: " + targetFile + " " +
+                                e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
      * Read directory content.
      * 
      * @param basePath
@@ -267,20 +304,21 @@ public final class FileUtil {
     public static void logFileContents(String filePath, Log logger)
             throws IOException {
 
-        FileReader reader = null;
+        final Reader reader;
+        FileChannel channel = null;
         try {
-            final File fp = new File(filePath);
-            reader = new FileReader(fp);
+            channel = new RandomAccessFile(Paths.get(filePath).toFile(), "r").getChannel();
+            reader = Channels.newReader(channel, "utf-8");
             final BufferedReader input = new BufferedReader(reader);
             String line;
 
             while ((line = input.readLine()) != null) {
-                System.out.println(line);
+                System.out.println(line);   
                 // logger.info(line);
             }
         } finally {
-            if (reader != null) {
-                reader.close();
+            if (channel != null) {
+                channel.close();
             }
         }
     }

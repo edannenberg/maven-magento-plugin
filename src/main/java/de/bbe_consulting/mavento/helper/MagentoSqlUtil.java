@@ -17,11 +17,14 @@
 package de.bbe_consulting.mavento.helper;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -42,7 +45,6 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.CommandLineUtils.StringStreamConsumer;
-import org.codehaus.plexus.util.cli.WriterStreamConsumer;
 import org.apache.maven.plugin.logging.Log;
 
 import de.bbe_consulting.mavento.type.MagentoCoreConfig;
@@ -113,7 +115,7 @@ public final class MagentoSqlUtil {
 
         try {
             input = new ByteArrayInputStream(
-                    ("CREATE DATABASE " + magentoDbName).getBytes("UTF-8"));
+                    ("CREATE DATABASE IF NOT EXISTS " + magentoDbName).getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new MojoExecutionException("Error while creating database!", e);
         }
@@ -184,6 +186,17 @@ public final class MagentoSqlUtil {
         }
     }
 
+    /**
+     * Wrapper to drop and create a mysql database.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @param logger
+     * @throws MojoExecutionException
+     */
     public static void recreateMagentoDb(String magentoDbUser, String magentoDbPasswd,
             String magentoDbHost, String magentoDbPort, String magentoDbName, Log logger) 
                     throws MojoExecutionException {
@@ -210,18 +223,15 @@ public final class MagentoSqlUtil {
 
         final Commandline cl = MagentoSqlUtil.getMysqlCommandLine(magentoDbUser,
                 magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
-        InputStream input = null;
-
+        final InputStream input;
+        FileChannel channel = null;
         try {
-            input = new FileInputStream(sqlDump);
-        } catch (FileNotFoundException e) {
-            throw new MojoExecutionException("Error while reading sql dump.", e);
-        }
+            channel = new RandomAccessFile(Paths.get(sqlDump).toFile(), "r").getChannel();
+            input = Channels.newInputStream(channel);
 
-        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
-        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
+            final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
+            final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
 
-        try {
             logger.info("Importing sql dump into database " + magentoDbName + "..");
             final int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
             if (returnValue != 0) {
@@ -233,6 +243,16 @@ public final class MagentoSqlUtil {
             logger.info("..done.");
         } catch (CommandLineException e) {
             throw new MojoExecutionException("Error while importing sql dump.", e);
+        } catch (FileNotFoundException e) {
+            throw new MojoExecutionException("Error while reading sql dump.", e);
+        } finally {
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (IOException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -255,16 +275,10 @@ public final class MagentoSqlUtil {
         final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
         cl.setExecutable("mysqldump");
         cl.addArguments(new String[] { "-C", magentoDbName });
+        cl.addArguments(new String[] {"--result-file=\"" + sqlDump + "\""});
 
+        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
         final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
-        WriterStreamConsumer output = null;
-        PrintWriter p = null;
-        try {
-            p = new PrintWriter(sqlDump);
-            output = new WriterStreamConsumer(p);
-        } catch (FileNotFoundException e) {
-            throw new MojoExecutionException("File " + sqlDump + " not found!", e);
-        }
 
         try {
             logger.info("Dumping database " + magentoDbName + " to " + sqlDump + "..");
@@ -346,6 +360,15 @@ public final class MagentoSqlUtil {
         return "jdbc:mysql://" + magentoDbHost + ":" + magentoDbPort + "/" + magentoDbName;
     }
 
+    /**
+     * Get jdbc connection.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param jdbcUrl
+     * @return
+     * @throws MojoExecutionException
+     */
     private static Connection getJdbcConnection(String magentoDbUser, String magentoDbPasswd, String jdbcUrl)
              throws MojoExecutionException {
 
@@ -490,8 +513,7 @@ public final class MagentoSqlUtil {
                     case Statement.SUCCESS_NO_INFO:
                         break;
                     case Statement.EXECUTE_FAILED:
-                        throw new MojoExecutionException(
-                                "Error updating entries in core_config_data");
+                        throw new MojoExecutionException("Error updating entries in core_config_data");
                     default:
                         break;
                     }
@@ -727,7 +749,7 @@ public final class MagentoSqlUtil {
 
         final List<String> tableData = new ArrayList<String> ();
         tableData.add("customer_address_entity");
-        tableData.add( "customer_address_entity_datetime");
+        tableData.add("customer_address_entity_datetime");
         tableData.add("customer_address_entity_decimal");
         tableData.add("customer_address_entity_int");
         tableData.add("customer_address_entity_text");
@@ -812,7 +834,9 @@ public final class MagentoSqlUtil {
         final HashMap<String, Integer> result = new HashMap<String, Integer>();
         try {
             final String query = "SELECT SUM( ROUND( ( (DATA_LENGTH + INDEX_LENGTH) /1024 /1024 ) , 0 ))" +
-                    " 'db_size_in_mb', SUM(table_rows) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?";
+                    " 'db_size_in_mb', " +
+                    "SUM(table_rows) FROM INFORMATION_SCHEMA.TABLES " +
+                    "WHERE TABLE_SCHEMA = ?";
             final PreparedStatement st = c.prepareStatement(query);
             st.setString(1, dbNameToCheck);
             final ResultSet r = st.executeQuery();
