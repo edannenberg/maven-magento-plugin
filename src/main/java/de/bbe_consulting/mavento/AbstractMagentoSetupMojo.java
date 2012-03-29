@@ -571,7 +571,6 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
      * Magento base url.<br/>
      * 
      * @parameter expression="${magento.url.base}"
-     * @required
      */
     protected String magentoUrlBase;
 
@@ -825,7 +824,10 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         if (!magentoArtifactGroupId.equals("com.varien")) {
             magentoArtifactIsCustom = true;
         }
-
+        
+        if (magentoUrlBase == null || magentoUrlBase.isEmpty()) {
+            magentoUrlBase = "127.0.0.1/"+Paths.get(magentoRootLocal).getFileName(); 
+        }
         magentoUrlBase = MagentoUtil.validateBaseUrl(magentoUrlBase, false);
         if (magentoUrlBaseHttps != null && !magentoUrlBaseHttps.isEmpty()) {
             magentoUrlBaseHttps = MagentoUtil.validateBaseUrl(
