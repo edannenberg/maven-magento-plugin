@@ -385,6 +385,61 @@ public final class MagentoXmlUtil {
     }
 
     /**
+     * Update base url details in local.xml.phpunit
+     * 
+     * @param magentoDbHost
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbName
+     * @param payload
+     */
+    public static void updateBaseUrls(String baseUrlUnsecure, String baseUrlSecure,
+            boolean seoRewrites, Document payload) {
+
+        // get <secure> nodes
+        final NodeList secureNodes = payload.getElementsByTagName("secure");
+        for (int i = 0; i < secureNodes.getLength(); i++) {
+            NodeList urlNodes = secureNodes.item(i).getChildNodes();
+            for (int j = 0; j < urlNodes.getLength(); j++) {
+                Node urlNode = urlNodes.item(j);
+                NodeList cdataNodes = urlNode.getChildNodes();
+                CDATASection cdata = null;
+                switch (urlNode.getNodeName()) {
+                case "base_url":
+                    urlNodes.item(j).setNodeValue("");
+                    while (cdataNodes.getLength() > 0) {
+                        urlNode.removeChild(cdataNodes.item(0));
+                    }
+                    cdata = payload.createCDATASection(MagentoUtil.validateBaseUrl(baseUrlSecure, true));
+                    urlNodes.item(j).appendChild(cdata);
+                    break;
+                }
+            }
+        }
+
+        // get <unsecure> nodes
+        final NodeList unsecureNodes = payload.getElementsByTagName("unsecure");
+        for (int i = 0; i < unsecureNodes.getLength(); i++) {
+            NodeList urlNodes = unsecureNodes.item(i).getChildNodes();
+            for (int j = 0; j < urlNodes.getLength(); j++) {
+                Node urlNode = urlNodes.item(j);
+                NodeList cdataNodes = urlNode.getChildNodes();
+                CDATASection cdata = null;
+                switch (urlNode.getNodeName()) {
+                case "base_url":
+                    urlNodes.item(j).setNodeValue("");
+                    while (cdataNodes.getLength() > 0) {
+                        urlNode.removeChild(cdataNodes.item(0));
+                    }
+                    cdata = payload.createCDATASection(MagentoUtil.validateBaseUrl(baseUrlUnsecure, false));
+                    urlNodes.item(j).appendChild(cdata);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Returns value/cdata from xml node.
      * @param node
      * @return String

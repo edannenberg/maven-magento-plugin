@@ -27,16 +27,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.xml.transform.TransformerException;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.w3c.dom.Document;
 
-import de.bbe_consulting.mavento.helper.visitor.CopyFilesVisitor;
+import de.bbe_consulting.mavento.helper.FileUtil;
+import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
+import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
 
 /**
  * Provides a fresh Magento instance for integration tests if needed.
  * 
  * @goal setup-test
- * @requiresDependencyResolution compile
+ * @requiresDependencyResolution test
  * @author Erik Dannenberg
  */
 public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
@@ -175,23 +180,33 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         if (magentoTestUrlBase != null && !magentoTestUrlBase.isEmpty()) {
             magentoUrlBase = magentoTestUrlBase;
         } else {
-            if (magentoUrlBase.endsWith("/")) {
-                magentoUrlBase = magentoUrlBase.substring(0, magentoUrlBase.length()-1);
+            if (magentoUrlBase == null || magentoUrlBase.isEmpty()) {
+                final String rootDirName;
+                if (magentoTestRootLink == null || magentoTestRootLink.isEmpty()) {
+                    rootDirName = Paths.get(magentoRootLocal).getFileName().toString();
+                } else {
+                    rootDirName = Paths.get(magentoTestRootLink).getFileName().toString();
+                }
+                magentoUrlBase = "127.0.0.1/"+Paths.get(rootDirName).getFileName();
+            } else {
+                if (magentoUrlBase.endsWith("/")) {
+                    magentoUrlBase = magentoUrlBase.substring(0, magentoUrlBase.length()-1);
+                }
+                magentoUrlBase = magentoUrlBase+"_it";
             }
-            magentoUrlBase = magentoUrlBase+"_it"; 
         }
         if (magentoTestUrlBaseHttps != null && !magentoTestUrlBaseHttps.isEmpty()) {
             magentoUrlBaseHttps = magentoTestUrlBaseHttps;
         } else {
             magentoUrlBaseHttps = null;
         }
-
         // override db settings
         if (magentoTestDbName == null || magentoTestDbName.isEmpty()) {
             magentoDbName += "_it";
         } else {
             magentoDbName = magentoTestDbName;
         }
+        final String magentoFixtureDbName = magentoDbName + "_fixture";
         if (magentoTestDbHost != null && !magentoTestDbHost.isEmpty()) {
             magentoDbHost = magentoTestDbHost;
         }
@@ -228,7 +243,26 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         if (Files.notExists(setupMarker)) {
 
             setupMagento();
-
+            
+            // setup ecomdev phpunit
+            final Path ecomDevConfig = Paths.get(tempDir + "/app/etc/local.xml.phpunit");
+            if (Files.exists(ecomDevConfig)) {
+                final Document localXmlPhpUnit = MagentoXmlUtil.readXmlFile(ecomDevConfig.toString());
+                MagentoXmlUtil.updateDbValues(magentoDbHost+":"+magentoDbPort, magentoDbUser, magentoDbPasswd,
+                        magentoFixtureDbName, localXmlPhpUnit);
+                MagentoXmlUtil.updateBaseUrls(magentoUrlBase, magentoUrlBaseHttps, magentoSeoUseRewrites,
+                        localXmlPhpUnit);
+                try {
+                    MagentoXmlUtil.writeXmlFile(
+                                    MagentoXmlUtil.transformXmlToString(localXmlPhpUnit),
+                                    ecomDevConfig.toString());
+                } catch (TransformerException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+                MagentoSqlUtil.recreateMagentoDb(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort,
+                        magentoFixtureDbName, getLog());
+            }
+            
             // write marker so we dont run setup until a mvn clean occurs
             try {
                 Files.createDirectories(setupMarker.getParent());
@@ -266,18 +300,16 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
 
         }
 
-        // copy module source to magento instance so the autoloader can pick it up
+        // copy module (test)(re)sources to magento instance so the autoloader can pick it up
         final Path moduleSource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/main/php");
-        if (Files.exists(moduleSource)) {
-            final Path moduleTarget = Paths.get(tempDir);
-            final CopyFilesVisitor crv = new CopyFilesVisitor(moduleSource, moduleTarget, false);
-            try {
-                Files.walkFileTree(moduleSource, crv);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Error copying module source to: " + moduleTarget + " "
-                                + e.getMessage(), e);
-            }
-        }
+        final Path moduleResource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/main/resources");
+        final Path moduleTestSource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/test/php");
+        final Path moduleTestResource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/test/resources");
+        final Path buildDir = Paths.get(tempDir);
+        FileUtil.copyFile(moduleSource, buildDir);
+        FileUtil.copyFile(moduleResource, buildDir);
+        FileUtil.copyFile(moduleTestSource, buildDir);
+        FileUtil.copyFile(moduleTestResource, buildDir);
 
         // make http request to init possible db changes by the module
         getLog().info("Sending http request to " + magentoUrlBase );
