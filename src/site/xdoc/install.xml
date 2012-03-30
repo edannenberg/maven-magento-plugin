@@ -12,10 +12,10 @@
 			<subsection name="General requirements">
 				<p>
 					<ul>
-		 				<li>Java JDK 7+</li>
-		 				<li>Maven 2.2.x, works with Maven 3 except for a minor issue with the archetype/snippet goals so better stick to 2.2.x for now.</li>
+		 				<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">Java</a> JDK 7+</li>
+		 				<li><a href="http://maven.apache.org/download.html" target="_blank">Maven</a> 3</li>
 		 				<li>PHP and MySQL need to be in your system path.</li>
-		 				<li>HTTPD of your choice with writeable htdocs directory.</li>
+		 				<li>HTTPD of your choice with writeable htdocs directory</li>
 	 				</ul>
 				</p>
 			</subsection>
@@ -35,7 +35,7 @@
 			</subsection>
 			<subsection name="Resources">
 				<p>
-				<a href="http://maven.apache.org/download.html" target="_blank">Maven installation Windows/Unix</a>
+				<a href="http://maven.apache.org/download.html#Installation" target="_blank">Maven installation Windows/Unix</a>
 				<br/>
 				<a href="http://docs.moodle.org/22/en/Windows_installation_using_XAMPP" target="_blank">XAMPP installation Windows</a>
 				</p>

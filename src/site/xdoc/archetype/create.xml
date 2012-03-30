@@ -6,7 +6,7 @@
 		</author>
 		<title></title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento" />
+	<meta name="keyword" content="mavento, maven, magento, magento archetype" />
 	<body>
 		<section name="Create a Magento archetype">
 			<subsection name="Setup">
@@ -40,12 +40,12 @@
 			</subsection>
 			<subsection name="Create a new Archetype">
 				<p>
-				The easiest way is to copy a archetype project folder, which you want to base your new archetype on.
+				The easiest way is to copy a archetype project folder on which you want to base your new archetype.
 				If you want to create an archetype that does not include from the base projects have a look at 
 				the <b>magento-multi-parent-archetype</b>.
 				<br/><br/>
 				
-				<b>NOTE</b>: The new archetype name has to include the 2 words <b>magento</b> and <b>archetype</b> or it 
+				<b>NOTE</b>: The new archetype artifactId has to include the 2 words <b>magento</b> and <b>archetype</b> or it 
 				will not be recognized by the magento:archetype goal.
 				<br/><br/>
 				Once copied open the <b>pom.xml</b> in the new archetype folder and update the artifactId, finally open
@@ -60,6 +60,11 @@
 mvn install</source>
 
 				..to install the archetype(s) into your local Maven repository.
+				
+				<b>NOTE</b>: If the new archetype doesn't show up in the archetype list try setting the archetypeCatalog property to local.
+				
+				<source>
+mvn magento:archetype -DarchetypeCatalog=local</source>
 				<br/><br/>
 
 				If you think others could benefit from your changes/new archetypes do not hesitate to make a pull request on github.

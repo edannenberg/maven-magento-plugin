@@ -20,7 +20,7 @@
 				Import the project into your IDE and have a look at the <b>magento-simple-model-snippet</b> project inside
 				the modules folder.
 				<br/><br/>
-				First lets copy the magento-simple-model-snippet and use that as a base. Note that the new name has to include
+				First lets copy the magento-simple-model-snippet and use that as a base. Note that the new artifactId has to include
 				the 2 words <b>magento</b> and <b>snippet</b>. The order does not matter. Else the magento:snippet goal will not 
 				pick up the new snippet.
 				<br/><br/>
@@ -75,8 +75,14 @@ __myProperty__-somethingstatic.php </source>
 mvn install</source>
 
 				..to install the new snippet into your local Maven repository. The new snippet should now show up when 
-				you invoke the magento:snippet goal.
-				<br/><br/>
+				you invoke the magento:snippet goal. 
+				<b>NOTE</b>: If the new archetype doesn't show up in the archetype list try setting the archetypeCatalog
+				property to local.
+
+<source>
+mvn magento:snippet -DarchetypeCatalog=local</source>
+				<br />
+				<br />
 				
 				If you think others could benefit from your snippet do not hesitate to make a pull request on github.
 				

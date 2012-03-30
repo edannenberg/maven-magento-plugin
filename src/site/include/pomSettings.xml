@@ -1,44 +1,25 @@
 <!-- START SNIPPET: pomSettings -->
-	<!-- profile properties -->
-	<profiles>
-		<profile>
-        	<id>dev</id>
-                 <activation>
-                         <activeByDefault>true</activeByDefault>
-                 </activation>
-                 <properties>
-                         <!-- magento settings dev profile, default -->
-                         <magento.version>1.6.1.0</magento.version>
+<!-- profiles -->
+<profiles>
+	<profile>
+		<id>dev</id>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+		</activation>
+		<properties>
+			<!-- magento settings dev profile, default -->
+			<magento.root.local>/home/data/www/stuffmanager</magento.root.local>
 
-                         <magento.root.local>/home/data/www/stuffmanager</magento.root.local>
-                         <magento.url.base>http://127.0.0.1/stuffmanager</magento.url.base>
+			<magento.db.name>magento_stuffmanager</magento.db.name>
+			<magento.db.user>root</magento.db.user>
+			<!-- <magento.db.passwd>123test</magento.db.passwd>  -->
 
-                         <magento.db.name>db_magento</magento.db.name>
-                         <magento.db.user>magento</magento.db.user>
-                         <magento.db.passwd>123test</magento.db.passwd>
+			<magento.admin.username>admin</magento.admin.username>
+			<magento.admin.passwd>123test</magento.admin.passwd>
 
-                         <magento.admin.username>admin</magento.admin.username>
-                         <magento.admin.passwd>123test</magento.admin.passwd>
-
-                         <!-- want magento product sample data? -->
-                         <magento.use.sample.data>true</magento.use.sample.data>
-
-                         <!-- set some/config/key with some value in core_config_data -->
-                         <magento.config.some.config.key>some value</magento.config.some.config.key>
-                         <!-- set the same config key with scope = websites and scope_id = 1 -->
-                         <magento.config.some.config.key--websites--1>another value</magento.config.some.config.key--websites--1>
-
-                         <!-- install extensions from magento connect after setup, append extension version if needed   -->
-                         <magento.extensions.community>Locale_Mage_community_de_DE,CashOnDelivery-1.0.2</magento.extensions.community>
-
-                         <!-- integration tests -->
-                         <magento.test.ignore>false</magento.test.ignore>
-                         <magento.test.root.link>/home/data/www/stuffmanager_it</magento.test.root.link>
-                         <magento.test.url.base>http://127.0.0.1/stuffmanager_it</magento.test.url.base>
-
-                         <magento.test.db.name>db_magento_it</magento.test.db.name>
-                         <magento.test.db.user>magento_it</magento.test.db.user>
-                         <magento.test.db.passwd>123test</magento.test.db.passwd>
-                 </properties>
-			...
+			<!-- integration tests -->
+			<skipTests>false</skipTests>
+			<ignoreValidate>false</ignoreValidate>
+		</properties>
+		...
 <!-- END SNIPPET: pomSettings -->

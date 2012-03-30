@@ -1,9 +1,9 @@
 <!-- START SNIPPET: pomDependencies -->
 	<dependencies>
 		<dependency>
-			<groupId>${magento.artifact.group.id}</groupId>
-			<artifactId>${magento.artifact.id}</artifactId>
-			<version>${magento.artifact.version}</version>
+			<groupId>${magento.test.artifact.group.id}</groupId>
+			<artifactId>${magento.test.artifact.id}</artifactId>
+			<version>${magento.test.artifact.version}</version>
 		</dependency>
 		<!-- pull in mage.bat for windows compat. -->		
 		<dependency>
@@ -18,9 +18,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.phpunit</groupId>
-			<artifactId>phpunit5</artifactId>
-			<version>3.5.5</version>
+			<groupId>de.phpunit</groupId>
+			<artifactId>PHPUnit</artifactId>
+			<version>3.6.10</version>
+			<type>phar</type>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

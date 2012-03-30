@@ -6,7 +6,7 @@
 		</author>
 		<title></title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento" />
+	<meta name="keyword" content="mavento, maven, magento, magento archetype" />
 	<body>
 		<section name="Maven Magento Archetypes">
 			<subsection name="Overview">
@@ -27,6 +27,8 @@
 				<source>
 mvn magento:archetype</source>
 				
+				This will create a ready to run Maven project configured for Magento development in the folder
+				the command was invoked from.
 				</p>
 			</subsection>
 			<subsection name="Single Module Projects">
@@ -51,7 +53,7 @@ mvn magento:archetype</source>
  				archetypes. The main difference is that they don't include any Magento properties, as those are kept centralized
  				in the parent project.
  				<br/><br/>
- 				<b>NOTE:</b>Take care to create the submodules in the <b>/modules</b> folder of your main project.
+ 				<b>NOTE:</b>Make sure to create the submodules in the <b>/modules</b> folder of your project.
  				</p>
 			</subsection>
 		</section>

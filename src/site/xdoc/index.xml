@@ -6,38 +6,107 @@
 		</author>
 		<title></title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento" />
+	<meta name="keyword"
+		content="mavento, maven, magento,maven-magento-plugin, magento-maven-plugin, magento deployment, magento continous integration, ci" />
 	<body>
 		<section name="Mavento - Magento development with Maven.">
 			<subsection name="Overview">
 				<p>
-				Mavento was started to achieve continous integration for Magento projects, but has since matured into a solid
-				dev-toolkit for Magento developers of all kind. The maven-magento-plugin provides Magento specific goals which 
-				you can plug into the Maven build life cycle or run from any shell.	
-				The magento-archetypes provide ready to run Maven projects configured for Magento development.
-				<br/><br/>
-				
-				 Maven is a software project management and comprehension tool that 
-				 aims at providing a uniform and easy build process. 
-				 It is very popular in the Java world, but can handle any type of project.
-				<br/>
-				
-				 A list of things why people like Maven can be found on the Maven <a href="http://maven.apache.org/benefits-of-using-maven.html" target="_blank">site</a>.
+					Mavento is a project to build, test and deploy Magento projects
+					with Maven.
+					It was
+					started to achieve continous integration for
+					Magento
+					projects,
+					but
+					has since matured into a solid toolbox for
+					Magento
+					developers of
+					all kind.
+					The magento-maven-plugin provides
+					Magento
+					specific goals
+					which
+					can be
+					plugged into the Maven build life
+					cycle
+					or
+					run from any
+					shell.
+					The
+					magento-archetypes provide ready to run
+					Maven
+					projects
+					configured
+					for Magento development.
+					<br />
+
+					All projects are open source and can be found on
+					<a href="https://github.com/edannenberg" target="_blank">github</a>
+					.
 				</p>
 			</subsection>
-			
+
+			<subsection name="Why Maven?">
+				<p>
+					Imagine a world where every project can be configured, build,
+					tested and deployed in exactly the same way.
+					A world where any
+					developer or user can simply checkout the project
+					source, run the
+					same
+					single command and start working. A mystical place where
+					dependencies, like the Magento core files, no longer need to
+					pollute your source repository to get a repeatable build.
+					<br />
+					<br />
+
+					Joking aside, such are the goals of Maven, a software project
+					management and comprehension tool that aims at providing
+					a uniform
+					and easy build process. It is very popular in the Java
+					world, but
+					can handle any type of project,
+					be it java, c++, php, ios, simple
+					static html or even authoring a
+					print book.
+					<br />
+					<br />
+
+					Apart from this holistic approach, Maven follows the convention
+					over configuration paradigm and has excellent dependency
+					management,
+					which is what makes Maven so different from build tools
+					like ant or make. The benefits of Maven are substantial once you
+					have to work/integrate with a bunch of different projects or your
+					organisation grows.
+				</p>
+
+			</subsection>
+
 			<subsection name="Features">
 				<ul>
-					<li>Keep your source files separated from the Magento runtime at all time.</li>
-					<li>Consistent development environment between all involved devs.</li>
+					<li>Keep your source files separated from the Magento runtime at
+						all time.
+					</li>
+					<li>Consistent development environment between all involved devs.
+					</li>
 					<li>PHP code validation/unit tests via maven-php-plugin.</li>
-					<li>Flexible automated Magento setup for unit/integration tests.</li>
-					<li>Create snapshots of running Magento instances to be used as base for testing/development.</li>
-					<li>Less boilerplate Magento code to write with ready to run module templates and code snippets.</li>
-					<li>Multi module support for bigger projects. Reactorbuilds. &lt;3</li>
-					<li>Dead easy project integration into CI servers like Jenkins.</li>
+					<li>Flexible automated Magento setup of vanilla or custom
+						instances.
+					</li>
+					<li>Create snapshots of running Magento instances to be used as
+						base for testing/development.
+					</li>
+					<li>Less boilerplate Magento code to write with ready to run module
+						templates and code snippets.
+					</li>
+					<li>Multi module support for bigger projects. Reactorbuilds. &lt;3
+					</li>
+					<li>Dead easy project integration into CI servers like Jenkins.
+					</li>
 					<li>Automated project documentation/code quality reports.</li>
-				</ul> 				
+				</ul>
 			</subsection>
 		</section>
 	</body>

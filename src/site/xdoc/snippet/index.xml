@@ -25,7 +25,7 @@
 			</subsection>
 			<subsection name="Usage">
 				<p>
-				You will need a running Maven project, look <a href="../howto/single_module.html">here</a> if you need one.
+				You will need a running Maven project, look <a href="../howto/single_module.html">here</a> if you don't have one yet.
 				<br/><br/>
 				Invoke the snippet goal:
 				
@@ -39,7 +39,7 @@ mvn magento:snippet</source>
 				The post install message will tell you which files you need to merge with existing config files.
 				
 				<br/><br/>
-				<b>NOTE</b>: A snippet can never overwrite an existing file in your project. The plugin will throw an error in such a case.
+				<b>NOTE</b>: A snippet can never overwrite a existing file in your project. The plugin will throw an error in such a case.
 				</p>
 			</subsection>
 		</section>

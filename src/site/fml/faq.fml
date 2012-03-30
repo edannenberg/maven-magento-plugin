@@ -3,14 +3,25 @@
   xsi:schemaLocation="http://maven.apache.org/FML/1.0 http://maven.apache.org/xsd/fml-1.0.xsd"
   id="General FAQ">
   <part id="General">
-    <faq id="why">
-      <question>Why is Maven so wildly popular?</question>
+    <faq id="convert-non-maven">
+      <question>How can i convert my old pre mavento projects?</question>
       <answer>
         <p>
-          Maven saves you so much time in your software development efforts that
-          you will have time to learn a second language, relax ten hours a
-          day, and train for that marathon you've always wanted to run!
+          Just create a new project via magento:archetype, select an empty archetype, copy your source
+          files to src/main/php, edit the base properties in pom.xml to your liking and you are ready to go.
         </p>
+      </answer>
+    </faq>
+    <faq id="create-vanilla-artifact">
+    <question>I want to use the latest Magento alpha/beta but it is not in the Mavento repository.</question>
+      <answer>
+      <p>
+          Current policy is that only stable Magento releases get uploaded into the repository. You can have however download
+          any vanilla Magento zip file and then use
+          <source>mvn magento:artifact -DmagentoZip=/path/to/zip -DdbUser= -DdbPass= -DdbHost=</source>
+          to create and install a dependency artifact into your local repository. The stable artifacts in the Mavento
+          repository are created the same way.
+      </p>
       </answer>
     </faq>
   </part>

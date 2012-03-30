@@ -6,43 +6,58 @@
 		</author>
 		<title></title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento" />
+	<meta name="keyword" content="mavento, maven, magento, magento deployment, multi module build, magento automation" />
 	<body>
 		<section name="Multi Module Development">
-		
+
 			<subsection name="..or how i learned to love the reactor build.">
-			
-			<p>
-			If you are developing a full store you still want to keep things like the theme and all the modules nicely seperated, 
-			yet it would be great to keep things together as they are all related.
-			<br/><br/>
-			Fortunately Maven does have support for multi module projects. The process is for the most part the same as for the 
-			single module project.
-			The only difference is that you first setup the main project via the <b>magento-multi-parent-archetype</b> 
-			then navigate to the <b>/modules</b> directory of the new project and add new modules with the <b>magento-*-submodule-archetype</b> 
-			archetypes as the project grows. Maven will update the main project so it knows about the submodules.
-			<br/><br/>
-			
-			You can then start a reactor build by invoking: 
-			
-			<source>
+
+				<p>
+					If you are developing a full store you still want to keep things
+					like the theme and all the modules nicely seperated,
+					yet it would be great to keep things together as they are all related.
+					<br />
+					<br />
+					Fortunately Maven does have support for multi module projects. The
+					process is for the most part the same as for the
+					single module project.
+					The only difference is that you first setup the main project via the
+					<b>magento-multi-parent-archetype</b>
+					then navigate to the
+					<b>/modules</b>
+					directory of the new project and add new modules with the
+					<b>magento-*-submodule-archetype</b>
+					archetypes as the project grows. Maven will update the main project
+					and as such the new module is already in the build once it is created.
+					<br />
+					<br />
+
+					You can then start a reactor build by invoking:
+
+					<source>
 mvn package magento:deploy</source>
 
-			..from any top level directory in the project and it will build and deploy all submodules in one go. 
-			You can also deploy a single submodule of the project by navigating to the submodules root directory invoking the above mvn command.
-			<br/><br/>
-			
-			Note that goals like
-			
-			<source>
+					..from any top level directory in the project and it will build and
+					deploy all submodules in one go.
+					You can also deploy a single submodule of the project by navigating to
+					the submodules root directory invoking the above mvn command.
+					<br />
+					<br />
+
+					Note that goals like
+
+					<source>
 mvn magento:setup</source>
-			
-			will still only run once and not for each submodule.
-			<br/><br/>
-			
-			All Magento related config will be at the root pom.xml and available to all submodules, which keeps configuration to a minimum. Of course
-			you can override parent properties in a submodule if needed.
-			</p>
+
+					will still only run once and not for each submodule.
+					<br />
+					<br />
+
+					All Magento related config will be at the root pom.xml and
+					available to all submodules, which keeps configuration to a minimum
+					and centralized. Of course
+					you can override parent properties in a submodule if needed.
+				</p>
 			</subsection>
 		</section>
 	</body>

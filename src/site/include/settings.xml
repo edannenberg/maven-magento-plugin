@@ -7,30 +7,84 @@
 				<repository>
 					<id>bbe-releases</id>
 					<name>Mavento Release Repository</name>
-					<url>http://maven.bbe-consulting.de/content/repositories/releases/</url>
-					<releases><enabled>true</enabled></releases>
+					<url>http://maven.bbe-consulting.de/content/repositories/releases/
+					</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
 				</repository>
 				<repository>
 					<id>bbe-snapshots</id>
 					<name>Mavento Snapshot Repository</name>
-					<url>http://maven.bbe-consulting.de/content/repositories/snapshots/</url>
-					<releases><enabled>false</enabled></releases>
-					<snapshots><enabled>true</enabled></snapshots>
+					<url>http://maven.bbe-consulting.de/content/repositories/snapshots/
+					</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>release-repo1.php-maven.org</id>
+					<name>PHP-Maven 2 Release Repository</name>
+					<url>http://repos.php-maven.org/releases</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>snapshot-repo1.php-maven.org</id>
+					<name>PHP-Maven 2 Snapshot Repository</name>
+					<url>http://repos.php-maven.org/snapshots</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
 				</repository>
 			</repositories>
 			<pluginRepositories>
 				<pluginRepository>
 					<id>bbe-releases</id>
 					<name>Mavento Release Repository</name>
-					<url>http://maven.bbe-consulting.de/content/repositories/releases/</url>
-					<releases><enabled>true</enabled></releases>
+					<url>http://maven.bbe-consulting.de/content/repositories/releases/
+					</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
 				</pluginRepository>
 				<pluginRepository>
 					<id>bbe-snapshots</id>
 					<name>Mavento Snapshot Repository</name>
-					<url>http://maven.bbe-consulting.de/content/repositories/snapshots/</url>
-					<releases><enabled>false</enabled></releases>
-					<snapshots><enabled>true</enabled></snapshots>
+					<url>http://maven.bbe-consulting.de/content/repositories/snapshots/
+					</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</pluginRepository>
+				<pluginRepository>
+					<id>release-repo1.php-maven.org</id>
+					<name>PHP-Maven 2 Release Repository</name>
+					<url>http://repos.php-maven.org/releases</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</pluginRepository>
+				<pluginRepository>
+					<id>snapshot-repo1.php-maven.org</id>
+					<name>PHP-Maven 2 Snapshot Repository</name>
+					<url>http://repos.php-maven.org/snapshots</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>

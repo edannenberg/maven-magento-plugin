@@ -11,13 +11,13 @@
 		<section name="Use Case Scenarios">
 			<subsection name="Overview">
 				<p>
-				The following pages provide howto's for some typical use cases. Starting with a simple Magento module on to topics
-				like integration tests or continous integration. 
+				The following pages provide howto's for some typical use cases. Starting with how to develop a simple Magento module on to topics
+				like unit tests or continous integration. 
 				<br/>
 				
 				You do not need any Maven knowledge to complete these short howtos, though it might be a good idea to skim over the Maven 
 				<a target="_blank" href="http://maven.apache.org/guides/getting-started/index.html">documentation</a> 
-				if you are not familiar with it.
+				at one point.
 				
 				</p>
 			</subsection>
@@ -28,16 +28,16 @@
 				
 				<source>
 mvn phase</source>
-				
+
 				or
-												
+
 				<source>
 mvn someplugin:somegoal</source>
 				
-				So to display the help section of the magento plugin you would invoke:
+				So to run the help goal of the magento plugin you would invoke:
 				
 				<source>
-mvn magento:help</source>  
+mvn magento:help</source>
 				
 				It is possible to chain commands:
 				
@@ -54,12 +54,12 @@ mvn phase someplugin:somegoal someplugin:someothergoal</source>
 				<source>
 mvn package</source>
 
-				.. will amongst other things run process-sources and compile first before packing the source files, but not install the resulting
-				artifact in your local Maven repository, as the install phase comes after the package phase.
+				.. will amongst other things run the process-sources and compile phases first before packing the source files, but not install the resulting
+				artifact in your local Maven repository, as the install phase is placed after the package phase.
 				
 				<br/>
 				What makes Maven so flexible is the fact that the default life cycle is pretty much empty and that you
-				can plug functionality into phases with some simple xml declarations in your pom.xml.
+				can plug functionality into phases with some simple xml declarations in your pom.xml. 
 				</p>
 			</subsection>
 		</section>
