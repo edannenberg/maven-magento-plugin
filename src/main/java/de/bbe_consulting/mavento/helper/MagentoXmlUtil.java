@@ -32,8 +32,14 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -137,6 +143,36 @@ public final class MagentoXmlUtil {
             }
         }
     }
+    
+    /**
+     * Return nodeValue of given xpath expression.
+     * 
+     * @param payload
+     * @param xpathExpression
+     * @return NodeValue of xpathExpression or empty string if nothing was found
+     * @throws MojoFailureException if more then one result was found
+     * @throws MojoExecutionException
+     */
+    public static String getXpathNodeValue (Document payload, String xpathExpression)
+            throws MojoExecutionException, MojoFailureException {
+
+        String nodeValue = "";
+        try {
+            final XPathFactory xpf = XPathFactory.newInstance();
+            final XPath xpath = xpf.newXPath();
+            final XPathExpression expr = xpath.compile(xpathExpression);
+
+            final NodeList nodes = (NodeList) expr.evaluate(payload, XPathConstants.NODESET);
+            if (nodes.getLength() == 1) {
+                nodeValue = getNodeValue(nodes.item(0));
+            } else if (nodes.getLength() > 1) {
+                throw new MojoFailureException("Error: found multiple nodes for " + xpathExpression);
+            }
+        } catch (XPathExpressionException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        return nodeValue;
+    }
 
     /**
      * Extract data from an etc/modules/config.xml document.
@@ -221,35 +257,14 @@ public final class MagentoXmlUtil {
     public static String getModuleVersion(Document payload, String moduleName)
             throws MojoExecutionException {
 
-        String moduleVersion = "undefined";
-        final NodeList configNodes = payload.getElementsByTagName("modules");
-        if (configNodes.getLength() == 0) {
-            return moduleVersion;
-        }
-        final NodeList moduleNodes = configNodes.item(0).getChildNodes();
-        NodeList moduleValueNodes = null;
-
-        for (int j = 0; j < moduleNodes.getLength(); j++) {
-            final String nodeName = moduleNodes.item(j).getNodeName();
-            if (nodeName.equals(moduleName)) {
-                moduleValueNodes = moduleNodes.item(j).getChildNodes();
+        String moduleVersion;
+        try {
+            moduleVersion = getXpathNodeValue(payload, "//modules/"+moduleName+"/version/text()");
+            if (moduleVersion.isEmpty()) {
+                moduleVersion = "undefined";
             }
-        }
-
-        if (moduleValueNodes == null || moduleValueNodes.getLength() == 0) {
-            throw new MojoExecutionException("Could not find config nodes for module: " + moduleName);
-        }
-
-        for (int j = 0; j < moduleValueNodes.getLength(); j++) {
-            Node valueNode = moduleValueNodes.item(j);
-            switch (valueNode.getNodeName()) {
-            case "version":
-                moduleVersion = getNodeValue(valueNode);
-            }
-        }
-
-        if (moduleVersion == null || moduleName.isEmpty()) {
-            moduleVersion = "undefined";
+        } catch (MojoFailureException e) {
+            moduleVersion = "configproblem";
         }
         return moduleVersion;
     }
