@@ -345,9 +345,16 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
     /**
      * Enable API cache? true|false<br/>
      * 
-     * @parameter expression="${magento.cache.api}" default-value="false"
+     * @parameter expression="${magento.api.cache.wsdl}" default-value="false"
      */
-    protected Boolean magentoCacheApi;
+    protected Boolean magentoApiCacheWsdl;
+
+    /**
+     * Enable WSI compliance? Only Magento 1.6 and up. true|false<br/>
+     * 
+     * @parameter expression="${magento.api.wsi.enable}" default-value="true"
+     */
+    protected Boolean magentoApiWsiEnable;
 
     /**
      * Enable block cache? true|false<br/>
@@ -958,6 +965,9 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
             }
             config = getSqlTagMap();
         }
+        if (mVersion.getMajorVersion() >= 1 && mVersion.getMinorVersion() >= 6 && magentoApiWsiEnable) {
+            config.put("api/config/compliance_wsi", "1");
+        }
         MagentoSqlUtil.setCoreConfigData(config, magentoDbUser, magentoDbPasswd, jdbcUrl, getLog());
         getLog().info("..done.");
 
@@ -983,8 +993,10 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
                     && mVersion.getMinorVersion() > 3)) {
                 getLog().info("Enabling exception printing..");
                 try {
-                    Files.move(Paths.get(tempDir + "/errors/local.xml.sample"),
-                            Paths.get(tempDir + "/errors/local.xml"));
+                    if (!Files.exists(Paths.get(tempDir + "/errors/local.xml"))) {
+                        Files.move(Paths.get(tempDir + "/errors/local.xml.sample"),
+                                Paths.get(tempDir + "/errors/local.xml"));
+                    }
                 } catch (IOException e) {
                     throw new MojoExecutionException("Error while enabling exception printing! "
                             + e.getMessage(), e);
@@ -1299,7 +1311,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         tokenMap.put("translate", magentoCacheTranslate ? "1" : "0");
         tokenMap.put("collections", magentoCacheCollections ? "1" : "0");
         tokenMap.put("eav", magentoCacheEav ? "1" : "0");
-        tokenMap.put("config_api", magentoCacheApi ? "1" : "0");
+        tokenMap.put("config_api", magentoApiCacheWsdl ? "1" : "0");
         return tokenMap;
     }
 
@@ -1317,7 +1329,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         tokenMap.put("CACHE_TRANSLATE", magentoCacheTranslate ? "1" : "0");
         tokenMap.put("CACHE_COLLECTIONS", magentoCacheCollections ? "1" : "0");
         tokenMap.put("CACHE_EAV", magentoCacheEav ? "1" : "0");
-        tokenMap.put("CACHE_API", magentoCacheApi ? "1" : "0");
+        tokenMap.put("CACHE_API", magentoApiCacheWsdl ? "1" : "0");
         return tokenMap;
     }
 
