@@ -59,9 +59,9 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
     /**
      * Disable all tests.<br/>
      * 
-     * @parameter expression="${magento.test.ignore}" default-value="false"
+     * @parameter expression="${skipTests}" default-value="false"
      */
-    protected Boolean magentoTestIgnore;
+    protected Boolean skipTests;
 
     /**
      * Magento instances for integration tests are kept in the project's build
@@ -169,7 +169,7 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         final List<String> l = session.getGoals();
-        if (l.get(0).equals("eclipse:eclipse") || magentoTestIgnore) {
+        if (l.get(0).equals("eclipse:eclipse") || skipTests) {
             return;
         }
 
@@ -184,7 +184,11 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
             if (magentoUrlBase == null || magentoUrlBase.isEmpty()) {
                 final String rootDirName;
                 if (magentoTestRootLink == null || magentoTestRootLink.isEmpty()) {
-                    rootDirName = Paths.get(magentoRootLocal).getFileName().toString();
+                    String localPath =  Paths.get(magentoRootLocal).toString();
+                    if (localPath.endsWith("/")) {
+                        localPath = localPath.substring(0, localPath.length()-1);
+                    }
+                    rootDirName = Paths.get(localPath+"_it").getFileName().toString();
                 } else {
                     rootDirName = Paths.get(magentoTestRootLink).getFileName().toString();
                 }
