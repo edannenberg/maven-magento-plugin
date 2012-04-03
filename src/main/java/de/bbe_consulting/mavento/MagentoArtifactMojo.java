@@ -293,7 +293,7 @@ public class MagentoArtifactMojo extends AbstractMojo {
 
         String sampleDataVersion = "1.6.1.0";
         if (mageVersion.getMajorVersion() <= 1 && mageVersion.getMinorVersion() <=6 && mageVersion.getRevisionVersion() < 1) {
-            sampleDataVersion = "1.2.0.0";
+            sampleDataVersion = "1.2.0";
         }
         
         // call dependency plugin to resolve and extract sample data
@@ -337,7 +337,9 @@ public class MagentoArtifactMojo extends AbstractMojo {
         MagentoSqlUtil.importSqlDump(sampleDataPre.toString(), dbUser, dbPassword, dbHost, dbPort, dbName, getLog());
         // run magento setup and indexer
         MagentoUtil.execMagentoInstall(tempDirPath, dbUser, dbPassword, dbHost+":"+dbPort, dbName, getLog());
-        MagentoSqlUtil.indexDb(tempDirPath.toString()+"/magento", getLog());
+        if (mageVersion.getMajorVersion() >= 1 && mageVersion.getMinorVersion() >= 4) {
+            MagentoSqlUtil.indexDb(tempDirPath.toString()+"/magento", getLog());
+        }
         // dump final sample data db
         MagentoSqlUtil.dumpSqlDb(sqlDumpSample, dbUser, dbPassword, dbHost, dbPort, dbName, getLog());
         // one more time without sample data
@@ -349,6 +351,9 @@ public class MagentoArtifactMojo extends AbstractMojo {
             throw new MojoExecutionException(e.getMessage(), e);
         }
         MagentoUtil.execMagentoInstall(tempDirPath, dbUser, dbPassword, dbHost+":"+dbPort, dbName, getLog());
+        if (mageVersion.getMajorVersion() >= 1 && mageVersion.getMinorVersion() >= 4) {
+            MagentoSqlUtil.indexDb(tempDirPath.toString()+"/magento", getLog());
+        }
         // dump final db
         MagentoSqlUtil.dumpSqlDb(sqlDumpEmpty, dbUser, dbPassword, dbHost, dbPort, dbName, getLog());
         // move magento files
