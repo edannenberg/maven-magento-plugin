@@ -12,22 +12,22 @@
 			<subsection name="Overview">
 				<p>
 				The following pages provide howto's for some typical use cases. Starting with how to develop a simple Magento module on to topics
-				like unit tests or continous integration. 
+				like unit tests or continous integration. Each will take about 5-10min to complete.
 				<br/>
 				
-				You do not need any Maven knowledge to complete these short howtos, though it might be a good idea to skim over the Maven 
+				You do not need any deep Maven knowledge to complete these short howtos, though it might be a good idea to skim over the Maven 
 				<a target="_blank" href="http://maven.apache.org/guides/getting-started/index.html">documentation</a> 
-				at one point.
+				at one point. A Maven crash course can be found below.
 				
 				</p>
 			</subsection>
 			<subsection name="Maven 101">
 				<p>
-				A Maven command is usually run from the project root directory. There are however exceptions to this rule.<br/>
+				A Maven command is usually run from the project root directory. There are however exceptions to this rule, like creating a new project. ;)<br/>
 				The commands typically have the form:
 				
 				<source>
-mvn phase</source>
+mvn somephase</source>
 
 				or
 
@@ -38,15 +38,21 @@ mvn someplugin:somegoal</source>
 				
 				<source>
 mvn magento:help</source>
+
+				To set properties directly the -D flag is used:
 				
+				<source>
+mvn somephase -DsomeBoolParam -DsomeParam=someValue</source>
+
 				It is possible to chain commands:
 				
 				<source>
-mvn phase someplugin:somegoal someplugin:someothergoal</source>
+mvn somephase someplugin:somegoal someplugin:someothergoal</source>
 				
 				Maven defines a <a href="http://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html" target="_blank">build life cycle</a> 
-				consisting of different phases like process-sources,compile or package. The order of those phases can not be changed. 
-				Invoking a phase will always invoke all previous phases first, but not the following ones.
+				consisting of different phases like process-sources, compile, package, test or deploy . The order of those phases can not be changed. 
+				Invoking a phase will always invoke all previous phases first, but not the following ones. If you are a coder think of the
+				lifecycle as an interface and the project configuration as the implementation.
 				<br/><br/>
 				
 				So invoking..
@@ -54,12 +60,15 @@ mvn phase someplugin:somegoal someplugin:someothergoal</source>
 				<source>
 mvn package</source>
 
-				.. will amongst other things run the process-sources and compile phases first before packing the source files, but not install the resulting
+				.. will amongst other things run the process-sources,compile and test phases first before packing the source files, but Maven will not install the resulting
 				artifact in your local Maven repository, as the install phase is placed after the package phase.
 				
 				<br/>
 				What makes Maven so flexible is the fact that the default life cycle is pretty much empty and that you
-				can plug functionality into phases with some simple xml declarations in your pom.xml. 
+				can plug functionality into phases with some simple xml declarations in your pom.xml.
+				<br/><br/>
+				
+				Some Maven concepts are explained as you go through the howto's.
 				</p>
 			</subsection>
 		</section>

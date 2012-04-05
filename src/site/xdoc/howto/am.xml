@@ -23,7 +23,9 @@
 
 					The first small plus is that you can configure a repository manager
 					as a transparent proxy, which will
-					then also act as a local cache. All team members only need to point to
+					then also act as a local cache. This also ensures that all your builds
+					will stay repeatable over time as external dependencies are kept
+					on your servers. All team members only need to point to
 					your internal repository from then on.
 					You can then also enforce artifact versions and other shenanigans.
 					<br />

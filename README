@@ -4,4 +4,7 @@ maven-magento-plugin
 A Maven plugin for Magento projects.
 For more information visit http://mavento.bbe-consulting.de
 
+---
 
+To use the latest trunk, clone the repo and run mvn install.
+You need JDK7 and Maven 3.

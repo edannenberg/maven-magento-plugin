@@ -20,7 +20,7 @@
 				</p>
 			</subsection>
 			<subsection name="Maven setup">
-				<p>Add the following block to your ~/.m2/settings.xml which is your user Maven configuration file, 
+				<p>Add the following block to your ~/.m2/settings.xml which is the Maven user configuration file, 
 				create the file if it doesn't exist yet:
 				
 				<macro name="snippet">
@@ -28,13 +28,14 @@
 					<param name="file" value="src/site/include/settings.xml"/>
 				</macro>
 				
-				This will inform Maven about the Mavento repositories and enable shorthand usage of the plugin's goals. 
+				This will inform Maven about the Mavento and php plugin repositories and enables shorthand usage of the plugin's goals. 
 				
 				Continue with <a href="use_cases.html">use cases</a>.
 				</p>
 			</subsection>
 			<subsection name="Resources">
 				<p>
+				<a href="http://jdk7.java.net/macportpreview" target="_blank">JDK7</a> for Mac. Don't forget to set JAVA_HOME in your .bashrc.<br/>
 				<a href="http://maven.apache.org/download.html#Installation" target="_blank">Maven installation Windows/Unix</a>
 				<br/>
 				<a href="http://docs.moodle.org/22/en/Windows_installation_using_XAMPP" target="_blank">XAMPP installation Windows</a>

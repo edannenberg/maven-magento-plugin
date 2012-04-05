@@ -26,7 +26,7 @@
 	  <item name="Use Cases" href="use_cases.html">
       	<item name="Magento Module" href="howto/single_module.html" />
       	<item name="Bigger Projects" href="howto/bigger_projects.html" />
-      	<item name="Integration Tests" href="howto/it.html" />
+      	<item name="Unit Tests" href="howto/it.html" />
       	<item name="Continious Integration" href="howto/ci.html" />
       	<item name="Artifact Management" href="howto/am.html" />
       	<item name="Documentation" href="howto/site.html" />

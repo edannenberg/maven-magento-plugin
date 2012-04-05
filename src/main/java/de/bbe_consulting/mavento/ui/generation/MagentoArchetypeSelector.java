@@ -67,13 +67,13 @@ public class MagentoArchetypeSelector extends AbstractLogEnabled implements
         ArchetypeSelector {
     static final String DEFAULT_ARCHETYPE_GROUPID = "de.bbe-consulting.maven.archetype";
 
-    static final String DEFAULT_ARCHETYPE_VERSION = "0.9.7";
+    static final String DEFAULT_ARCHETYPE_VERSION = "0.9.8";
 
     static final String DEFAULT_ARCHETYPE_ARTIFACTID = "magento-sample-module-archetype";
 
     static final String DEFAULT_SNIPPET_GROUPID = "de.bbe-consulting.maven.archetype.snippet";
 
-    static final String DEFAULT_SNIPPET_VERSION = "0.9.7";
+    static final String DEFAULT_SNIPPET_VERSION = "0.9.8";
 
     static final String DEFAULT_SNIPPET_ARTIFACTID = "magento-simple-model-snippet";
 

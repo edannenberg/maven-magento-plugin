@@ -12,9 +12,9 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>nl.ibuildings</groupId>
-			<artifactId>mage-test</artifactId>
-			<version>0.1.3</version>
+			<groupId>org.ecomdev</groupId>
+			<artifactId>ecomdev-phpunit</artifactId>
+			<version>0.2.0-dev</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

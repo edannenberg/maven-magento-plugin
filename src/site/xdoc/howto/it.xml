@@ -15,23 +15,28 @@
 					<b>/src/test/php</b>
 					. Standard PHPUnit stuff. The archetypes are currently configured
 					to
-					include and setup the ecomdev-phpunit extension. If you prefer
-					something else you would just need
-					to remove ecomdev-phpunit from the dependencies block in your pom.xml. Then
-					if you lets say want to use MageTest from ibuildinds or your own brew
-					you either just add the extension key from Magento Connect to your profile
+					include and setup the <b>ecomdev-phpunit</b> extension. If you prefer
+					something else you would just need to remove ecomdev-phpunit from the
+					dependencies block in your pom.xml. Then if you lets say want to use MageTest
+					from ibuildinds or your own brew you either just add the extension key
+					from Magento Connect to your profile
 					or create a maven artifact and list it in your dependency section.
+					A maven artifact of the latest <b>ibuildings_magetest</b> can be found in the Mavento
+					<a href="http://maven.bbe-consulting.de/index.html#view-repositories;releases~browsestorage" target="_blank">repository</a> .
 					<br />
 					<br />
 
-					Per default all unit tests will run in a seperate Magento instance that
-					only lives in the projects build directory (/target). This directory will get linked
-					to a htdocs dir. We will also need another database for the fixture support
-					of the ecomdev extension.<br/><br/>
+					Per default all unit tests will run in a temporary Magento instance that
+					only lives in the projects build directory (/target per default). The plugin supports
+					multiple Magento versions for testing, coexisting at the same time.
+					This temp directory will then get linked to your htdocs dir. We will also need another 
+					database for the fixture support of the ecomdev extension. There is no setup
+					needed for ecomdev_phpunit, besides creating the fixture db if you don't use
+					a mysql super user.<br/><br/>
 					
 					Again conventions can make your life easy, in fact there is no configuration needed
 					for the test instance if you comply with the convention.
-					Let's say you only configured these 2 properties of your dev instance: 
+					Let's say you configured only these 2 base properties in your dev profile: 
 					
 					<ul>
 					<li>magento.root.local = /home/data/www/mymagento </li>
@@ -41,31 +46,32 @@
 					The plugin would apply the following defaults:
 					
 					<ul>
-					<li>magento.test.root.link = /home/data/www/mymagento_it</li>
-					<li>magento.test.url.base = http://127.0.0.1/mymagento_it/</li>
-					<li>magento.test.db.name = magento_mymagento_it</li>
-					<li>magento.test.fixture.db.name = magento_mymagento_it_fixture</li>
+					<li>magento.url.base = http://127.0.0.1/mymagento/</li>
+					<li>magento.test.root.link = /home/data/www/mymagento<b>_it</b></li>
+					<li>magento.test.url.base = http://127.0.0.1/mymagento<b>_it</b>/</li>
+					<li>magento.test.db.name = magento_mymagento<b>_it</b></li>
+					<li>magento.test.fixture.db.name = magento_mymagento<b>_it_fixture</b></li>
 					</ul>
 					
-					Not only does this save some config work, it also helps to keep a good overview
-					on which db is related to what magento instance.<br/><br/>
+					Not only does this save a good chunk of config, it also encourages a consistent naming scheme across your projects. 
+					<br/><br/>
 					
 					But let's run some tests, first enable tests again by setting:
 					
 					<source>
 skipTests</source>
 					
-					to false. If you don't use the mysql super user on your dev box create the
+					to <b>false</b> in your pom.xml. If you don't use a mysql super user on your dev box create the
 					2 databases and grant permissions to the mysql user you are using. Then run:
 					
 					<source>
 mvn clean test</source>
 
-					This will first clean the build directory, then setup a Magento test instance
+					This will first clean the project's build directory, then setup a Magento test instance
 					with all dependencies and finally run the unit tests. If you want to reuse
-					an existing test instance leave out the clean phase.<br/><br/>
+					an existing test instance leave out the clean phase for the next calls.<br/><br/>
 					
-					Basic examples for a model and controller test can be found in the sample module archetypes.
+					The sample modules come with examples for model and controller tests via ecomdev_phpunit.
 					<br />
 				</p>
 			</subsection>
@@ -78,7 +84,7 @@ mvn clean test</source>
 					configuration.
 					<br />
 
-					In these cases you can invoke the
+					In these cases you can use the
 
 					<source>
 mvn magento:artifact -DmagentoPath=/path/to/live_store</source>
@@ -108,7 +114,7 @@ mvn magento:artifact -DmagentoPath=/path/to/live_store</source>
 					<br />
 					<br />
 
-					To be able to use it for your projects you need to install the
+					To be able to use it in your projects you need to install the
 					created jar into your local or remote Maven repository first.
 					The plugin will output a snippet for local install:
 
@@ -154,7 +160,7 @@ mvn magento:artifact -DmagentoPath=/path/to/live_store</source>
 					<br />
 					<br />
 
-					Whenever you invoke the magento:setup or package goals now the
+					Whenever you invoke the magento:setup or test goals now the
 					plugin will use the snapshot you just created,
 					it will take care of modifying the baseurl/db settings according to
 					your pom.xml as usual.

@@ -18,11 +18,29 @@
       <p>
           Current policy is that only stable Magento releases get uploaded into the repository. You can have however download
           any vanilla Magento zip file and then use
-          <source>mvn magento:artifact -DmagentoZip=/path/to/zip -DdbUser= -DdbPass= -DdbHost=</source>
+          <source>mvn magento:artifact -DmagentoZip=/path/to/zip -DdbUser= -DdbPass= -DdbName=</source>
           to create and install a dependency artifact into your local repository. The stable artifacts in the Mavento
           repository are created the same way.
       </p>
       </answer>
+    </faq>
+  </part>
+  <part id="Troubleshooting">
+   <faq id="wrong-java-version">
+       <question>
+         Caused by: java.lang.UnsupportedClassVersionError: de/bbe_consulting/mavento/MagentoArchetypeMojo : Unsupported major.minor version 51.0
+       </question>
+        <answer>
+          You need Java 7.
+        </answer>
+    </faq>
+    <faq id="wrong-maven-version">
+       <question>
+          A required class is missing: Lorg/apache/maven/plugin/BuildPluginManager;org.apache.maven.plugin.BuildPluginManager
+       </question>
+        <answer>
+          You need Maven 3.
+        </answer>
     </faq>
   </part>
 </faqs>

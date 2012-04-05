@@ -6,7 +6,7 @@
 		</author>
 		<title>Magento - Plugin</title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento, development, build tool" />
+	<meta name="keyword" content="mavento, maven, magento, development, magento deployment, build tool" />
 	<body>
 		<section name="Single Module Development">
 			<subsection name="Hello Mavento!">
@@ -21,9 +21,9 @@ mvn magento:archetype</source>
 			If this is the first time you are running Maven it will download alot of dependencies now,
 			don't worry the next calls will be much smoother.<br/>
 			When Maven is ready it will present you a list of archetypes, think of it as project templates. 
-			Let's go with the default, the <b>magento-sample-module-archetype</b>.<br/>
+			Let's just hit enter and go with the default, the <b>magento-sample-module-archetype</b>.<br/>
 			Maven will ask for basic project properties now. Some properties like version have a default value (1.0-SNAPSHOT)
-			in which case you can just hit enter to accept.
+			in which case you can hit enter to accept.
 			
 			<source>
 Define value for property 'groupId': de.bbe-consulting.magento: 
@@ -109,22 +109,30 @@ Define value for property 'magentoModuleType: local:</source>
 				<param name="file" value="src/site/include/pomSettings.xml"/>
 			</macro>
 			
-			Profiles are configuration sets that can be either triggered manually or by conditions like the current operating system
+			Profiles are configuration sets that can be either triggered manually, or by conditions like the current operating system
 			the build is running on. The first one, displayed above, is a typical profile for developer use. There is no need to configure
 			a lot as the plugin's conventions are geared toward development. The plugin will disable all caches, 
 			turn on logging and enable exception printing per default. 
 			<br/><br/>
 			
-			The production profile shows how to setup a profile for a live environment. It's only a simple
-			example to show some concepts tho. Finally the archetypes supply you with a profile to setup
-			a minimal magento with the magento db repair tool installed. Below the profiles section is another properties section.
-			These properties are active in all profiles unless they get overridden by a profile. 
+			The production profile, a bit further down, shows how to setup a profile for a live environment. It's only a simple
+			example to show some concepts though. Finally there is also a profile to setup
+			a seperate minimal Magento with the magento db repair tool installed. Quite handy for Magento upgrade sessions.
+			<br/><br/>
+			
+			The dev profile is active per default, to activate other profiles you can use the -P parameter:
+			
+			<source>
+mvn somecommand -Pproduction</source> 
+			
+			Below the profiles section is global properties section.
+			As the name suggests, these properties are active in all profiles unless, of course, they get overridden by an active profile.
 			More details on profiles can be found in the Maven 
 			<a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">documentation</a>. 
 			<br/><br/>
 			
 			Configure the magento root folder and db settings in the dev profile, the convention for the Magento baseUrl
-			is to use the root folder name configured in magento.root.local. So the baseUrl for our dev profile from above
+			is to use the root folder name configured in <b>magento.root.local</b>. So the baseUrl for our dev profile from above
 			will default to:
 			<source>
 http://127.0.0.1/stuffmanager/</source>
@@ -135,18 +143,17 @@ http://127.0.0.1/stuffmanager/</source>
 			<li>skipTests</li>
 			</ul>
 			  
-			..to true for now. It will disable all unit tests. We will dive into that in another howto.
+			..to <b>true</b> for now. It will disable all unit tests. We will dive into that in the unit tests section.
 			
-			
+			You can set the Magento version via:
 			<ul>
 			<li>magento.version - See <b><a href="http://maven.bbe-consulting.de/content/repositories/releases/com/varien/magento/">here</a></b> for available versions. It should always reflect the actual Magento version.</li>
-			<li>magento.root.local - The Magento root folder. Should point to a directory from where your http daemon serves content.</li>
-			<li>magento.url.base - The Magento base url.</li>
 			</ul>
 			
-			There is a lot more stuff you configure for the magento:setup goal. You could specify Magento Connect extension keys to be installed
+			There is a lot more stuff you configure on how the Magento instance should get configured. You could specify Magento Connect extension keys to be installed
 			or set any values in core_config_data. Have a look at the global properties section in your pom.xml for some 
-			examples or visit the <b><a href="../setup-mojo.html">magento:setup</a></b> goal docs for a full overview.<br/> 
+			examples or visit the <b><a href="../setup-mojo.html" target="_blank">magento:setup</a></b> documentation for a full overview.
+			<br/><br/>
 			
 			Once you are done it's time to setup the local Magento instance:
 			
@@ -160,7 +167,7 @@ mvn magento:setup</source>
 			<source>
 mvn package magento:deploy</source>
 			
-			..which will validate the project source, create a .phar and .zip of the sources and then deploy the artifact to 
+			..which will run a LINT check on the project source, create a .phar and .zip file of the sources and then deploy the artifact to 
 			the previously setup Magento instance.
 			<br/>
 			
@@ -169,7 +176,7 @@ mvn package magento:deploy</source>
 			All that is left to do is import the project into the IDE of your choice and you are ready to start hacking. :o)
 			</p>
 		</subsection>
-		<subsection name="Fiddling around..">
+		<subsection name="Symlinking">
 			<p>
 			Sometimes it can be annoying having to run package/deploy every time you made a change to the sources. 
 			In these cases you can invoke..
@@ -177,11 +184,11 @@ mvn package magento:deploy</source>
 			<source>
 mvn magento:symlink</source>
 
-			..which will symlink the project source folders to your Magento instance. Strg-s + f5 will work again. :D<br/>
-			The plugin will not just link src/main/php, it tries to guess sensible links as much as possible. Manual symlink configuration should not be necessary.
+			..to symlink the project source folders to your Magento instance. Strg-s + f5 will work again. :D<br/>
+			Note that the plugin will not just link src/main/php, it tries to guess the most sensible links instead. Manual symlink configuration should not be necessary.
 			<br/>
 			
-			<b>NOTE</b>: There is a symlink protection for template files in Magento versions 1.4.2.0 until 1.5.1.0, where Varien finally made it configurable.
+			<b>NOTE</b>: There is symlink protection for template files in Magento versions 1.4.2.0 until 1.5.1.0, where Varien finally made it configurable.
 			</p>
 		</subsection>
 		

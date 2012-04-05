@@ -7,6 +7,45 @@
         <author email="erik.dannenberg@bbe-consulting.de">Erik Dannenberg</author>
     </properties>
     <body>
+        <release date="2012-04-04" version="0.9.8" description="Maven3, more conventions, ecomdev_phpunit, dead bugs.">
+            <action dev="edannenberg" type="add">
+                Added ecomdev_phpunit integration, no setup needed.
+            </action>
+            <action dev="edannenberg" type="add">
+                Added alot more conventions all over the place.
+            </action>
+            <action dev="edannenberg" type="update">
+                Updated most helpers to use java nio channels.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Fixed regression for symlink collection.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Fixed pear setup to always set extension stability.
+            </action>
+            <action dev="edannenberg" type="update">
+                Updated plugin to work with Maven 3 and maven-archetype-plugin 2.2.
+            </action>
+            <action dev="edannenberg" type="update">
+                TestSetup will no longer extract dependencies. (Decoupled in php plugin now)
+            </action>
+            <action dev="edannenberg" type="add">
+                Added db and file statistics to magento:info.
+            </action>
+            <action dev="edannenberg" type="add">
+                Added support for artifact creation from any Magento vanilla zip.
+            </action>
+            <action dev="edannenberg" type="update">
+                magentoDbPass is no longer required.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Added missing port to db host url in local.xml
+            </action>
+            <action dev="edannenberg" type="add">
+                Added option to truncate customer/order data for custom artifact creation.
+            </action>
+            
+        </release>
         <release date="2012-02-07" version="0.9.7" description="First public release.">
             <action dev="edannenberg" type="update" >
                 Switched to new Java7 nio file api for Windows compatibility.

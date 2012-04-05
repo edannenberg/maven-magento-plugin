@@ -12,8 +12,7 @@
 		<section name="Mavento - Magento development with Maven.">
 			<subsection name="Overview">
 				<p>
-					Mavento is a project to build, test and deploy Magento projects
-					with Maven.
+					Mavento is, for the most part, a Maven plugin to build, test and deploy Magento projects.
 					It was
 					started to achieve continous integration for
 					Magento
@@ -25,7 +24,7 @@
 					all kind.
 					The magento-maven-plugin provides
 					Magento
-					specific goals
+					specific <a href="plugin-info.html" target="_blank">goals</a>
 					which
 					can be
 					plugged into the Maven build life
@@ -49,19 +48,7 @@
 
 			<subsection name="Why Maven?">
 				<p>
-					Imagine a world where every project can be configured, build,
-					tested and deployed in exactly the same way.
-					A world where any
-					developer or user can simply checkout the project
-					source, run the
-					same
-					single command and start working. A mystical place where
-					dependencies, like the Magento core files, no longer need to
-					pollute your source repository to get a repeatable build.
-					<br />
-					<br />
-
-					Joking aside, such are the goals of Maven, a software project
+					Maven is a software project
 					management and comprehension tool that aims at providing
 					a uniform
 					and easy build process. It is very popular in the Java
@@ -72,13 +59,12 @@
 					print book.
 					<br />
 					<br />
-
+					
 					Apart from this holistic approach, Maven follows the convention
-					over configuration paradigm and has excellent dependency
-					management,
-					which is what makes Maven so different from build tools
-					like ant or make. The benefits of Maven are substantial once you
-					have to work/integrate with a bunch of different projects or your
+					over configuration paradigm, provides excellent dependency
+					management and is designed in an extremly modular fashion. 
+					The benefits of Maven get substantial once you
+					have to work/integrate with an increasing number of different projects or as your
 					organisation grows.
 				</p>
 
@@ -91,7 +77,7 @@
 					</li>
 					<li>Consistent development environment between all involved devs.
 					</li>
-					<li>PHP code validation/unit tests via maven-php-plugin.</li>
+					<li>PHP code validation/unit tests via maven-php-plugin. Full support for ecomdev_phpunit or ibuildings_magetest.</li>
 					<li>Flexible automated Magento setup of vanilla or custom
 						instances.
 					</li>
@@ -103,7 +89,7 @@
 					</li>
 					<li>Multi module support for bigger projects. Reactorbuilds. &lt;3
 					</li>
-					<li>Dead easy project integration into CI servers like Jenkins.
+					<li>Dead easy project integration into CI servers like <a href="http://jenkins-ci.org/" target="_blank">Jenkins</a> or CQ servers like <a href="http://www.sonarsource.org/" target="_blank">Sonar</a>.
 					</li>
 					<li>Automated project documentation/code quality reports.</li>
 				</ul>
