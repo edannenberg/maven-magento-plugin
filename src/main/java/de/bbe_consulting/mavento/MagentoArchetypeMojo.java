@@ -26,8 +26,12 @@ import org.dom4j.io.SAXReader;
 import de.bbe_consulting.mavento.helper.FileUtil;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -88,20 +92,45 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
             final String reqVersion = queryer.getPropertyValue("version", "1.0-SNAPSHOT");
             executionProperties.put("version", reqVersion);
 
+            
+            boolean askModuleProperties = true; 
+            if (requiredProperties.contains("magentoCreateEmptyModuleStructure")) {
+                final String reqCreateEmptyModuleStructure = queryer.getPropertyValue("magentoCreateEmptyModuleStructure", "true");
+                executionProperties.put("magentoCreateEmptyModuleStructure", reqCreateEmptyModuleStructure);
+                if (!reqCreateEmptyModuleStructure.equals("true")) {
+                    askModuleProperties = false;
+                }
+            }
+            
             if (requiredProperties.contains("magentoModuleName")) {
-                final String reqMagentoModuleName = queryer.getPropertyValue("magentoModuleName", null);
+                final String reqMagentoModuleName;
+                if (askModuleProperties) {
+                    reqMagentoModuleName = queryer.getPropertyValue("magentoModuleName", null);
+                } else {
+                    reqMagentoModuleName = reqArtifactId;
+                }
                 executionProperties.put("magentoModuleName", reqMagentoModuleName);
                 executionProperties.put("magentoModuleNameLowerCase", reqMagentoModuleName.toLowerCase());
             }
 
             if (requiredProperties.contains("magentoNameSpace")) {
-                final String reqMagentoNamespace = queryer.getPropertyValue("magentoNamespace", null);
+                final String reqMagentoNamespace;
+                if (askModuleProperties) {
+                    reqMagentoNamespace = queryer.getPropertyValue("magentoNameSpace", null);
+                } else {
+                    reqMagentoNamespace = "None";
+                }
                 executionProperties.put("magentoNameSpace", reqMagentoNamespace);
             }
 
             if (requiredProperties.contains("magentoModuleType")) {
-                final String reqMagentoNamespace = queryer.getPropertyValue("magentoModuleType", "local");
-                executionProperties.put("magentoModuleType", reqMagentoNamespace);
+                final String reqMagentoModuleType;
+                if (askModuleProperties) {
+                    reqMagentoModuleType = queryer.getPropertyValue("magentoModuleType", "local");
+                } else {
+                    reqMagentoModuleType = "local";
+                }
+                executionProperties.put("magentoModuleType", reqMagentoModuleType);
             }
 
             configurator.configureArchetype(request, false, executionProperties);
@@ -151,10 +180,12 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
         final File projectBasedir = new File(basedir, artifactId);
         final String moduleName = props.getProperty("magentoModuleName");
         final String nameSpace = props.getProperty("magentoNameSpace");
+        final String moduleType = props.getProperty("magentoModuleType");
+        final String createEmptyFolderStructure = props.getProperty("magentoCreateEmptyModuleStructure", "false");
 
-        if (moduleName != null && nameSpace != null) {
+        if (moduleName != null && nameSpace != null && moduleType != null) {
             if (projectBasedir.exists() && !nameSpace.equals("Company") && !moduleName.equals("MyModule")) {
-                final LinkedHashMap<String, String> fileNames = new LinkedHashMap<String, String>();
+                final Map<String, String> fileNames = new LinkedHashMap<String, String>();
 
                 final String magentoBasePath = projectBasedir.getAbsolutePath() + "/src/main/php/app";
 
@@ -169,8 +200,28 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
                         + props.getProperty("magentoModuleName") + ".csv";
                 final String localeNew = magentoBasePath + "/locale/en_US/" + localeName;
                 fileNames.put(localeOld, localeNew);
-
+                
                 FileUtil.renameFiles(fileNames);
+                
+                if (createEmptyFolderStructure.equals("true")) {
+                    final List<String> folderStruc = new ArrayList<String>();
+                    final String modPath= magentoBasePath + "/code/" + moduleType + "/" + nameSpace + "/" + moduleName;
+                    folderStruc.add( modPath + "/Block/Adminhtml");
+                    folderStruc.add( modPath + "/controllers/Adminhtml");
+                    folderStruc.add( modPath + "/etc");
+                    folderStruc.add( modPath + "/Helper");
+                    folderStruc.add( modPath + "/Model/Api");
+                    folderStruc.add( modPath + "/Model/Entity");
+                    folderStruc.add( modPath + "/Model/Mysql4");
+                    folderStruc.add( modPath + "/Model/sql/"+moduleName.toLowerCase()+"_setup");
+                    folderStruc.add( magentoBasePath + "/design/adminhtml/default/default/layout");
+                    folderStruc.add( magentoBasePath + "/design/adminhtml/default/default/template");
+                    folderStruc.add( magentoBasePath + "/etc/modules");
+                    folderStruc.add( magentoBasePath + "/locale/en_US");
+                    for (String string : folderStruc) {
+                        Files.createDirectories(Paths.get(string));
+                    }
+                }
             }
         }
     }
