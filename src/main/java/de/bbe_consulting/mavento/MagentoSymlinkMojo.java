@@ -18,6 +18,7 @@ package de.bbe_consulting.mavento;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,13 @@ import de.bbe_consulting.mavento.helper.MagentoUtil;
  */
 public class MagentoSymlinkMojo extends AbstractMagentoMojo {
 
+    /**
+     * Configure symlinks in case auto symlink fails, use relative filepath from src/main/php. 
+     * 
+     * @parameter
+     */
+    protected String[] symLinks; 
+
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         String srcDirName = project.getBasedir().getAbsolutePath() + "/src/main/php";
@@ -46,10 +54,24 @@ public class MagentoSymlinkMojo extends AbstractMagentoMojo {
                         "Could not find Magento root, did you forget to run 'mvn magento:install'? ;)");
             }
             Map<String, String> linkMap = new HashMap<String, String>();
-            try {
-                linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
-            } catch (IOException e) {
-                throw new MojoExecutionException("IO Error while collecting symlinks. " + e.getMessage(), e);
+            if (symLinks == null || symLinks.length == 0) {
+                try {
+                    linkMap = MagentoUtil.collectSymlinks(srcDirName, magentoRootLocal);
+                } catch (IOException e) {
+                    throw new MojoExecutionException("IO Error while collecting symlinks. " + e.getMessage(), e);
+                }
+            } else {
+                getLog().info("Using manual symlink configuration.");
+                for (String link : symLinks) {
+                    if (!link.startsWith("/")) {
+                        link = "/" + link;
+                    }
+                    Path t = Paths.get(srcDirName + link);
+                    if (Files.notExists(t)) {
+                        throw new MojoExecutionException("Error in symLinks configuration, could not find " + t);
+                    }
+                    linkMap.put(srcDirName + link, magentoRootLocal + link);
+                }
             }
             getLog().info("Linking project source to: " + magentoRootLocal);
             try {

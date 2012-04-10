@@ -103,9 +103,12 @@ public final class MagentoUtil {
                     + "/app/locale/en_US", targetBaseDir + "/app/locale/en_US"));
 
         }
-        // crawl js/lib folders
+        // crawl some base directories
         linkMap.putAll(getSubFileLinkMap(sourceBaseDir + "/js", targetBaseDir + "/js"));
         linkMap.putAll(getSubFileLinkMap(sourceBaseDir + "/lib", targetBaseDir + "/lib"));
+        linkMap.putAll(getSubFileLinkMap(sourceBaseDir + "/media", targetBaseDir + "/media"));
+        linkMap.putAll(getSubFileLinkMap(sourceBaseDir + "/shell", targetBaseDir + "/shell"));
+        linkMap.putAll(getSubFileLinkMap(sourceBaseDir + "/var", targetBaseDir + "/var"));
 
         // everything else, minus the base directories we already took care of
         tempMap = getSubFileLinkMap(sourceBaseDir, targetBaseDir);
@@ -113,6 +116,9 @@ public final class MagentoUtil {
         tempMap.remove(sourceBaseDir + "/skin");
         tempMap.remove(sourceBaseDir + "/js");
         tempMap.remove(sourceBaseDir + "/lib");
+        tempMap.remove(sourceBaseDir + "/media");
+        tempMap.remove(sourceBaseDir + "/shell");
+        tempMap.remove(sourceBaseDir + "/var");
         tempMap.remove(sourceBaseDir + "/magento_bootstrap.php");
         linkMap.putAll(tempMap);
 
