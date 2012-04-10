@@ -17,10 +17,10 @@
 package de.bbe_consulting.mavento.helper;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -226,7 +226,7 @@ public final class MagentoSqlUtil {
         final InputStream input;
         FileChannel channel = null;
         try {
-            channel = new RandomAccessFile(Paths.get(sqlDump).toFile(), "r").getChannel();
+            channel = new FileInputStream(Paths.get(sqlDump).toFile()).getChannel();
             input = Channels.newInputStream(channel);
 
             final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();

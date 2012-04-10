@@ -16,15 +16,14 @@
 
 package de.bbe_consulting.mavento.helper;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -108,7 +107,7 @@ public final class FileUtil {
         final OutputStream outputStream;
         FileChannel channel = null;
         try {
-            channel = new RandomAccessFile(Paths.get(fileName).toFile(), "rw").getChannel();
+            channel = new FileOutputStream(Paths.get(fileName).toFile()).getChannel();
             outputStream = Channels.newOutputStream(channel);
         } catch (FileNotFoundException e) {
             throw new MojoExecutionException("Error: " + e.getMessage(), e);
@@ -159,32 +158,14 @@ public final class FileUtil {
     private static void writeFileFromZip(File targetFile, ZipEntry zipEntry, ZipFile archive) 
              throws IOException {
 
-        InputStream input = null;
-        OutputStream output = null;
-        FileChannel channel = null;
+        FileChannel output = null;
         try {
             final InputStream rawIn = archive.getInputStream(zipEntry);
-            input = new BufferedInputStream(rawIn);
-            
-            channel = new RandomAccessFile(targetFile, "rw").getChannel();
-            final OutputStream rawOut = Channels.newOutputStream(channel);
-            output = new BufferedOutputStream(rawOut);
-
-            // pump data from zip file into new files
-            final byte[] buf = new byte[2048];
-            int len;
-            while ((len = input.read(buf)) > 0) {
-                output.write(buf, 0, len);
-            }
+            output = new FileOutputStream(targetFile).getChannel();
+            output.transferFrom(Channels.newChannel(rawIn), 0, zipEntry.getSize());
         } finally {
-            if (input != null) {
-                input.close();
-            }
             if (output != null) {
                 output.close();
-            }
-            if (channel != null) {
-                channel.close();
             }
         }
     }
@@ -340,7 +321,7 @@ public final class FileUtil {
         final Reader reader;
         FileChannel channel = null;
         try {
-            channel = new RandomAccessFile(Paths.get(filePath).toFile(), "r").getChannel();
+            channel = new FileInputStream(Paths.get(filePath).toFile()).getChannel();
             reader = Channels.newReader(channel, "utf-8");
             final BufferedReader input = new BufferedReader(reader);
             String line;
