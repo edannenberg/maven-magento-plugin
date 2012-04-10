@@ -270,7 +270,6 @@ public final class FileUtil {
     public static void copyFile(Path sourceFile, Path targetFile)
             throws MojoExecutionException {
 
-        // copy module source to magento instance so the autoloader can pick it up
         if (Files.exists(sourceFile)) {
             final CopyFilesVisitor crv = new CopyFilesVisitor(sourceFile, targetFile, true);
             try {

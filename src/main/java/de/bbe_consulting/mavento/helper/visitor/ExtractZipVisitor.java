@@ -49,7 +49,7 @@ public class ExtractZipVisitor extends SimpleFileVisitor<Path> {
         try {
             if (!file.getFileName().toString().startsWith(".")) {
                 logger.info("Extracting " + file.getFileName());
-                FileUtil.unzipFile(file.toAbsolutePath().toString(), target.toAbsolutePath().toString());
+                FileUtil.unzipFile(file.toString(), target.toString());
             }
         } catch (IOException e) {
             return TERMINATE;
