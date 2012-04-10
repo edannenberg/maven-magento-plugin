@@ -213,7 +213,7 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
                     folderStruc.add( modPath + "/Model/Api");
                     folderStruc.add( modPath + "/Model/Entity");
                     folderStruc.add( modPath + "/Model/Mysql4");
-                    folderStruc.add( modPath + "/Model/sql/"+moduleName.toLowerCase()+"_setup");
+                    folderStruc.add( modPath + "/sql/"+moduleName.toLowerCase()+"_setup");
                     folderStruc.add( magentoBasePath + "/design/adminhtml/default/default/layout");
                     folderStruc.add( magentoBasePath + "/design/adminhtml/default/default/template");
                     folderStruc.add( magentoBasePath + "/etc/modules");
