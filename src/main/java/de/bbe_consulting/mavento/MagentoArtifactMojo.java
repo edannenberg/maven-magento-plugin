@@ -240,12 +240,8 @@ public class MagentoArtifactMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         if (tempDir != null && !tempDir.isEmpty()) {
-            try {
-                tempDirPath = Paths.get(tempDir);
-                Files.createDirectories(tempDirPath);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Error creating temp directory: " + e.getMessage(), e);
-            }
+            tempDirPath = Paths.get(tempDir);
+            FileUtil.createDirectories(tempDirPath.toString(), true);
         } else {
             try {
                 tempDirPath = Files.createTempDirectory("mavento_artifact_");

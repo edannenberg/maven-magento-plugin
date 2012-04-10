@@ -842,7 +842,10 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         } else {
             magentoUrlBaseHttps = MagentoUtil.validateBaseUrl(magentoUrlBase, true);
         }
-
+        
+        // create build directory, takes care of missing symlink target
+        FileUtil.createDirectories(Paths.get(tempDir).getParent().toString(), true);
+        
         // extract magento artifact
         if (!isIntegrationTest) {
             try {
@@ -859,6 +862,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
                 getLog().info("Extracting " + depId + ":"
                         + depGroupdId + ":"
                         + depVersion + "..");
+                FileUtil.createDirectories(tempDir, true);
                 // call dependency plugin to resolve and extract magento core to be used for magento:setup
                 executeMojo(
                         plugin(
@@ -1025,7 +1029,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
                 final Path eDir = Paths.get("extensions");
                 final Path tDir = Paths.get(tempDir);
                 try {
-                    Files.createDirectories(eDir);
+                    FileUtil.createDirectories(eDir.toString(), true);
                     final ExtractZipVisitor ev = new ExtractZipVisitor(tDir, getLog());
                     EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
                     Files.walkFileTree(eDir, options, 1, ev);
@@ -1074,7 +1078,7 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
             getLog().info("Everything is prepared, copying to " + magentoRootLocal);
             try {
                 FileUtil.deleteFile(magentoRootLocal, getLog());
-                Files.createDirectories(magentoTargetPath);
+                FileUtil.createDirectories(magentoTargetPath.toString(), true);
 
                 final CopyFilesVisitor cv = new CopyFilesVisitor(magentoSourcePath, magentoTargetPath, true);
                 Files.walkFileTree(magentoSourcePath, cv);

@@ -63,6 +63,39 @@ public final class FileUtil {
     }
 
     /**
+     * Wrapper for Files.createDirectories() that handles existing symlinks with missing target dir.
+     * 
+     * @param targetDir
+     * @param followSymlink
+     * @throws MojoExecutionException
+     */
+    public static void createDirectories(String targetDir, boolean followSymlink) throws MojoExecutionException {
+
+        final Path f = Paths.get(targetDir);
+        if (Files.notExists(f) && !Files.isSymbolicLink(f)) {
+            try {
+                Files.createDirectories(f);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error creating " + f + " : " + e.getMessage(), e);
+            }
+        } else if (followSymlink && Files.isSymbolicLink(f)) {
+            final Path linkTarget;
+            try {
+                linkTarget = Files.readSymbolicLink(f);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error reading link target of " + f + " : " + e.getMessage(), e);
+            }
+            if (Files.notExists(linkTarget)) {
+                try {
+                    Files.createDirectories(linkTarget);
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Error creating " + linkTarget + " : " + e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    /**
      * Create a jar file.
      * 
      * @param fileName

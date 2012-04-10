@@ -17,9 +17,6 @@
 package de.bbe_consulting.mavento.helper;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
@@ -57,12 +54,9 @@ public final class MavenUtil {
             throws MojoExecutionException, IOException {
 
         final Set<Artifact> projectDependencies = project.getDependencyArtifacts();
-        // create temp dir if it doesn't exist
-        final Path f = Paths.get(targetDirectory);
-        if (!Files.exists(f)) {
-            Files.createDirectories(f);
-        }
 
+        FileUtil.createDirectories(targetDirectory, true);
+        
         final Properties p = project.getProperties();
         final String testId = (String)p.get("magento.test.artifact.id");
         final String testGroupdId = (String)p.get("magento.test.artifact.group.id");
