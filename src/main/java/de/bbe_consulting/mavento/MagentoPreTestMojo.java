@@ -24,13 +24,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import de.bbe_consulting.mavento.helper.FileUtil;
 
 /**
- * Post unit test tasks.
+ * Pre unit test tasks. 
  * 
- * @goal post-test
+ * @goal pre-test
  * @requiresDependencyResolution test
  * @author Erik Dannenberg
  */
-public class MagentoPostTestMojo extends AbstractMagentoSetupMojo {
+public class MagentoPreTestMojo extends AbstractMagentoSetupMojo {
 
     /**
      * Location of all test dependencies.<br/>
