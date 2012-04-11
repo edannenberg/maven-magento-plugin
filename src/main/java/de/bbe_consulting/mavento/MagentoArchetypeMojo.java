@@ -107,7 +107,7 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
                 if (askModuleProperties) {
                     reqMagentoModuleName = queryer.getPropertyValue("magentoModuleName", null);
                 } else {
-                    reqMagentoModuleName = reqArtifactId;
+                    reqMagentoModuleName = "MyModule";
                 }
                 executionProperties.put("magentoModuleName", reqMagentoModuleName);
                 executionProperties.put("magentoModuleNameLowerCase", reqMagentoModuleName.toLowerCase());
@@ -118,7 +118,7 @@ public class MagentoArchetypeMojo extends AbstractArchetypeMojo {
                 if (askModuleProperties) {
                     reqMagentoNamespace = queryer.getPropertyValue("magentoNameSpace", null);
                 } else {
-                    reqMagentoNamespace = "None";
+                    reqMagentoNamespace = "MyCompany";
                 }
                 executionProperties.put("magentoNameSpace", reqMagentoNamespace);
             }

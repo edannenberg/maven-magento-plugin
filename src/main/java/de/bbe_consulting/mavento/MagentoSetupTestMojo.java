@@ -306,27 +306,26 @@ public class MagentoSetupTestMojo extends AbstractMagentoSetupMojo {
         }
 
         // copy module (test)(re)sources to magento instance so the autoloader can pick it up
-        final Path moduleSource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/main/php");
-        final Path moduleResource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/main/resources");
-        final Path moduleTestSource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/test/php");
-        final Path moduleTestResource = Paths.get(project.getBasedir().getAbsolutePath() + "/src/test/resources");
+        final Path moduleSource = Paths.get(project.getBuild().getOutputDirectory());
+        final Path moduleTestSource = Paths.get(project.getBuild().getTestSourceDirectory());
+        final Path moduleTestOutput = Paths.get(project.getBuild().getTestOutputDirectory());
         final Path buildDir = Paths.get(tempDir);
         FileUtil.copyFile(moduleSource, buildDir);
-        FileUtil.copyFile(moduleResource, buildDir);
         FileUtil.copyFile(moduleTestSource, buildDir);
-        FileUtil.copyFile(moduleTestResource, buildDir);
-
+        FileUtil.copyFile(moduleTestOutput, buildDir);
+        
         // make http request to init possible db changes by the module
-        getLog().info("Sending http request to " + magentoUrlBase );
+        String backendUrl = MagentoUtil.validateBaseUrl(magentoUrlBase, false) + magentoBackendFrontendName;
+        getLog().info("Sending http request to " + backendUrl );
         try {
-            final URL magentoUrl = new URL(MagentoUtil.validateBaseUrl(magentoUrlBase,false));
+            final URL magentoUrl = new URL(MagentoUtil.validateBaseUrl(backendUrl,false));
             final HttpURLConnection mc = (HttpURLConnection) magentoUrl.openConnection();
             int statusCode = mc.getResponseCode();
-            if (statusCode != HttpURLConnection.HTTP_OK) {
+            if (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                getLog().info("..response code: " + statusCode + " :)");
+            } else {
                 getLog().info("..response code: " + statusCode + " :(");
                 throw new MojoExecutionException("Got http error " + statusCode + " from magento test instance.");
-            } else {
-                getLog().info("..response code: " + statusCode + " :)");
             }
         } catch (MalformedURLException e) {
             throw new MojoExecutionException(e.getMessage(), e);
