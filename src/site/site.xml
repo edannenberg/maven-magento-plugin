@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<project name="Maven" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project name="Mavento" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
  <skin>
 	<groupId>de.bbe-consulting.maven.skin</groupId>
@@ -24,12 +24,13 @@
       <item name="Overview" href="index.html"/>
       <item name="Installation" href="install.html"/>
 	  <item name="Use Cases" href="use_cases.html">
-      	<item name="Magento Module" href="howto/single_module.html" />
-      	<item name="Bigger Projects" href="howto/bigger_projects.html" />
-      	<item name="Unit Tests" href="howto/it.html" />
-      	<item name="Continious Integration" href="howto/ci.html" />
-      	<item name="Artifact Management" href="howto/am.html" />
-      	<item name="Documentation" href="howto/site.html" />
+        <item name="Magento Module" href="howto/single_module.html" />
+        <item name="Bigger Projects" href="howto/bigger_projects.html" />
+        <item name="Unit Tests" href="howto/it.html" />
+        <item name="Selenium" href="howto/selenium.html" />
+        <item name="Continious Integration" href="howto/ci.html" />
+        <item name="Artifact Management" href="howto/am.html" />
+        <item name="Documentation" href="howto/site.html" />
       </item>
       <item name="FAQ" href="faq.html"/>
     </menu>

@@ -4,7 +4,7 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title>Magento - Plugin</title>
+		<title>Single Module Magento Project - Mavento</title>
 	</properties>
 	<meta name="keyword" content="mavento, maven, magento, development, magento deployment, build tool" />
 	<body>
@@ -117,7 +117,7 @@ Define value for property 'magentoModuleType: local:</source>
 			
 			The production profile, a bit further down, shows how to setup a profile for a live environment. It's only a simple
 			example to show some concepts though. Finally there is also a profile to setup
-			a seperate minimal Magento with the magento db repair tool installed. Quite handy for Magento upgrade sessions.
+			a seperate minimal Magento instance with the magento db repair tool installed. Quite handy for Magento upgrade sessions.
 			<br/><br/>
 			
 			The dev profile is active per default, to activate other profiles you can use the -P parameter:
@@ -131,13 +131,13 @@ mvn somecommand -Pproduction</source>
 			<a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">documentation</a>. 
 			<br/><br/>
 			
-			Configure the magento root folder and db settings in the dev profile, the convention for the Magento baseUrl
+			Configure the magento root folder and db settings in the dev profile, the convention for the Magento base url
 			is to use the root folder name configured in <b>magento.root.local</b>. So the baseUrl for our dev profile from above
 			will default to:
 			<source>
 http://127.0.0.1/stuffmanager/</source>
 
-			..unless we add the magento.url.base property and override. Finally set:
+			..unless we add the magento.url.base property and set it manually. Finally set:
 			
 			<ul>
 			<li>skipTests</li>
@@ -176,6 +176,7 @@ mvn package magento:deploy</source>
 			All that is left to do is import the project into the IDE of your choice and you are ready to start hacking. :o)
 			</p>
 		</subsection>
+
 		<subsection name="Symlinking">
 			<p>
 			Sometimes it can be annoying having to run package/deploy every time you made a change to the sources. 
@@ -184,14 +185,15 @@ mvn package magento:deploy</source>
 			<source>
 mvn magento:symlink</source>
 
-			..to symlink the project source folders to your Magento instance. Strg-s + f5 will work again. :D<br/>
-			Note that the plugin will not just link src/main/php, it tries to guess the most sensible links instead. Manual symlink configuration should not be necessary.
+			..to symlink the project source folders to your Magento instance. Strg-s + f5 will work again. ;)<br/>
+			Note that the plugin will not just link src/main/php, it tries to guess the most sensible links instead. Manual symlink configuration should not be necessary, 
+			but is possible via the symLinks property. The pom.xml comes with an example on how to do that.
 			<br/>
 			
 			<b>NOTE</b>: There is symlink protection for template files in Magento versions 1.4.2.0 until 1.5.1.0, where Varien finally made it configurable.
 			</p>
 		</subsection>
-		
+
 		<subsection name="Optional: IDE integration">
 			<p>
 			Eclipse, Netbeans, IntelliJ and others provide Maven integration. Check your IDE's manual/plugin repo.

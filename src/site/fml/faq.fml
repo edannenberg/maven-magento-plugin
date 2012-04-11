@@ -3,8 +3,30 @@
   xsi:schemaLocation="http://maven.apache.org/FML/1.0 http://maven.apache.org/xsd/fml-1.0.xsd"
   id="General FAQ">
   <part id="General">
+    <faq id="magento-enterprise-edition">
+      <question>Can i use Magento Enterprise Editions?</question>
+      <answer>
+        <p>
+          Obviously we can't supply the EE artifacts via our public repositories. You can however
+          install a fresh EE manually and then use 
+          <source>
+mvn magento:archetype -DmagentoPath=/path/to/installed_ee</source> to let Maven create a
+           dependency artifact. If you are working in a team it is best to setup a internal
+           repository manager like Nexus. Once you uploaded the created jar file into your
+           internal repository all team members with access can use the EE edition just
+           like the public CE edition artifacts. If you are working alone it is enough
+           to install the jar file into your local Maven repository. You can find a snippet
+            for installing into your local repo in the console output of the magento:archetype goal.<br/>
+            For more details have a look at <a href="howto/it.html" target="_blank">Testing against Snapshots</a>
+           
+           <br/>
+           There is currently an issue with ecomdev backend controller tests and Magento EE (tested on 1.10.0.1).
+           Should be fixed soon, you can use the provided Selenium functionality in the meantime.
+        </p>
+      </answer>
+    </faq>
     <faq id="convert-non-maven">
-      <question>How can i convert my old pre mavento projects?</question>
+      <question>How can i convert my old pre Mavento projects?</question>
       <answer>
         <p>
           Just create a new project via magento:archetype, select an empty archetype, copy your source
@@ -42,5 +64,16 @@
           You need Maven 3.
         </answer>
     </faq>
+    <faq id="osx-socket-not-found">
+       <question>
+          Uncaught exception 'PDOException' with message 'SQLSTATE[HY000] [2002] No such file or directory'
+       </question>
+        <answer>
+          This problem has been reported on MacOSX, apparently it occurs when the mysql socket is not accessible.
+          For a solution and indepth explanation look <a href="http://prattski.com/2010/08/05/magento-install-mysql-error-sqlstatehy000-2002-no-such-file-or-directory/" target="_blank">here</a>.
+        </answer>
+    </faq>
+    
+    
   </part>
 </faqs>

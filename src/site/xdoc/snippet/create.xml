@@ -4,9 +4,9 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title></title>
+		<title>Create Magento Snippets - Mavento</title>
 	</properties>
-	<meta name="keyword" content="mavento, maven, magento" />
+	<meta name="keyword" content="mavento, maven, magento, snippet" />
 	<body>
 		<section name="Create a Magento code snippet">
 			<subsection name="Setup">

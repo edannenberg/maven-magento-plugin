@@ -7,6 +7,20 @@
         <author email="erik.dannenberg@bbe-consulting.de">Erik Dannenberg</author>
     </properties>
     <body>
+        <release date="2012-04-11" version="0.9.8.1" description="Bugfix release.">
+            <action dev="edannenberg" type="fix">
+                Fixed regression in writeFileFromZip(), uses channel properly now.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Fixed wrong sql/module_setup location while generating empty module structure.
+            </action>
+            <action dev="edannenberg" type="add">
+                Added manual symlink configuration and more base folders for auto symlinking.
+            </action>
+            <action dev="edannenberg" type="add">
+                Added Selenium configuration to archetypes.
+            </action>
+        </release>
         <release date="2012-04-04" version="0.9.8" description="Maven3, more conventions, ecomdev_phpunit, dead bugs.">
             <action dev="edannenberg" type="add">
                 Added ecomdev_phpunit integration, no setup needed.
@@ -44,7 +58,6 @@
             <action dev="edannenberg" type="add">
                 Added option to truncate customer/order data for custom artifact creation.
             </action>
-            
         </release>
         <release date="2012-02-07" version="0.9.7" description="First public release.">
             <action dev="edannenberg" type="update" >

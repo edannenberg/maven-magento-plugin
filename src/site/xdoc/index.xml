@@ -4,12 +4,12 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title></title>
+		<title>Mavento - Magento development and deployment with Maven</title>
 	</properties>
 	<meta name="keyword"
 		content="mavento, maven, magento,maven-magento-plugin, magento-maven-plugin, magento deployment, magento continous integration, ci" />
 	<body>
-		<section name="Mavento - Magento development with Maven.">
+		<section name="Mavento - Magento development and deployment with Maven.">
 			<subsection name="Overview">
 				<p>
 					Mavento is, for the most part, a Maven plugin to build, test and deploy Magento projects.
@@ -66,6 +66,13 @@
 					The benefits of Maven get substantial once you
 					have to work/integrate with an increasing number of different projects or as your
 					organisation grows.
+					<br /><br/>
+					
+					Maven is widespread and battle tested, in a recent 
+					<a href="http://zeroturnaround.com/java-ee-productivity-report-2011/#build_tools" target="_blank">survey</a>
+					 it passed Ant as the most used build tool. As such there is a nice array of plugins
+					available, from managing your source license headers to setting up
+					embedded servers like Selenium or Tomcat.
 				</p>
 
 			</subsection>
@@ -78,6 +85,7 @@
 					<li>Consistent development environment between all involved devs.
 					</li>
 					<li>PHP code validation/unit tests via maven-php-plugin. Full support for ecomdev_phpunit or ibuildings_magetest.</li>
+					<li>Selenium support via maven-selenium-plugin and PHPUnit_Selenium extension.</li>
 					<li>Flexible automated Magento setup of vanilla or custom
 						instances.
 					</li>

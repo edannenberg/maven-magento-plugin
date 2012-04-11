@@ -4,18 +4,20 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title></title>
+		<title>Use Cases - Mavento</title>
 	</properties>
 	<meta name="keyword" content="mavento, maven, magento" />
 	<body>
 		<section name="Use Case Scenarios">
 			<subsection name="Overview">
 				<p>
-				The following pages provide howto's for some typical use cases. Starting with how to develop a simple Magento module on to topics
-				like unit tests or continous integration. Each will take about 5-10min to complete.
-				<br/>
+				The following pages provide howto's for some typical use cases. Starting with how 
+				to develop a simple Magento module on to topics like unit tests or continous integration.
+				Each will take about 5-15min to complete, first time users should complete them in sequential order.
+				<br/><br/>
 				
-				You do not need any deep Maven knowledge to complete these short howtos, though it might be a good idea to skim over the Maven 
+				You do not need any deep Maven knowledge to complete these short howtos, or in fact for daily usage. 
+				Though it might be a good idea to skim over the Maven 
 				<a target="_blank" href="http://maven.apache.org/guides/getting-started/index.html">documentation</a> 
 				at one point. A Maven crash course can be found below.
 				
@@ -42,7 +44,7 @@ mvn magento:help</source>
 				To set properties directly the -D flag is used:
 				
 				<source>
-mvn somephase -DsomeBoolParam -DsomeParam=someValue</source>
+mvn somephase -DsomeBoolParam -DsomeParam=someValue -DsomeOtherBool=false</source>
 
 				It is possible to chain commands:
 				

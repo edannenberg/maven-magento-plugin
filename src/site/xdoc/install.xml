@@ -4,7 +4,7 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title></title>
+		<title>Installation - Mavento</title>
 	</properties>
 	<meta name="keyword" content="mavento, maven, magento" />
 	<body>
@@ -19,7 +19,7 @@
 	 				</ul>
 				</p>
 			</subsection>
-			<subsection name="Maven setup">
+			<subsection name="Mavento setup">
 				<p>Add the following block to your ~/.m2/settings.xml which is the Maven user configuration file, 
 				create the file if it doesn't exist yet:
 				
@@ -33,6 +33,20 @@
 				Continue with <a href="use_cases.html">use cases</a>.
 				</p>
 			</subsection>
+			
+			<subsection name="Optional: Bash completion">
+				<p>
+				A modified Maven bash_completion file can be found on <a href="https://gist.github.com/2358077" target="_blank">gisthub</a>.
+				<br/><br/>
+				On unix systems it should be enough to run:
+				
+				<source>
+cat /path/to/mavento_bash_completion >> ~/.bash_completion</source>
+				
+				(Don't forget to reopen the console to activate.)
+				</p>
+			</subsection>
+			
 			<subsection name="Resources">
 				<p>
 				<a href="http://jdk7.java.net/macportpreview" target="_blank">JDK7</a> for Mac. Don't forget to set JAVA_HOME in your .bashrc.<br/>

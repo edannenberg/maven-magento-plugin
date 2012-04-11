@@ -4,7 +4,7 @@
 		<author email="erik.dannenberg@bbe-consulting.de">
 			Erik Dannenberg
 		</author>
-		<title></title>
+		<title>Unit Testing and Magento TDD - Mavento</title>
 	</properties>
 	<meta name="keyword" content="mavento, maven, magento, unit tests, integration tests" />
 	<body>
@@ -53,7 +53,7 @@
 					<li>magento.test.fixture.db.name = magento_mymagento<b>_it_fixture</b></li>
 					</ul>
 					
-					Not only does this save a good chunk of config, it also encourages a consistent naming scheme across your projects. 
+					The <b>_it</b> part stands for integration test. Not only does this save a good chunk of config, it also encourages a consistent naming scheme across your projects. 
 					<br/><br/>
 					
 					But let's run some tests, first enable tests again by setting:
@@ -71,7 +71,8 @@ mvn clean test</source>
 					with all dependencies and finally run the unit tests. If you want to reuse
 					an existing test instance leave out the clean phase for the next calls.<br/><br/>
 					
-					The sample modules come with examples for model and controller tests via ecomdev_phpunit.
+					To get you started the sample modules come with examples for model and controller tests 
+					via ecomdev_phpunit.
 					<br />
 				</p>
 			</subsection>

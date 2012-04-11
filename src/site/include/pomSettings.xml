@@ -14,12 +14,25 @@
 			<magento.db.user>root</magento.db.user>
 			<!-- <magento.db.passwd>123test</magento.db.passwd>  -->
 
+			<!-- <magento.use.https.frontend>false</magento.use.https.frontend> -->
+			<!-- <magento.use.https.backend>false</magento.use.https.backend> -->
+
 			<magento.admin.username>admin</magento.admin.username>
 			<magento.admin.passwd>123test</magento.admin.passwd>
+
+			<!-- want magento product sample data? -->
+			<magento.use.sample.data>true</magento.use.sample.data>
 
 			<!-- integration tests -->
 			<skipTests>false</skipTests>
 			<ignoreValidate>false</ignoreValidate>
+			<selenium.browser>*firefox</selenium.browser>
 		</properties>
-		...
+	</profile>
+
+	<profile>
+		<id>production</id>
+	.
+	.
+	.
 <!-- END SNIPPET: pomSettings -->

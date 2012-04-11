@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+	<properties>
+		<author email="erik.dannenberg@bbe-consulting.de">
+			Erik Dannenberg
+		</author>
+		<title>Selenium - Mavento</title>
+	</properties>
+	<meta name="keyword" content="mavento, maven, magento, continious integration, selenium, jenkins" />
+	<body>
+		<section name="Selenium Testing">
+			<subsection name="Overview">
+				<p>
+				<a href="http://seleniumhq.org/" target="_blank">Selenium</a> is a browser automation framework.
+				Together with the <a href="https://github.com/sebastianbergmann/phpunit-selenium" target="_blank">PHPUnit_Selenium</a>
+				extension frontend testing becomes a fairly easy process.<br/><br/>
+				
+				The magento archetypes are already preconfigured for selenium, assuming you have
+				a Magento project with sample code ready and Firefox installed, you just need to invoke:
+				
+				<source>
+mvn integration-test</source>
+				
+				This will download and start a selenium server and run the 2 sample selenium tests.
+				<br/><br/>
+				The Selenium tests are configured to run in the <b>integration-test</b> phase, unlike
+				all other unit tests, which are in the <b>test</b> phase. You can change this behaviour easily
+				via pom.xml configuration, have a look at the build lifecycle in your pom.xml.
+				
+				<br/><b>NOTE</b>: Currently self-signed ssl certifactes require manual interaction
+				in selenium to accept the browser exception. So for now deactivate https in your pom.xml
+				while Selenium testing or use your google fu to find out how to deal with it on your own.
+				<br/><br/>
+				To change the browser profile update the <b>selenium.browser</b> property in your pom.xml.
+				</p>
+			</subsection>
+			<subsection name="Creating New Tests">
+				<p>
+					Although not required, the
+					<a href="http://seleniumhq.org/download/" target="_blank">Selenium IDE</a> Firefox plugin
+					makes creating new Selenium tests a whole lot more comfy. After installation you can
+					open the IDE via the tools menu in Firefox. Consult the Selenium documentation for
+					further details.<br/><br/>
+					
+					The archetypes are configured to expect Selenium tests in any Folder named <b>Selenium</b>
+					in <b>src/test/php</b>. Extend from <b>NameSpace_ModuleName_Test_Selenium_AbstractSeleniumCase</b> in your test cases.
+					This base class takes care of parsing the <b>selenium.ini</b> properties file in <b>src/test/resources</b> and provides a helper method for backend login
+					via Selenium. More on that in the next section.<br/><br/>
+					
+					The backend controller test example is shown below:
+					
+					<source>
+class MyCompany_StuffManager_Test_Selenium_Adminhtml_MyControllerTest extends MyCompany_StuffManager_Test_Selenium_AbstractSeleniumCase
+{
+
+    protected function setUp()
+    {
+        parent::setup();
+    }
+
+    /**
+     * Test index action of mycontroller.
+     *
+     * @test
+     */
+    public function MyControllerIndex ()
+    {
+        $this->magentoAdminLogin();
+
+        // click menu and test for module output
+        $this->clickAndWait("//ul[@id='nav']/li[11]/ul/li/a/span");
+        $this->isTextPresent('Hello World!');
+    }
+
+}
+</source>
+				</p>
+			</subsection>
+			<subsection name="Automated Crossbrowser Testing">
+				<p>
+				We already had a look at Maven's profiles, which handle multiple configuration sets, in the 
+				<a href="single_module.html" target="_blank">Single Module</a> howto. By placing a properties
+				file in <b>src/test/resources</b> we can utilize Maven properties in our unit tests.
+				The <b>resources</b> directory is a Maven standard directory used for non-source files. The kicker
+				is that those files can be filtered by Maven before they get copied to the output directory.
+				Filtering means that tokens in those files get replaced by property values from your pom.xml.
+				Hence we can pass different browser profiles to our tests without having to touch the
+				test cases. Have a look at the AbstractSeleniumCase to see how it works.
+				<br/><br/>
+				
+				A headless vm Selenium farm becomes a lot less hassle to setup thanks to Maven. Just create a bunch
+				of profiles with different browser profiles in your pom.xml, then create build slaves of your CI server
+				for each vm (Windows,Linux,etc). Finally you just need to activate the desired profile 
+				for each build job in your CI server and you are done.
+				
+				<source>
+mvn integration-test -P failexplorer</source>
+
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>
