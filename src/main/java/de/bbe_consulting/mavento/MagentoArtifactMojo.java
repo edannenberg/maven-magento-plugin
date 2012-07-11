@@ -36,6 +36,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.w3c.dom.Document;
 
+import de.bbe_consulting.mavento.helper.DiffUtil;
 import de.bbe_consulting.mavento.helper.FileUtil;
 import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 import de.bbe_consulting.mavento.helper.MagentoUtil;
@@ -43,6 +44,7 @@ import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
 import de.bbe_consulting.mavento.helper.visitor.CopyFilesVisitor;
 import de.bbe_consulting.mavento.helper.visitor.MoveFilesVisitor;
 import de.bbe_consulting.mavento.type.MagentoVersion;
+import difflib.PatchFailedException;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
@@ -56,7 +58,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
 /**
- * Create a magento dependency artifact for magento:setup and unit tests.<br/><br/>
+ * Create a magento dependency artifact for magento:setup and/or unit tests.<br/><br/>
  * 
  * To create a dependency artifact from a running Magento instance:<br/>
  * 
@@ -129,6 +131,14 @@ public class MagentoArtifactMojo extends AbstractMojo {
      * @parameter expression="${magentoZip}"
      */
     protected String magentoZip;
+    
+    /**
+     * Apply a diff style patch after magento setup that will be included into the final artifact.<br/>
+     * Only used when creating an artifact from a vanilla magento zip.
+     * 
+     * @parameter expression="${postPatch}"
+     */
+    protected String postPatch;
 
     /**
      * Database name to use for magento install.<br/>
@@ -352,6 +362,16 @@ public class MagentoArtifactMojo extends AbstractMojo {
         }
         // dump final db
         MagentoSqlUtil.dumpSqlDb(sqlDumpEmpty, dbUser, dbPassword, dbHost, dbPort, dbName, getLog());
+        // handle post patch
+        if (postPatch != null && !postPatch.isEmpty()) {
+            try {
+                getLog().info("Applying patch " + postPatch);
+                DiffUtil.patchDirectory(postPatch, tempDirPath+"/magento", false, false, getLog());
+            } catch (PatchFailedException | IOException e) {
+                throw new MojoExecutionException("Error applying patch: " + e.getMessage(), e);
+            }
+        }
+        
         // move magento files
         try {
             final MoveFilesVisitor mv = new MoveFilesVisitor(Paths.get(tempDirPath+"/magento"), tempDirPath);

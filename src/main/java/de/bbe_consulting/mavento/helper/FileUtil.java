@@ -21,12 +21,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarOutputStream;
@@ -169,6 +173,24 @@ public final class FileUtil {
             }
         }
     }
+    
+    /**
+     * Writes content to targetFile.
+     * 
+     * @param content
+     * @param targetFile
+     * @throws IOException
+     */
+    public static void writeFile(List<String> content, String targetFile) throws IOException {
+        final PrintWriter writer = new PrintWriter(new FileWriter(new File(targetFile)));
+        try {
+            for (String line : content) {
+                writer.println(line);
+            }
+        } finally {
+            writer.close();
+        }
+    }
 
     /**
      * Mass rename files/folders.
@@ -305,6 +327,30 @@ public final class FileUtil {
             }
         }
         return directoryNames;
+    }
+    
+    /**
+     * Read file content and return it as a list of strings.
+     * 
+     * @param filePath
+     * @return List<String>
+     * @throws IOException
+     */
+    public static List<String> getFileAsLines(String filePath) throws IOException {
+        final List<String> lines = new LinkedList<String>();
+        String line = "";
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new FileReader(filePath));
+            while ((line = in.readLine()) != null) {
+                lines.add(line);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+        return lines;
     }
 
     /**
