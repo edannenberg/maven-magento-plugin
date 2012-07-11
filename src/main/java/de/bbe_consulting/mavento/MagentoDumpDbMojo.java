@@ -42,7 +42,7 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
 public class MagentoDumpDbMojo extends AbstractMagentoSqlMojo {
 
     /**
-     * @parameter expression="${magento.dump.file}"
+     * @parameter expression="${magento.db.dump.file}"
      */
     private String magentoDumpFile;
 
@@ -58,9 +58,6 @@ public class MagentoDumpDbMojo extends AbstractMagentoSqlMojo {
             magentoDumpFile = project.getBasedir() + "/sqldumps/"
                     + magentoDbName + "-" + magentoInstallDate + ".sql";
         } else {
-            if (!magentoDumpFile.endsWith(".sql")) {
-                magentoDumpFile += ".sql";
-            }
             magentoDumpFile = project.getBasedir() + "/sqldumps/" + magentoDumpFile;
         }
         MagentoSqlUtil.dumpSqlDb(magentoDumpFile, magentoDbUser, magentoDbPasswd,

@@ -41,7 +41,7 @@ public class MagentoImportDbMojo extends AbstractMagentoSqlMojo {
     /**
      * Mysql dump filename, dump is expected in /sqldumps of your project root.<br/>
      * 
-     * @parameter expression="${magento.dump.file}"
+     * @parameter expression="${magento.db.dump.file}"
      * @required
      */
     private String magentoDumpFile;
