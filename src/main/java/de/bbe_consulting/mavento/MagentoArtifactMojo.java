@@ -83,7 +83,9 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
  * mvn magento:artifact -DmagentoZip=/path/to/.zip -DdbUser= -DdbPassword= -DdbName=
  * </pre>
  * 
- * This goal does not need an active Maven project.<br/>
+ * Use -DpostPatch=/path/to/.diff to apply a optional diff style patch before the final artifact is created.
+ * 
+ * This goal does not need a active Maven project.<br/>
  * 
  * @goal artifact
  * @aggregator false

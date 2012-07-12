@@ -3,6 +3,18 @@
   xsi:schemaLocation="http://maven.apache.org/FML/1.0 http://maven.apache.org/xsd/fml-1.0.xsd"
   id="General FAQ">
   <part id="General">
+      <faq id="magento-zf-vuln">
+      <question>Are the magento artifacts vulnerable to <a target="_blank" href="http://www.magentocommerce.com/blog/comments/important-security-update-zend-platform-vulnerability/">this zf vulnerability</a>?</question>
+      <answer>
+        <p>
+        As of 12.07.2012 all magento artifacts in the public mavento repository are rebuild and patched with the corresponding patch as
+        supplied by Magento Inc. (See the masterful hidden link in the above question :o) To use the new artifacts please delete the old ones in your local/internal repository first.<br/>
+        
+        On Linux/OSX you can use the following snippet to achieve this:
+        <source>rm -rf ~/.m2/repository/com/varien/magento/</source>
+        </p>
+      </answer>
+    </faq>
     <faq id="magento-enterprise-edition">
       <question>Can i use Magento Enterprise Editions?</question>
       <answer>
@@ -10,13 +22,13 @@
           Obviously we can't supply the EE artifacts via our public repositories. You can however
           install a fresh EE manually and then use 
           <source>
-mvn magento:archetype -DmagentoPath=/path/to/installed_ee</source> to let Maven create a
+mvn magento:artifact -DmagentoPath=/path/to/installed_ee</source> to let Maven create a
            dependency artifact. If you are working in a team it is best to setup a internal
            repository manager like Nexus. Once you uploaded the created jar file into your
-           internal repository all team members with access can use the EE edition just
-           like the public CE edition artifacts. If you are working alone it is enough
+           internal repository all team members with access can use the EE artifact just
+           like the public CE artifacts. If you are working alone it is enough
            to install the jar file into your local Maven repository. You can find a snippet
-            for installing into your local repo in the console output of the magento:archetype goal.<br/>
+            for installing into your local repo in the console output of the magento:artifact goal.<br/>
             For more details have a look at <a href="howto/it.html" target="_blank">Testing against Snapshots</a>
            
            <br/>
@@ -35,11 +47,11 @@ mvn magento:archetype -DmagentoPath=/path/to/installed_ee</source> to let Maven 
       </answer>
     </faq>
     <faq id="create-vanilla-artifact">
-    <question>I want to use the latest Magento alpha/beta but it is not in the Mavento repository.</question>
+    <question>I want to use the latest Magento alpha/beta/stable but it is not in the Mavento repository.</question>
       <answer>
       <p>
           Current policy is that only stable Magento releases get uploaded into the repository. You can have however download
-          any vanilla Magento zip file and then use
+          any vanilla Magento zip file from the official magento site and then use
           <source>mvn magento:artifact -DmagentoZip=/path/to/zip -DdbUser= -DdbPass= -DdbName=</source>
           to create and install a dependency artifact into your local repository. The stable artifacts in the Mavento
           repository are created the same way.

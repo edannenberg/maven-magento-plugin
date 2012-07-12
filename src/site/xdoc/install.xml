@@ -20,7 +20,20 @@
 				</p>
 			</subsection>
 			<subsection name="Mavento setup">
-				<p>Add the following block to your ~/.m2/settings.xml which is the Maven user configuration file, 
+				<p>First verify your Maven setup, open a shell and invoke:
+
+<source>[~]$ mvn --version
+Apache Maven <b>3.0.4</b> (r1232337; 2012-01-17 09:44:56+0100)
+Maven home: /usr/share/maven-bin-3.0
+Java version: <b>1.7.0_05</b>, vendor: Oracle Corporation
+Java home: /opt/oracle-jdk-bin-1.7.0.5/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "linux", version: "3.3.8-gentoo", arch: "amd64", family: "unix"</source>
+
+				The important parts are the Maven and Java version, Maven 3 and Java 1.7 or newer are required. 99% of the reported problems come down to using
+				an outdated version of Java or Maven.<br/><br/>
+				
+				If things are looking good add the following block to your ~/.m2/settings.xml which is the Maven user configuration file, 
 				create the file if it doesn't exist yet:
 				
 				<macro name="snippet">

@@ -28,7 +28,7 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
  * The dump file is expected in /sqldumps of your project root directory.<br/>
  * 
  * <pre>
- * mvn magento:import-db -Dmagento.dump.file=mydump.sql
+ * mvn magento:import-db -Dmagento.db.dump.file=mydump.sql
  * </pre>
  * 
  * @goal import-db

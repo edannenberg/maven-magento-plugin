@@ -7,6 +7,21 @@
         <author email="erik.dannenberg@bbe-consulting.de">Erik Dannenberg</author>
     </properties>
     <body>
+        <release date="2012-07-13" version="0.9.8.2" description="Bugfix release.">
+            <action dev="edannenberg" type="add">
+                Added magento:patch goal to apply diff style patches, magento:artifact now supports -DpostPatch.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Parameter expression for dump file name in dump and import goals now reflects documentation. ;p
+            </action>
+            <action dev="edannenberg" type="fix">
+                Version node in config.xml of sample code modules is now static.
+            </action>
+            <action dev="edannenberg" type="fix">
+                Patched and replaced all magento artifacts in the public mavento repository. 
+                See http://www.magentocommerce.com/blog/comments/important-security-update-zend-platform-vulnerability/
+            </action>
+        </release>
         <release date="2012-04-11" version="0.9.8.1" description="Bugfix release.">
             <action dev="edannenberg" type="fix">
                 Fixed regression in writeFileFromZip(), uses channel properly now.

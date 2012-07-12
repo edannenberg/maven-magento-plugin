@@ -45,14 +45,14 @@
       <item name="Create Snippets" href="snippet/create.html"/>
     </menu>
 
-    <menu name="Plugin Documentation">
-			<item name="Project" href="project-summary.html" />
-			<item name="Plugin Goals" href="plugin-info.html" />
-			<item name="Changlog" href="changes-report.html" />
-			<item name="Issue Tracking" href="issue-tracking.html" />
-			<item name="Team" href="team-list.html" />
-			<item name="Plugin Dependencies" href="dependencies.html" />
-			<item name="Source code" href="source-repository.html" />
+	<menu name="Plugin Documentation">
+		<item name="Project" href="project-summary.html" />
+		<item name="Plugin Goals" href="plugin-info.html" />
+		<item name="Changlog" href="changes-report.html" />
+		<item name="Issue Tracking" href="issue-tracking.html" />
+		<item name="Team" href="team-list.html" />
+		<!-- <item name="Plugin Dependencies" href="dependencies.html" /> -->
+		<item name="Source code" href="source-repository.html" />
 	</menu>
     
   </body>

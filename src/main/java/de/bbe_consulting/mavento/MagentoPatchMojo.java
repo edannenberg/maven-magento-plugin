@@ -29,12 +29,12 @@ import de.bbe_consulting.mavento.helper.DiffUtil;
 import difflib.PatchFailedException;
 
 /**
- * Apply a diff style patch to a magento instance. Does not need an active Maven project.
- * It will however honor the properties in your pom.xml if called from a project.
+ * Apply a diff style patch to an magento instance. Does not need a active Maven project.
+ * It will however honor the properties in your pom.xml if called from a project root.
  * Use -DmagentoPath=/path/to/magento to override.<br/><br/>
  * 
  * Per default the plugin will start a dry run to see if all files can be patched successfully.
- * Use -DskipDryRun to disable. Not recommended for production systems. <br/>
+ * Use -DskipDryRun to disable. Not recommended on production systems. <br/>
  * 
  * <pre>
  * mvn magento:patch -DpatchFile=/path/to/patch.diff -DmagentoPath=/path/to/magento/folder
