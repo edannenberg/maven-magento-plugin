@@ -115,7 +115,7 @@ public final class MagentoSqlUtil {
 
         try {
             input = new ByteArrayInputStream(
-                    ("CREATE DATABASE IF NOT EXISTS " + magentoDbName).getBytes("UTF-8"));
+                    ("CREATE DATABASE IF NOT EXISTS `" + magentoDbName + "`").getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new MojoExecutionException("Error while creating database!", e);
         }
@@ -159,7 +159,7 @@ public final class MagentoSqlUtil {
 
         try {
             input = new ByteArrayInputStream(
-                    ("DROP DATABASE " + magentoDbName).getBytes("UTF-8"));
+                    ("DROP DATABASE `" + magentoDbName + "`").getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new MojoExecutionException("Error while dropping database!", e);
         }
