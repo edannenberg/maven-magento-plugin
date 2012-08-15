@@ -21,6 +21,9 @@
                 Patched and replaced all magento artifacts in the public mavento repository. 
                 See http://www.magentocommerce.com/blog/comments/important-security-update-zend-platform-vulnerability/
             </action>
+            <action dev="edannenberg" type="update">
+                Archetypes use php-maven plugin 2.0 now.
+            </action>
         </release>
         <release date="2012-04-11" version="0.9.8.1" description="Bugfix release.">
             <action dev="edannenberg" type="fix">

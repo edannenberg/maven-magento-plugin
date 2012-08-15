@@ -50,7 +50,7 @@ mvn magento:artifact -DmagentoPath=/path/to/installed_ee</source> to let Maven c
     <question>I want to use the latest Magento alpha/beta/stable but it is not in the Mavento repository.</question>
       <answer>
       <p>
-          Current policy is that only stable Magento releases get uploaded into the repository. You can have however download
+          Current policy is that only stable Magento releases get uploaded into the repository. You can however download
           any vanilla Magento zip file from the official magento site and then use
           <source>mvn magento:artifact -DmagentoZip=/path/to/zip -DdbUser= -DdbPass= -DdbName=</source>
           to create and install a dependency artifact into your local repository. The stable artifacts in the Mavento

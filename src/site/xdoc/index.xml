@@ -79,6 +79,7 @@
 
 			<subsection name="Features">
 				<ul>
+					<li>Runs everywhere, not dependent on any unix system tools.</li>
 					<li>Keep your source files separated from the Magento runtime at
 						all time.
 					</li>
@@ -95,7 +96,7 @@
 					<li>Less boilerplate Magento code to write with ready to run module
 						templates and code snippets.
 					</li>
-					<li>Multi module support for bigger projects. Reactorbuilds. &lt;3
+					<li>Multi module support for bigger projects via reactorbuilds.
 					</li>
 					<li>Dead easy project integration into CI servers like <a href="http://jenkins-ci.org/" target="_blank">Jenkins</a> or CQ servers like <a href="http://www.sonarsource.org/" target="_blank">Sonar</a>.
 					</li>
