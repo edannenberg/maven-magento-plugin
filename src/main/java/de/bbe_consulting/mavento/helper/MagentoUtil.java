@@ -158,6 +158,24 @@ public final class MagentoUtil {
                                 finalLevelEntry.getKey() + "/layout",
                                 finalLevelEntry.getValue() + "/layout"));
                     }
+                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/js")) {
+                        finalLevelMap.remove(finalLevelEntry.getKey() + "/js");
+                        linkMap.putAll(getSubFileLinkMap(
+                                finalLevelEntry.getKey() + "/js",
+                                finalLevelEntry.getValue() + "/js"));
+                    }
+                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/css")) {
+                        finalLevelMap.remove(finalLevelEntry.getKey() + "/css");
+                        linkMap.putAll(getSubFileLinkMap(
+                                finalLevelEntry.getKey() + "/css",
+                                finalLevelEntry.getValue() + "/css"));
+                    }
+                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/images")) {
+                        finalLevelMap.remove(finalLevelEntry.getKey() + "/images");
+                        linkMap.putAll(getSubFileLinkMap(
+                                finalLevelEntry.getKey() + "/images",
+                                finalLevelEntry.getValue() + "/images"));
+                    }
                     linkMap.putAll(finalLevelMap);
                 }
             }
