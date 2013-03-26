@@ -88,11 +88,13 @@ public final class MagentoUtil {
                     + "/app/design/adminhtml");
             tempMap.put(sourceBaseDir + "/app/design/frontend", targetBaseDir
                     + "/app/design/frontend");
+            linkMap.putAll(collectLayoutSymlinks(tempMap, new String[] {"/layout", "/template"}));
+            tempMap.clear();
             tempMap.put(sourceBaseDir + "/skin/adminhtml", targetBaseDir
                     + "/skin/adminhtml");
             tempMap.put(sourceBaseDir + "/skin/frontend", targetBaseDir
                     + "/skin/frontend");
-            linkMap.putAll(collectLayoutSymlinks(tempMap));
+            linkMap.putAll(collectLayoutSymlinks(tempMap, new String[] {"/css", "/images", "/js"}));
 
             // crawl app/etc/modules/ for files
             linkMap.putAll(getSubFileLinkMap(
@@ -126,13 +128,13 @@ public final class MagentoUtil {
     }
 
     /**
-     * Crawls magento layout directories for possible symlink targets.
+     * Crawls magento layout/skin directories for possible symlink targets.
      * 
      * @param baseDirectories
      * @return HashMap<String,String> key: original file, value: symlink target
      * @throws IOException
      */
-    private static Map<String, String> collectLayoutSymlinks(Map<String, String> baseDirectories)
+    private static Map<String, String> collectLayoutSymlinks(Map<String, String> baseDirectories, String[] crawlTargets)
              throws IOException {
 
         Map<String, String> linkMap = new HashMap<String, String>();
@@ -146,35 +148,13 @@ public final class MagentoUtil {
                 for (Map.Entry<String, String> finalLevelEntry : secondLevelMap.entrySet()) {
                     Map<String, String> finalLevelMap = new HashMap<String, String>();
                     finalLevelMap = getSubFileLinkMap(finalLevelEntry.getKey(), finalLevelEntry.getValue());
-                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/template")) {
-                        finalLevelMap.remove(finalLevelEntry.getKey() + "/template");
-                        linkMap.putAll(getSubFileLinkMap(
-                                finalLevelEntry.getKey() + "/template",
-                                finalLevelEntry.getValue() + "/template"));
-                    }
-                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/layout")) {
-                        finalLevelMap.remove(finalLevelEntry.getKey() + "/layout");
-                        linkMap.putAll(getSubFileLinkMap(
-                                finalLevelEntry.getKey() + "/layout",
-                                finalLevelEntry.getValue() + "/layout"));
-                    }
-                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/js")) {
-                        finalLevelMap.remove(finalLevelEntry.getKey() + "/js");
-                        linkMap.putAll(getSubFileLinkMap(
-                                finalLevelEntry.getKey() + "/js",
-                                finalLevelEntry.getValue() + "/js"));
-                    }
-                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/css")) {
-                        finalLevelMap.remove(finalLevelEntry.getKey() + "/css");
-                        linkMap.putAll(getSubFileLinkMap(
-                                finalLevelEntry.getKey() + "/css",
-                                finalLevelEntry.getValue() + "/css"));
-                    }
-                    if (finalLevelMap.containsKey(finalLevelEntry.getKey() + "/images")) {
-                        finalLevelMap.remove(finalLevelEntry.getKey() + "/images");
-                        linkMap.putAll(getSubFileLinkMap(
-                                finalLevelEntry.getKey() + "/images",
-                                finalLevelEntry.getValue() + "/images"));
+                    for (String crawlTarget : crawlTargets) {
+                        if (finalLevelMap.containsKey(finalLevelEntry.getKey() + crawlTarget)) {
+                            finalLevelMap.remove(finalLevelEntry.getKey() + crawlTarget);
+                            linkMap.putAll(getSubFileLinkMap(
+                                    finalLevelEntry.getKey() + crawlTarget,
+                                    finalLevelEntry.getValue() + crawlTarget));
+                        }
                     }
                     linkMap.putAll(finalLevelMap);
                 }
