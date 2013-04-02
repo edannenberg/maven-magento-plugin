@@ -450,14 +450,19 @@ public final class MagentoSqlUtil {
         PreparedStatement st = null;
         final ArrayList<MagentoCoreConfig> newEntries = new ArrayList<MagentoCoreConfig>();
         final ArrayList<MagentoCoreConfig> existingEntries = new ArrayList<MagentoCoreConfig>();
-
+        final ArrayList<MagentoCoreConfig> nullEntries = new ArrayList<MagentoCoreConfig>();
+        
         // filter non/existing entries for further processing
         try {
-            String query = "SELECT value FROM core_config_data WHERE path=? AND scope=? AND scope_id=?";
-            st = c.prepareStatement(query);
+            final String checkQuery = "SELECT value FROM core_config_data WHERE path=? AND scope=? AND scope_id=?";
+            st = c.prepareStatement(checkQuery);
             MagentoCoreConfig configEntry = null;
             for (Map.Entry<String, String> rawConfigEntry : configData.entrySet()) {
                 configEntry = new MagentoCoreConfig(rawConfigEntry.getKey(), rawConfigEntry.getValue());
+                if (configEntry.getValue().toLowerCase().equals("null")) {
+                    nullEntries.add(configEntry);
+                    continue;
+                }
                 st.setString(1, configEntry.getPath());
                 st.setString(2, configEntry.getScope());
                 st.setInt(3, configEntry.getScopeId());
@@ -469,6 +474,31 @@ public final class MagentoSqlUtil {
                 }
             }
 
+            // delete null entries
+            if (!nullEntries.isEmpty()) {
+                c.setAutoCommit(false);
+                final String deleteQuery = "DELETE FROM core_config_data WHERE scope = ? AND scope_id = ? AND path = ?";
+                st = c.prepareStatement(deleteQuery);
+                for (MagentoCoreConfig nullConfigEntry : nullEntries) {
+                    st.setString(1, nullConfigEntry.getScope());
+                    st.setInt(2, nullConfigEntry.getScopeId());
+                    st.setString(3, nullConfigEntry.getPath());
+                    st.addBatch();
+                }
+                final int[] deleteCounts = st.executeBatch();
+                for (int i = 0; i < deleteCounts.length; i++) {
+                    switch (deleteCounts[i]) {
+                    case Statement.SUCCESS_NO_INFO:
+                        break;
+                    case Statement.EXECUTE_FAILED:
+                        throw new MojoExecutionException("Error deleting entries in core_config_data");
+                    default:
+                        break;
+                    }
+                }
+                c.commit();
+            }
+            
             // insert new config entries
             if (!newEntries.isEmpty()) {
                 c.setAutoCommit(false);
