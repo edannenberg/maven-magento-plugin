@@ -223,10 +223,13 @@ public final class MagentoSqlUtil {
 
         final Commandline cl = MagentoSqlUtil.getMysqlCommandLine(magentoDbUser,
                 magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
+
         final InputStream input;
+        FileInputStream rawIn = null;
         FileChannel channel = null;
         try {
-            channel = new FileInputStream(Paths.get(sqlDump).toFile()).getChannel();
+            rawIn = new FileInputStream(Paths.get(sqlDump).toFile());
+            channel = rawIn.getChannel();
             input = Channels.newInputStream(channel);
 
             final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
@@ -249,6 +252,13 @@ public final class MagentoSqlUtil {
             if (channel != null) {
                 try {
                     channel.close();
+                } catch (IOException e) {
+                    throw new MojoExecutionException(e.getMessage(), e);
+                }
+            }
+            if (rawIn != null) {
+                try {
+                    rawIn.close();
                 } catch (IOException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }

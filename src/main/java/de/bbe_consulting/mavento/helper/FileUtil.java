@@ -163,13 +163,18 @@ public final class FileUtil {
              throws IOException {
 
         FileChannel output = null;
+        FileOutputStream rawOut = null;
         try {
             final InputStream rawIn = archive.getInputStream(zipEntry);
-            output = new FileOutputStream(targetFile).getChannel();
+            rawOut = new FileOutputStream(targetFile);
+            output = rawOut.getChannel();
             output.transferFrom(Channels.newChannel(rawIn), 0, zipEntry.getSize());
         } finally {
             if (output != null) {
                 output.close();
+            }
+            if (rawOut != null) {
+                rawOut.close();
             }
         }
     }
@@ -364,9 +369,11 @@ public final class FileUtil {
             throws IOException {
 
         final Reader reader;
+        FileInputStream rawIn = null;
         FileChannel channel = null;
         try {
-            channel = new FileInputStream(Paths.get(filePath).toFile()).getChannel();
+            rawIn = new FileInputStream(Paths.get(filePath).toFile());
+            channel = rawIn.getChannel();
             reader = Channels.newReader(channel, "utf-8");
             final BufferedReader input = new BufferedReader(reader);
             String line;
@@ -378,6 +385,9 @@ public final class FileUtil {
         } finally {
             if (channel != null) {
                 channel.close();
+            }
+            if (rawIn != null) {
+                rawIn.close();
             }
         }
     }
