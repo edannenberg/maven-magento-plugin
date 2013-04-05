@@ -26,23 +26,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
 import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.w3c.dom.Document;
 
 import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
-import de.bbe_consulting.mavento.helper.MagentoUtil;
 import de.bbe_consulting.mavento.helper.MagentoXmlUtil;
 import de.bbe_consulting.mavento.helper.visitor.FileSizeVisitor;
 import de.bbe_consulting.mavento.type.MagentoCoreConfig;
 import de.bbe_consulting.mavento.type.MagentoModule;
 import de.bbe_consulting.mavento.type.MagentoModuleComperator;
-import de.bbe_consulting.mavento.type.MagentoVersion;
 import de.bbe_consulting.mavento.type.MysqlTable;
 
 /**
@@ -61,23 +55,10 @@ import de.bbe_consulting.mavento.type.MysqlTable;
  * @requiresProject false
  * @author Erik Dannenberg
  */
-public class MagentoInfoMojo extends AbstractMojo {
+public class MagentoInfoMojo extends AbstractMagentoSimpleMojo {
 
     private static final String SQL_CONNECTION_VALID = "valid";
-    
-    /**
-     * @parameter default-value="${project}"
-     * @required
-     */
-    protected MavenProject project;
 
-    /**
-     * Root path of the magento instance you want to scan.<br/>
-     * 
-     * @parameter expression="${magentoPath}
-     */
-    protected String magentoPath;
-    
     /**
      * If true the plugin will print even more details.
      * 
@@ -95,34 +76,9 @@ public class MagentoInfoMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        // try to use existing project if no magentoPath is specified
-        if (magentoPath == null && project != null) {
-            final Properties projectProperties = project.getProperties();
-            if (projectProperties.containsKey("magento.root.local")) {
-                magentoPath = (String) projectProperties.get("magento.root.local");
-            }
-        }
-        if (magentoPath == null) {
-            magentoPath = Paths.get(".").toString();
-        }
-        magentoPath = Paths.get(magentoPath).toAbsolutePath().toString();
-
-        if (magentoPath.endsWith("/")) {
-            magentoPath = magentoPath.substring(0, magentoPath.length() - 1);
-        } else if (magentoPath.endsWith("/.")) {
-            magentoPath = magentoPath.substring(0, magentoPath.length() - 2);
-        }
+        initMojo();
         getLog().info("Scanning: " + magentoPath);
         getLog().info("");
-
-        // try to find magento version
-        final Path appMage = Paths.get(magentoPath + "/app/Mage.php");
-        MagentoVersion mVersion = null;
-        try {
-            mVersion = MagentoUtil.getMagentoVersion(appMage);
-        } catch (Exception e) {
-            getLog().info("..could not find Magento version.");
-        }
         if (mVersion != null) {
             getLog().info("Version: Magento " + mVersion.toString());
         }

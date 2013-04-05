@@ -18,13 +18,8 @@ package de.bbe_consulting.mavento;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
-
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-
 import de.bbe_consulting.mavento.helper.DiffUtil;
 import difflib.PatchFailedException;
 
@@ -45,21 +40,8 @@ import difflib.PatchFailedException;
  * @requiresProject false
  * @author Erik Dannenberg
  */
-public class MagentoPatchMojo extends AbstractMojo {
+public class MagentoPatchMojo extends AbstractMagentoSimpleMojo {
 
-    /**
-     * @parameter default-value="${project}"
-     * @required
-     */
-    protected MavenProject project;
-
-    /**
-     * Root path of the magento instance you want to patch.<br/>
-     * 
-     * @parameter expression="${magentoPath}"
-     */
-    protected String magentoPath;
-    
     /**
      * The diff style patch file.<br/>
      * 
@@ -78,22 +60,11 @@ public class MagentoPatchMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        // try to use existing project if no magentoPath is specified
-        if (magentoPath == null && project != null) {
-            final Properties projectProperties = project.getProperties();
-            if (projectProperties.containsKey("magento.root.local")) {
-                magentoPath = (String) projectProperties.get("magento.root.local");
-            }
-        }
-        if (magentoPath == null) {
-            magentoPath = Paths.get(".").toString();
-        }
-        magentoPath = Paths.get(magentoPath).toAbsolutePath().toString();
-
-        if (magentoPath.endsWith("/")) {
-            magentoPath = magentoPath.substring(0, magentoPath.length() - 1);
-        } else if (magentoPath.endsWith("/.")) {
-            magentoPath = magentoPath.substring(0, magentoPath.length() - 2);
+        initMojo();
+        getLog().info("Scanning: " + magentoPath);
+        getLog().info("");
+        if (mVersion != null) {
+            getLog().info("Version: Magento " + mVersion.toString());
         }
 
         getLog().info("");
