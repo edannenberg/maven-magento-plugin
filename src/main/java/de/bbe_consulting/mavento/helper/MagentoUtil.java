@@ -82,13 +82,19 @@ public final class MagentoUtil {
             for (Map.Entry<String, String> fileNames : tempMap.entrySet()) {
                 linkMap.putAll(getSubFileLinkMap(fileNames.getKey(), fileNames.getValue()));
             }
+            tempMap = getSubFileLinkMap(sourceBaseDir + "/app/locale", targetBaseDir + "/app/locale");
+            // go one level deeper to skip namespace and only link the actual locale files
+            for (Map.Entry<String, String> fileNames : tempMap.entrySet()) {
+                linkMap.putAll(getSubFileLinkMap(fileNames.getKey(), fileNames.getValue()));
+            }
+
             // crawl for possible layout/template/skin files
             tempMap.clear();
             tempMap.put(sourceBaseDir + "/app/design/adminhtml", targetBaseDir
                     + "/app/design/adminhtml");
             tempMap.put(sourceBaseDir + "/app/design/frontend", targetBaseDir
                     + "/app/design/frontend");
-            linkMap.putAll(collectLayoutSymlinks(tempMap, new String[] {"/layout", "/template"}));
+            linkMap.putAll(collectLayoutSymlinks(tempMap, new String[] {"/layout", "/locale", "/template"}));
             tempMap.clear();
             tempMap.put(sourceBaseDir + "/skin/adminhtml", targetBaseDir
                     + "/skin/adminhtml");
@@ -100,9 +106,6 @@ public final class MagentoUtil {
             linkMap.putAll(getSubFileLinkMap(
                     sourceBaseDir + "/app/etc/modules", targetBaseDir
                             + "/app/etc/modules"));
-            // crawl app/locale/en_US
-            linkMap.putAll(getSubFileLinkMap(sourceBaseDir
-                    + "/app/locale/en_US", targetBaseDir + "/app/locale/en_US"));
 
         }
         // crawl some base directories
