@@ -83,9 +83,23 @@ public final class MagentoUtil {
                 linkMap.putAll(getSubFileLinkMap(fileNames.getKey(), fileNames.getValue()));
             }
             tempMap = getSubFileLinkMap(sourceBaseDir + "/app/locale", targetBaseDir + "/app/locale");
+            Map<String, String> localeMap = new HashMap<String, String>();
             // go one level deeper to skip namespace and only link the actual locale files
             for (Map.Entry<String, String> fileNames : tempMap.entrySet()) {
-                linkMap.putAll(getSubFileLinkMap(fileNames.getKey(), fileNames.getValue()));
+                localeMap = getSubFileLinkMap(fileNames.getKey(), fileNames.getValue());
+                for (Map.Entry<String, String> localeNames : localeMap.entrySet()) {
+                    // symlink everything but the template folder
+                    if (!localeNames.getKey().endsWith("template")) {
+                        linkMap.put(localeNames.getKey(), localeNames.getValue());
+                    } else {
+                        // handle email templates
+                        Map<String, String> tMap = new HashMap<String, String>();
+                        tMap = getSubFileLinkMap(localeNames.getKey(), localeNames.getValue());
+                        for (Map.Entry<String, String> fNames : tMap.entrySet()) {
+                            linkMap.putAll(getSubFileLinkMap(fNames.getKey(), fNames.getValue()));
+                        }
+                    }
+                }
             }
 
             // crawl for possible layout/template/skin files
