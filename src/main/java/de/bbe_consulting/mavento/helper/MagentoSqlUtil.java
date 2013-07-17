@@ -26,6 +26,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -305,6 +306,53 @@ public final class MagentoSqlUtil {
     }
 
     /**
+     * Dumps db table(s) via mysqldump exec. whereCondition is optional.
+     * 
+     * @param tables
+     * @param whereCondidtion
+     * @param sqlDump
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void dumpSqlTables(ArrayList<String> tables, String whereCondidtion, String sqlDump, String magentoDbUser,
+            String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
+            String magentoDbName, Log logger) throws MojoExecutionException {
+
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
+        cl.setExecutable("mysqldump");
+        cl.addArguments(new String[] {"--no-create-info"});
+        cl.addArguments(new String[] { magentoDbName });
+        for (String table : tables) {
+            cl.addArguments(new String[] { table });
+        }
+        if (whereCondidtion != null && !whereCondidtion.isEmpty()) {
+            cl.addArguments(new String[] {"--where=" + whereCondidtion });
+        }
+        cl.addArguments(new String[] {"--result-file=\"" + sqlDump + "\""});
+
+        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
+        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
+
+        try {
+            logger.info("Dumping table(s) " + tables.toString() + " to " + sqlDump + "..");
+            final int returnValue = CommandLineUtils.executeCommandLine(cl, output, error);
+            if (returnValue != 0) {
+                logger.info(error.getOutput().toString());
+                logger.info("retval: " + returnValue);
+                throw new MojoExecutionException("Error while exporting sql dump.");
+            }
+            logger.info("..done.");
+        } catch (CommandLineException e) {
+            throw new MojoExecutionException("Error while dumping tables from database " + magentoDbName + ".", e);
+        }
+    }
+    
+    /**
      * Gets a commandline object for mysql exec calls.
      * 
      * @param magentoDbUser
@@ -347,7 +395,7 @@ public final class MagentoSqlUtil {
      * @param magentoDbUser
      * @param magentoDbHost
      * @param magentoDbPort
-     * @return
+     * @return Commandline object configured for mysql exec
      */
     public static Commandline getMysqlCommandLine(String magentoDbUser,
             String magentoDbHost, String magentoDbPort) {
@@ -376,7 +424,7 @@ public final class MagentoSqlUtil {
      * @param magentoDbUser
      * @param magentoDbPasswd
      * @param jdbcUrl
-     * @return
+     * @return Connection
      * @throws MojoExecutionException
      */
     private static Connection getJdbcConnection(String magentoDbUser, String magentoDbPasswd, String jdbcUrl)
@@ -396,6 +444,48 @@ public final class MagentoSqlUtil {
     }
 
     /**
+     * Get jdbc connection.
+     * 
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @return Connection
+     * @throws MojoExecutionException
+     */
+    public static Connection getJdbcConnection(String magentoDbUser, String magentoDbPasswd,
+            String magentoDbHost, String magentoDbPort, String magentoDbName)
+            throws MojoExecutionException {
+
+        final String jdbcUrl = getJdbcUrl(magentoDbHost, magentoDbPort, magentoDbName);
+        return getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
+    }
+
+    /**
+     * Returns true if tableName exists in jdbcCon.
+     * 
+     * @param tableName
+     * @param jdbcCon
+     * @return boolean
+     * @throws MojoExecutionException
+     */
+    public static boolean tableExists (String tableName, Connection jdbcCon) throws MojoExecutionException {
+
+        try {
+            final DatabaseMetaData dbm = jdbcCon.getMetaData();
+            final ResultSet r = dbm.getTables(null, null, tableName , null);
+            if (r.next()) {
+                return true;
+              } else {
+                return false;
+              }
+        } catch (SQLException e) {
+            throw new MojoExecutionException("SQL Error: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Read values from magento's core_config_data table.
      * 
      * @param configData
@@ -409,7 +499,7 @@ public final class MagentoSqlUtil {
     public static MagentoCoreConfig getCoreConfigData(MagentoCoreConfig configData, String magentoDbUser,
             String magentoDbPasswd, String jdbcUrl, Log logger)
             throws MojoExecutionException {
-        
+
         final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
 
         try {
@@ -455,7 +545,7 @@ public final class MagentoSqlUtil {
     public static void setCoreConfigData(Map<String, String> configData,
             String magentoDbUser, String magentoDbPasswd, String jdbcUrl,
             Log logger) throws MojoExecutionException {
-        
+
         final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
         PreparedStatement st = null;
         final ArrayList<MagentoCoreConfig> newEntries = new ArrayList<MagentoCoreConfig>();
@@ -712,7 +802,7 @@ public final class MagentoSqlUtil {
      */
     public static void truncateLogTables(String magentoDbUser, String magentoDbPasswd, String jdbcUrl,
             boolean includeViewedProduct, Log logger) throws MojoExecutionException {
-        
+
         final List<String> tableData = new ArrayList<String> ();
         tableData.add("dataflow_batch_export");
         tableData.add("dataflow_batch_import");
@@ -869,7 +959,7 @@ public final class MagentoSqlUtil {
      */
     public static Map<String,Integer> getDbSize (String dbNameToCheck, String magentoDbUser, String magentoDbPasswd, String jdbcUrl, Log logger)
             throws MojoExecutionException {
-        
+
         final Connection c = getJdbcConnection(magentoDbUser, magentoDbPasswd, jdbcUrl);
         final HashMap<String, Integer> result = new HashMap<String, Integer>();
         try {
