@@ -17,8 +17,6 @@
 package de.bbe_consulting.mavento.helper.visitor;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.FileVisitResult.TERMINATE;
-
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.FileAlreadyExistsException;
@@ -63,13 +61,9 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
-        try {
-            copyFile(file, target.resolve(source.relativize(file)), preserve);
-        } catch (IOException e) {
-            return TERMINATE;
-        }
+        copyFile(file, target.resolve(source.relativize(file)), preserve);
         return CONTINUE;
     }
     
