@@ -16,6 +16,9 @@
 
 package de.bbe_consulting.mavento;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -31,9 +34,49 @@ import de.bbe_consulting.mavento.helper.MagentoSqlUtil;
  */
 public final class MagentoDropDbMojo extends AbstractMagentoSqlMojo {
 
+    /**
+     * Comma seperated list of table names.
+     * 
+     * @parameter expression="${tables}"
+     */
+    private String magentoTables;
+
+    /**
+     * Limit the dumped data via sql where syntax.
+     *  
+     * @parameter expression="${where}"
+     */
+    private String magentoDeleteCondition;
+
+    /**
+     * Drop tables instead of truncating. Default: false
+     *  
+     * @parameter expression="${drop}" default="false"
+     */
+    private boolean magentoDropTables;
+
+    /**
+     * If true the plugin will not look for eav data tables to include. Default: false
+     * 
+     * @parameter expression="${skipTableCompletion}" default="false"
+     */
+    private boolean skipEntityTableCompletion;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
-        MagentoSqlUtil.dropMagentoDb(magentoDbUser, magentoDbPasswd,
-                magentoDbHost, magentoDbPort, magentoDbName, getLog());
+
+        // drop some tables or whole db?
+        if (magentoTables != null && !magentoTables.isEmpty()) {
+            ArrayList<String> tableNames = new ArrayList<String>(Arrays.asList(magentoTables.split(",")));
+            if (!skipEntityTableCompletion) {
+                tableNames = MagentoSqlUtil.getEntityDataTables(tableNames,
+                        magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
+            }
+            MagentoSqlUtil.dropSqlTables(tableNames, magentoDeleteCondition, magentoDropTables, magentoDbUser, magentoDbPasswd,
+                    magentoDbHost, magentoDbPort, magentoDbName, getLog());
+        } else {
+                MagentoSqlUtil.dropMagentoDb(magentoDbUser, magentoDbPasswd,
+                        magentoDbHost, magentoDbPort, magentoDbName, getLog());
+        }
     }
 
 }

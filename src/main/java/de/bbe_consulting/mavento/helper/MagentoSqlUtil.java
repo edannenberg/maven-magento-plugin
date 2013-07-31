@@ -58,6 +58,9 @@ import de.bbe_consulting.mavento.type.MysqlTable;
  */
 public final class MagentoSqlUtil {
 
+    protected static final String[] entityTableSuffixes = {"attribute", "datetime",
+        "decimal", "gallery", "int", "media_gallery", "media_gallery_value", "text", "tier_price", "type", "varchar"};
+
     /**
      * Private constructor, only static methods in this util class
      */
@@ -98,6 +101,81 @@ public final class MagentoSqlUtil {
     }
 
     /**
+     * Execute raw sql query on existing db via mysql exec. 
+     * 
+     * @param query
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void executeRawSql(String query, String magentoDbUser, String magentoDbPasswd,
+            String magentoDbHost, String magentoDbPort, String magentoDbName, Log logger) throws MojoExecutionException {
+
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd,
+                magentoDbHost, magentoDbPort, magentoDbName);
+        executeRawSql(query, cl, logger);
+    }
+
+    /**
+     * Execute raw sql query via mysql exec. 
+     * 
+     * @param query
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void executeRawSql(String query, String magentoDbUser, String magentoDbPasswd,
+            String magentoDbHost, String magentoDbPort, Log logger) throws MojoExecutionException {
+
+        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd,
+                magentoDbHost, magentoDbPort);
+        executeRawSql(query, cl, logger);
+    }
+
+    /**
+     * Execute raw sql query via mysql exec.
+     * 
+     * @param query
+     * @param cl
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    private static void executeRawSql(String query, Commandline cl, Log logger) throws MojoExecutionException {
+
+        InputStream input = null;
+        try {
+            input = new ByteArrayInputStream(query.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new MojoExecutionException("Error: " + e.getMessage(), e);
+        }
+
+        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
+        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
+
+        try {
+            final int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
+            if (returnValue != 0) {
+                logger.debug("retval: " + returnValue);
+                logger.debug(output.getOutput().toString());
+                logger.debug(error.getOutput().toString());
+                throw new MojoExecutionException(error.getOutput().toString());
+            } else {
+                logger.info("..done.");
+            }
+        } catch (CommandLineException e) {
+            throw new MojoExecutionException("Error: " + e.getMessage(), e);
+        }
+    }
+    
+    
+    /**
      * Creates a new mysql database.
      * 
      * @param magentoDbUser
@@ -110,32 +188,11 @@ public final class MagentoSqlUtil {
             String magentoDbHost, String magentoDbPort, String magentoDbName, Log logger) 
                     throws MojoExecutionException {
 
-        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd,
-                magentoDbHost, magentoDbPort);
-        InputStream input = null;
-
-        try {
-            input = new ByteArrayInputStream(
-                    ("CREATE DATABASE IF NOT EXISTS `" + magentoDbName + "`").getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new MojoExecutionException("Error while creating database!", e);
-        }
-
-        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
-        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
-
         try {
             logger.info("Creating database " + magentoDbName + "..");
-            final int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
-            if (returnValue != 0) {
-                logger.info("retval: " + returnValue);
-                logger.info(output.getOutput().toString());
-                logger.info(error.getOutput().toString());
-                throw new MojoExecutionException("Error while creating database!");
-            } else {
-                logger.info("..done.");
-            }
-        } catch (CommandLineException e) {
+            String query = "CREATE DATABASE IF NOT EXISTS `" + magentoDbName + "`";
+            executeRawSql(query, magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, logger);
+        } catch (Exception e) {
             throw new MojoExecutionException("Error while creating database!", e);
         }
     }
@@ -155,35 +212,69 @@ public final class MagentoSqlUtil {
             String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
             String magentoDbName, Log logger) throws MojoExecutionException {
 
-        final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
-        InputStream input = null;
-
-        try {
-            input = new ByteArrayInputStream(
-                    ("DROP DATABASE `" + magentoDbName + "`").getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new MojoExecutionException("Error while dropping database!", e);
-        }
-
-        final StringStreamConsumer output = new CommandLineUtils.StringStreamConsumer();
-        final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
-
         try {
             logger.info("Dropping database " + magentoDbName + "..");
-            final int returnValue = CommandLineUtils.executeCommandLine(cl, input, output, error);
-            if (returnValue != 0) {
-                final String e = error.getOutput().toString();
-                if (e.startsWith("ERROR 1008")) {
-                    logger.warn("..Database does not exist!");
-                } else {
-                    logger.info(output.getOutput().toString());
-                    logger.info(error.getOutput().toString());
-                    logger.info("retval: " + returnValue);
-                }
+            String query = "DROP DATABASE `" + magentoDbName + "`";
+            executeRawSql(query, magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, logger);
+        } catch (Exception e) {
+            if (e.getMessage().startsWith("ERROR 1008")) {
+                logger.warn("..Database does not exist!");
+            } else {
+                throw new MojoExecutionException("Error while dropping database: " + e.getMessage(), e);
             }
-            logger.info("..done.");
-        } catch (CommandLineException e) {
-            throw new MojoExecutionException("Error while dropping database", e);
+        }
+    }
+
+    /**
+     * Drop, truncate or partially delete sql tables.
+     * 
+     * @param tableNames
+     * @param whereCondidtion
+     * @param dropTables
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @param logger
+     * @throws MojoExecutionException
+     */
+    public static void dropSqlTables(ArrayList<String> tableNames,
+            String whereCondidtion, boolean dropTables, String magentoDbUser,
+            String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
+            String magentoDbName, Log logger) throws MojoExecutionException {
+
+        String query = "";
+        String action = "";
+        if (dropTables) {
+            query = "DROP TABLE ";
+            for (String tableName : tableNames) {
+                query += "`" + tableName + "`, ";
+            }
+            query = query.substring(0, query.length()-2);
+            query += ";";
+            action = "Dropping tables " + tableNames.toString() + " in ";
+        } else if (whereCondidtion != null && !whereCondidtion.isEmpty()) {
+            for (String tableName : tableNames) {
+                query += "DELETE FROM `" + tableName + "` WHERE " + whereCondidtion + "; ";
+            }
+            action = "Deleting from tables " + tableNames.toString() + " where " + whereCondidtion + " in ";
+        } else {
+            for (String tableName : tableNames) {
+                query += "TRUNCATE `" + tableName + "`; ";
+            }
+            action = "Truncating tables " + tableNames.toString() + " in ";
+        }
+
+        try {
+            logger.info(action + magentoDbName + "..");
+            executeRawSql(query, magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName, logger);
+        } catch (Exception e) {
+            if (e.getMessage().startsWith("ERROR 1008")) {
+                logger.warn("..Database does not exist!");
+            } else {
+                throw new MojoExecutionException("Error while truncating/dropping tables: " + e.getMessage(), e);
+            }
         }
     }
 
@@ -308,7 +399,7 @@ public final class MagentoSqlUtil {
     /**
      * Dumps db table(s) via mysqldump exec. whereCondition is optional.
      * 
-     * @param tables
+     * @param tableNames
      * @param whereCondidtion
      * @param sqlDump
      * @param magentoDbUser
@@ -319,19 +410,21 @@ public final class MagentoSqlUtil {
      * @param logger
      * @throws MojoExecutionException
      */
-    public static void dumpSqlTables(ArrayList<String> tables, String whereCondidtion, String sqlDump, String magentoDbUser,
+    public static void dumpSqlTables(ArrayList<String> tableNames, String whereCondidtion, String sqlDump, String magentoDbUser,
             String magentoDbPasswd, String magentoDbHost, String magentoDbPort,
             String magentoDbName, Log logger) throws MojoExecutionException {
 
+        String action = "Dumping table(s) " + tableNames.toString();
         final Commandline cl = getMysqlCommandLine(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort);
         cl.setExecutable("mysqldump");
         cl.addArguments(new String[] {"--no-create-info"});
         cl.addArguments(new String[] { magentoDbName });
-        for (String table : tables) {
+        for (String table : tableNames) {
             cl.addArguments(new String[] { table });
         }
         if (whereCondidtion != null && !whereCondidtion.isEmpty()) {
             cl.addArguments(new String[] {"--where=" + whereCondidtion });
+            action += " where " + whereCondidtion;
         }
         cl.addArguments(new String[] {"--result-file=\"" + sqlDump + "\""});
 
@@ -339,7 +432,7 @@ public final class MagentoSqlUtil {
         final StringStreamConsumer error = new CommandLineUtils.StringStreamConsumer();
 
         try {
-            logger.info("Dumping table(s) " + tables.toString() + " to " + sqlDump + "..");
+            logger.info(action + " to " + sqlDump + "..");
             final int returnValue = CommandLineUtils.executeCommandLine(cl, output, error);
             if (returnValue != 0) {
                 logger.info(error.getOutput().toString());
@@ -483,6 +576,43 @@ public final class MagentoSqlUtil {
         } catch (SQLException e) {
             throw new MojoExecutionException("SQL Error: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Find and add entity type data tables (_int, _varchar, etc) to given tableName list.
+     * 
+     * @param tableNames
+     * @param magentoDbUser
+     * @param magentoDbPasswd
+     * @param magentoDbHost
+     * @param magentoDbPort
+     * @param magentoDbName
+     * @return ArrayList<String>
+     * @throws MojoExecutionException
+     */
+    public static ArrayList<String> getEntityDataTables(ArrayList<String> tableNames,
+            String magentoDbUser, String magentoDbPasswd, String magentoDbHost,
+            String magentoDbPort, String magentoDbName) throws MojoExecutionException {
+        
+        ArrayList<String> tableList = new ArrayList<String>(tableNames);
+        final Connection con = MagentoSqlUtil.getJdbcConnection(magentoDbUser,
+                magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
+        for (String table : tableNames) {
+            if (table.endsWith("entity")) {
+                for (String suffix : entityTableSuffixes) {
+                    String t = table + "_" + suffix;
+                    if (MagentoSqlUtil.tableExists(t, con)) {
+                        tableList.add(t);
+                    }
+                }
+            }
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {
+            throw new MojoExecutionException("Error closing db connection: " + e.getMessage());
+        }
+        return tableList;
     }
 
     /**

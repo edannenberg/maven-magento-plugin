@@ -17,8 +17,6 @@
 package de.bbe_consulting.mavento;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,9 +80,6 @@ public class MagentoDumpDbMojo extends AbstractMagentoSqlMojo {
      */
     private boolean skipEntityTableCompletion;
 
-    private static final String[] entityTableSuffixes = {"attribute", "datetime",
-        "decimal", "gallery", "int", "media_gallery", "media_gallery_value", "text", "tier_price", "type", "varchar"};
-
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         final File f = new File(project.getBasedir() + "/sqldumps");
@@ -100,29 +95,15 @@ public class MagentoDumpDbMojo extends AbstractMagentoSqlMojo {
             magentoDumpFile = project.getBasedir() + "/sqldumps/" + magentoDumpFile;
         }
 
+        // dump some tables or whole db?
         if (magentoTables != null && !magentoTables.isEmpty()) {
-            final String[] tables = magentoTables.split(",");
-            ArrayList<String> tableList = new ArrayList<String>( Arrays.asList(tables) );
-            final Connection con = MagentoSqlUtil.getJdbcConnection(magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
+            ArrayList<String> tableNames = new ArrayList<String>(Arrays.asList(magentoTables.split(",")));
             if (!skipEntityTableCompletion) {
-                for (String table : tables) {
-                    if (table.endsWith("entity")) {
-                        for (String suffix : entityTableSuffixes) {
-                            String t = table + "_" + suffix;
-                            if (MagentoSqlUtil.tableExists(t, con)) {
-                                tableList.add(t);
-                            }
-                        }
-                    }
-                }
+                tableNames = MagentoSqlUtil.getEntityDataTables(tableNames,
+                        magentoDbUser, magentoDbPasswd, magentoDbHost, magentoDbPort, magentoDbName);
             }
-            MagentoSqlUtil.dumpSqlTables(tableList, magentoDumpCondition, magentoDumpFile, magentoDbUser, magentoDbPasswd,
+            MagentoSqlUtil.dumpSqlTables(tableNames, magentoDumpCondition, magentoDumpFile, magentoDbUser, magentoDbPasswd,
                     magentoDbHost, magentoDbPort, magentoDbName, getLog());
-            try {
-                con.close();
-            } catch (SQLException e) {
-                throw new MojoExecutionException("Error closing db connection: " + e.getMessage());
-            }
         } else {
             MagentoSqlUtil.dumpSqlDb(magentoDumpFile, magentoDbUser, magentoDbPasswd,
                     magentoDbHost, magentoDbPort, magentoDbName, getLog());
