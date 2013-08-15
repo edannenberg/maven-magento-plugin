@@ -26,6 +26,16 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
+import java.util.Set;
+
+import org.apache.maven.plugin.MojoExecutionException;
+
+import de.bbe_consulting.mavento.helper.FileUtil;
 
 /**
  * File visitor for copying files recursive.
@@ -34,25 +44,83 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
 
-    private final Path source;
-    private final Path target;
-    private final boolean preserve;
+    private final Path sourcePath;
+    private final Path targetPath;
+    private final boolean preserveAttrs;
+    
+    private final UserPrincipal targetUser;
+    private final GroupPrincipal targetGroup;
+    private final Set<PosixFilePermission> targetFilePermissions;
+    private final Set<PosixFilePermission> targetDirPermissions;
 
     public CopyFilesVisitor(Path source, Path target, boolean preserve) {
 
-        this.source = source;
-        this.target = target;
-        this.preserve = preserve;
+        this.sourcePath = source;
+        this.targetPath = target;
+        this.preserveAttrs = preserve;
+        this.targetUser = this.targetGroup = null;
+        this.targetFilePermissions = null;
+        this.targetDirPermissions = null;
+    }
+
+    public CopyFilesVisitor(Path source, Path target, String octalFilePerms, String octalDirPerms) throws MojoExecutionException, IOException {
+
+        this.sourcePath = source;
+        this.targetPath = target;
+        this.preserveAttrs = false;
+        this.targetUser = null;
+        this.targetGroup = null;
+        if (octalFilePerms != null) {
+            this.targetFilePermissions = PosixFilePermissions.fromString(FileUtil.octalPermissionsToSymbolic(octalFilePerms));
+        } else {
+            this.targetFilePermissions = null;
+        }
+        if (octalDirPerms != null) {
+            this.targetDirPermissions = PosixFilePermissions.fromString(FileUtil.octalPermissionsToSymbolic(octalDirPerms));
+        } else {
+            this.targetDirPermissions = null;
+        }
+    }
+
+    public CopyFilesVisitor(Path source, Path target, String octalFilePerms, String octalDirPerms, String newUser, String newGroup) throws MojoExecutionException, IOException {
+
+        this.sourcePath = source;
+        this.targetPath = target;
+        this.preserveAttrs = false;
+        if (newUser != null) {
+            this.targetUser = target.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByName(newUser);
+        } else {
+            this.targetUser = null;
+        }
+        if (newGroup != null) {
+            this.targetGroup = target.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByGroupName(newGroup);
+        } else {
+            this.targetGroup = null;
+        }
+        if (octalFilePerms != null) {
+            this.targetFilePermissions = PosixFilePermissions.fromString(FileUtil.octalPermissionsToSymbolic(octalFilePerms));
+        } else {
+            this.targetFilePermissions = null;
+        }
+        if (octalDirPerms != null) {
+            this.targetDirPermissions = PosixFilePermissions.fromString(FileUtil.octalPermissionsToSymbolic(octalDirPerms));
+        } else {
+            this.targetDirPermissions = null;
+        }
     }
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
-        final Path newdir = target.resolve(source.relativize(dir));
+        final Path targetDir = targetPath.resolve(sourcePath.relativize(dir));
         try {
-            Files.createDirectories(newdir);
+            Files.createDirectories(targetDir);
         } catch (FileAlreadyExistsException e) {
             // ignore
+        }
+        setUserAndGroup(targetDir);
+        if (targetDirPermissions != null) {
+            Files.setPosixFilePermissions(targetDir, targetDirPermissions);
         }
         return CONTINUE;
     }
@@ -60,7 +128,12 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
-        copyFile(file, target.resolve(source.relativize(file)), preserve);
+        Path targetFile = targetPath.resolve(sourcePath.relativize(file));
+        copyFile(file, targetFile);
+        setUserAndGroup(targetFile);
+        if (targetFilePermissions != null) {
+            Files.setPosixFilePermissions(targetFile, targetFilePermissions);
+        }
         return CONTINUE;
     }
     
@@ -69,18 +142,33 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
      * 
      * @param source
      * @param target
-     * @param preserve preserve file attributes?
+     * @param preserveAttrs preserve file attributes?
      */
-    private static void copyFile(Path source, Path target, boolean preserve) throws IOException {
+    private void copyFile(Path source, Path target) throws IOException {
 
         CopyOption[] options = null;
-        if (preserve) {
+        if (this.preserveAttrs) {
             options = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES,
                     StandardCopyOption.REPLACE_EXISTING };
         } else {
             options = new CopyOption[] { StandardCopyOption.REPLACE_EXISTING };
         }
         Files.copy(source, target, options);
+    }
+
+    /**
+     * Set user and/or group of file.
+     * 
+     * @param file
+     * @throws IOException
+     */
+    private void setUserAndGroup(Path file) throws IOException {
+        if (targetUser != null) {
+            Files.setOwner(file, targetUser);
+        }
+        if (targetGroup != null) {
+            Files.getFileAttributeView(file, PosixFileAttributeView.class).setGroup(targetGroup);
+        }
     }
 
 }

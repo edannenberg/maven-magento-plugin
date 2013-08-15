@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
@@ -588,6 +589,34 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
      */
     protected String magentoUrlBaseHttps;
 
+    /**
+     * POSIX attributes of Magento files in octal format (i.e 640). Ignored if underlying filesystem does not support POSIX.<br/>
+     * 
+     * @parameter expression="${magento.chmod.files}"
+     */
+    protected String magentoFilePermissions;
+
+    /**
+     * POSIX attributes of Magento directories in octal format (i.e 640). Ignored if underlying filesystem does not support POSIX.<br/>
+     * 
+     * @parameter expression="${magento.chmod.dirs}"
+     */
+    protected String magentoDirPermissions;
+
+    /**
+     * Owner of magento files/dirs. Requires root/sudo privileges.<br/>
+     * 
+     * @parameter expression="${magento.chown}"
+     */
+    protected String magentoFileOwner;
+
+    /**
+     * Group of Magento files/dirs. Requires root/sudo privileges.<br/>
+     * 
+     * @parameter expression="${magento.chgrp}"
+     */
+    protected String magentoFileGroup;
+
     protected MagentoVersion mVersion;
     protected String magentoAdminPasswdHashed = "";
     protected String tempDir;
@@ -842,7 +871,17 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
         } else {
             magentoUrlBaseHttps = MagentoUtil.validateBaseUrl(magentoUrlBase, true);
         }
-        
+
+        // check if posix is supported on target filesystem
+        if (magentoFilePermissions != null || magentoDirPermissions != null) {
+            Set<String> supportedViews = Paths.get(magentoRootLocal).getFileSystem().supportedFileAttributeViews();
+            if (!supportedViews.contains("posix")) {
+                magentoFilePermissions = null;
+                magentoDirPermissions = null;
+                getLog().warn("No posix support, ignoring related config in pom.xml.");
+            }
+        }
+
         // create build directory, takes care of missing symlink target
         FileUtil.createDirectories(Paths.get(tempDir).getParent().toString(), true);
         
@@ -1080,7 +1119,11 @@ public abstract class AbstractMagentoSetupMojo extends AbstractMagentoSqlMojo {
                 FileUtil.deleteFile(magentoRootLocal, getLog());
                 FileUtil.createDirectories(magentoTargetPath.toString(), true);
 
-                final CopyFilesVisitor cv = new CopyFilesVisitor(magentoSourcePath, magentoTargetPath, true);
+                final CopyFilesVisitor cv = new CopyFilesVisitor(
+                        magentoSourcePath, magentoTargetPath,
+                        magentoFilePermissions, magentoDirPermissions,
+                        magentoFileOwner, magentoFileGroup);
+
                 Files.walkFileTree(magentoSourcePath, cv);
                 FileUtil.deleteFile(tempDir, getLog());
             } catch (IOException e) {

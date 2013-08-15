@@ -392,4 +392,33 @@ public final class FileUtil {
         }
     }
 
+    /**
+     * Converts a octal posix permission string into it's symbolic form.
+     * 
+     * @param octalPermissions
+     * @return String
+     * @throws MojoExecutionException
+     */
+    public static String octalPermissionsToSymbolic (String octalPermissions) throws MojoExecutionException {
+        if (octalPermissions.length() != 3) {
+            throw new MojoExecutionException("Error: Invalid length of octal permission string: " + octalPermissions);
+        }
+        char[] permTemplate = "rwxrwxrwx".toCharArray();
+        String permsBinary = "";
+        for (char c : octalPermissions.toCharArray()) {
+            try {
+                int i = Integer.parseInt(Character.toString(c), 8);
+                permsBinary += String.format("%3s", Integer.toBinaryString(i)).replace(' ', '0');
+            } catch (NumberFormatException e) {
+                throw new MojoExecutionException("Error parsing file/dir permissions: " + e.getMessage()); 
+            }
+        }
+        for (int i = 0; i < permTemplate.length; i++) {
+            if (permsBinary.charAt( i ) == '0') {
+                permTemplate[i] = '-';
+            }
+        }
+        return String.valueOf(permTemplate);
+    }
+
 }
