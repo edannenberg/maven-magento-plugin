@@ -66,7 +66,7 @@ public class CreateJarVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
         int bytesRead;
         try {
@@ -89,8 +89,6 @@ public class CreateJarVisitor extends SimpleFileVisitor<Path> {
             }
             bis.close();
         } catch (FileNotFoundException e) {
-            return FileVisitResult.TERMINATE;
-        } catch (IOException e) {
             return FileVisitResult.TERMINATE;
         }
         return CONTINUE;

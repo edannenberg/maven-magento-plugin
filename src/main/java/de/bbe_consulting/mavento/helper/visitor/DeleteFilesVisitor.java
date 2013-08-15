@@ -33,24 +33,16 @@ import static java.nio.file.FileVisitResult.*;
 public class DeleteFilesVisitor extends SimpleFileVisitor<Path> {
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
 
-        try {
-            Files.delete(file);
-        } catch (IOException e) {
-            return TERMINATE;
-        }
+        Files.delete(file);
         return CONTINUE;
     }
 
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 
-        try {
-            Files.delete(dir);
-        } catch (IOException e) {
-            return TERMINATE;
-        }
+        Files.delete(dir);
         return CONTINUE;
     }
 

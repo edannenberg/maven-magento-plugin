@@ -17,8 +17,6 @@
 package de.bbe_consulting.mavento.helper.visitor;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.FileVisitResult.TERMINATE;
-
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.FileAlreadyExistsException;
@@ -46,39 +44,28 @@ public class MoveFilesVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
         final Path newdir = target.resolve(source.relativize(dir));
         try {
             Files.createDirectories(newdir);
         } catch (FileAlreadyExistsException e) {
             // ignore
-        } catch (IOException e) {
-            System.err.format("Unable to create: %s: %s%n", newdir, e);
-            return FileVisitResult.SKIP_SUBTREE;
         }
         return CONTINUE;
     }
 
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 
-        try {
-            Files.delete(dir);
-        } catch (IOException e) {
-            return TERMINATE;
-        }
+        Files.delete(dir);
         return CONTINUE;
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
-        try {
-            moveFile(file, target.resolve(source.relativize(file)));
-        } catch (IOException e) {
-            return TERMINATE;
-        }
+        moveFile(file, target.resolve(source.relativize(file)));
         return CONTINUE;
     }
 

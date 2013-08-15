@@ -46,16 +46,13 @@ public class CopyFilesVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 
         final Path newdir = target.resolve(source.relativize(dir));
         try {
             Files.createDirectories(newdir);
         } catch (FileAlreadyExistsException e) {
             // ignore
-        } catch (IOException e) {
-            System.err.format("Unable to create: %s: %s%n", newdir, e);
-            return FileVisitResult.SKIP_SUBTREE;
         }
         return CONTINUE;
     }

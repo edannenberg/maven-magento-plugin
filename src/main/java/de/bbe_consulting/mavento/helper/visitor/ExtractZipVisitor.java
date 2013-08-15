@@ -17,8 +17,6 @@
 package de.bbe_consulting.mavento.helper.visitor;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.FileVisitResult.TERMINATE;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
@@ -44,15 +42,11 @@ public class ExtractZipVisitor extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
-        try {
-            if (!file.getFileName().toString().startsWith(".")) {
-                logger.info("Extracting " + file.getFileName());
-                FileUtil.unzipFile(file.toString(), target.toString());
-            }
-        } catch (IOException e) {
-            return TERMINATE;
+        if (!file.getFileName().toString().startsWith(".")) {
+            logger.info("Extracting " + file.getFileName());
+            FileUtil.unzipFile(file.toString(), target.toString());
         }
         return CONTINUE;
     }
