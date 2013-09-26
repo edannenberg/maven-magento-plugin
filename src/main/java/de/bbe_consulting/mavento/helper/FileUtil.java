@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2012 BBe Consulting GmbH
+ * Copyright 2011-2013 BBe Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.bbe_consulting.mavento.helper;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,13 +38,17 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -178,12 +183,12 @@ public final class FileUtil {
             }
         }
     }
-    
+
     /**
      * Writes content to targetFile.
      * 
-     * @param content
-     * @param targetFile
+     * @param List<String> content
+     * @param Path targetFile
      * @throws IOException
      */
     public static void writeFile(List<String> content, String targetFile) throws IOException {
@@ -194,6 +199,23 @@ public final class FileUtil {
             }
         } finally {
             writer.close();
+        }
+    }
+
+    /**
+     * Writes string to targetFile. Replaces file if it exists or creates a new one if not.
+     * 
+     * @param String text
+     * @param Path targetFile
+     * @throws IOException
+     */
+    public static void writeFile(String text, Path targetFile) throws IOException {
+        if (Files.exists(targetFile)) {
+            InputStream istream = new ByteArrayInputStream(text.getBytes());
+            Files.copy(istream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Path file = Files.createFile(targetFile);
+            Files.write(file, text.getBytes(), StandardOpenOption.WRITE);
         }
     }
 
@@ -333,7 +355,7 @@ public final class FileUtil {
         }
         return directoryNames;
     }
-    
+
     /**
      * Read file content and return it as a list of strings.
      * 
@@ -356,6 +378,32 @@ public final class FileUtil {
             }
         }
         return lines;
+    }
+
+    /**
+     * Read file content with system charset and return it as a string.
+     * 
+     * @param filePath
+     * @return List<String>
+     * @throws IOException
+     */
+    public static String getFileAsString(String sourceFile) throws IOException 
+    {
+        Charset encoding = Charset.defaultCharset();
+        return getFileAsString(sourceFile, encoding);
+    }
+
+    /**
+     * Read file content and return it as a string. (c) http://stackoverflow.com/users/3474/erickson
+     * 
+     * @param filePath
+     * @return List<String>
+     * @throws IOException
+     */
+    public static String getFileAsString(String sourceFile, Charset encoding) throws IOException 
+    {
+        byte[] encoded = Files.readAllBytes(Paths.get(sourceFile));
+        return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
 
     /**
